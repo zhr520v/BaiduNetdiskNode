@@ -1,0 +1,48 @@
+{
+  "name": "baidu-netdisk-node",
+  "version": "0.1.0",
+  "description": "BaiduNetdiskNode based on official developer api",
+  "author": "keenghost",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keenghost/BaiduNetdiskNode.git"
+  },
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "simple-git-hooks",
+    "check-commit-msg": "tsx scripts/check-commit-msg.ts"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^18.19.43",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.0.1",
+    "concurrently": "^8.2.2",
+    "eslint": "^9.8.0",
+    "lint-staged": "^15.2.8",
+    "minimist": "^1.2.8",
+    "picocolors": "^1.0.1",
+    "prettier": "^3.3.3",
+    "simple-git-hooks": "^2.11.1",
+    "tsx": "^4.16.5",
+    "typescript": "^5.5.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged",
+    "commit-msg": "pnpm check-commit-msg"
+  },
+  "lint-staged": {
+    "*.{js,cjs,ts,tsx}": [
+      "eslint",
+      "prettier --write",
+      "tsc --incremental --noEmit"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
+  }
+}
