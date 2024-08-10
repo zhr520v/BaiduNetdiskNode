@@ -20,7 +20,8 @@
   "type": "module",
   "main": "./index.ts",
   "scripts": {
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm",
+    "build": "tsx scripts/build.ts"
   },
   "moduleOptions": {
     "main": "./index.mjs",
