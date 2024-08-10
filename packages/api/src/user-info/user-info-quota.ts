@@ -1,0 +1,34 @@
+import { AxiosRequestConfig } from 'axios'
+import request from '../common/request'
+
+export interface IUserInfoQuotaQuery {
+  access_token: string
+  checkexpire: number
+  checkfree: number
+}
+
+export interface IUserInfoQuotaResponse {
+  errmsg: string
+  errno: number
+  expire: boolean // Will expire in 7 days
+  free: number
+  is_show_window: number
+  newno: string
+  recmd_vip: string
+  recyclestatus: number
+  request_id: number
+  sbox_total: number
+  sbox_used: number
+  server_time: number
+  total: number // Byte
+  used: number // Byte
+}
+
+export function userInfoQuota(query: IUserInfoQuotaQuery, options?: AxiosRequestConfig) {
+  return request<IUserInfoQuotaResponse>({
+    ...Object.assign({}, options),
+    url: 'https://pan.baidu.com/api/quota',
+    method: 'GET',
+    params: Object.assign({}, query, options?.params),
+  })
+}

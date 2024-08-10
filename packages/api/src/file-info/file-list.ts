@@ -1,0 +1,71 @@
+import { AxiosRequestConfig } from 'axios'
+import request from '../common/request'
+
+export interface IFileListQuery {
+  access_token: string
+  desc?: number
+  dir?: string
+  folder?: number
+  limit?: number
+  order?: string
+  showempty?: number
+  start?: number
+  web?: number
+}
+
+export interface IFileListItem {
+  category: number
+  extent_tinyint7: number
+  from_type: number
+  fs_id: number
+  isdir: number
+  local_ctime: number
+  local_mtime: number
+  oper_id: number
+  owner_id: number
+  owner_type: number
+  path: string
+  pl: number
+  real_category: string
+  server_atime: number
+  server_ctime: number
+  server_filename: string
+  server_mtime: number
+  share: number
+  size: number
+  tkbind_id: number
+  unlist: number
+  wpfile: number
+  dir_empty?: number
+  empty?: number
+  md5?: string
+  thumbs?: {
+    icon: string
+    url1: string
+    url2: string
+    url3: string
+  }
+}
+
+export interface IFileListResponse {
+  errno: number
+  guid: number
+  guid_info: string
+  list: IFileListItem[]
+  request_id: number
+}
+
+export function fileList(query: IFileListQuery, options?: AxiosRequestConfig) {
+  return request<IFileListResponse>({
+    ...Object.assign({}, options),
+    url: 'https://pan.baidu.com/rest/2.0/xpan/file',
+    method: 'GET',
+    params: Object.assign(
+      {
+        method: 'list',
+      },
+      query,
+      options?.params
+    ),
+  })
+}
