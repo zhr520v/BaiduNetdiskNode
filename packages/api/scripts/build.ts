@@ -1,16 +1,13 @@
 import child_process from 'child_process'
-import fs from 'fs'
+import fsExt from 'fs-extra'
 
-if (fs.existsSync('dist')) {
-  fs.rmdirSync('dist')
-}
-
-fs.mkdirSync('dist')
+fsExt.removeSync('dist')
+fsExt.mkdirpSync('dist')
 
 child_process.execSync('pnpm tsc -p scripts/tsconfig.cjs.json')
 
 const omit_keys = ['type', 'main', 'scripts', 'devDependencies', 'moduleOptions']
-const packagejson = JSON.parse(fs.readFileSync('package.json', { encoding: 'utf-8' }))
+const packagejson = JSON.parse(fsExt.readFileSync('package.json', { encoding: 'utf-8' }))
 const newpackagejson: { [key: string]: any } = {}
 
 for (const key in packagejson) {
@@ -23,8 +20,8 @@ for (const key in packagejson.moduleOptions) {
   newpackagejson[key] = packagejson.moduleOptions[key]
 }
 
-fs.writeFileSync('dist/package.json', JSON.stringify(newpackagejson, null, 2))
-fs.copyFileSync('LICENSE', 'dist/LICENSE')
-fs.copyFileSync('README.md', 'dist/README.md')
+fsExt.writeFileSync('dist/package.json', JSON.stringify(newpackagejson, null, 2))
+fsExt.copyFileSync('LICENSE', 'dist/LICENSE')
+fsExt.copyFileSync('README.md', 'dist/README.md')
 
 child_process.execSync('node scripts/esm.cjs')
