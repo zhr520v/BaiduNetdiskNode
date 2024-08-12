@@ -7,7 +7,7 @@ const args = minimist(process.argv.slice(2))
 const projs = args._
 
 if (projs.length === 0) {
-  console.error(pico.red(`${pico.bgRed(pico.white(' ERROR '))} No projects specified.`))
+  console.error(pico.red(`${pico.bgRed(pico.white(' ERR '))} No projects specified.\n`))
   process.exit(0)
 }
 
