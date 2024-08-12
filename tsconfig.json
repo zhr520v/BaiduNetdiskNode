@@ -38,5 +38,12 @@
 
     "skipLibCheck": true
   },
-  "include": ["scripts", "packages/*/src", "packages/*/index.ts"]
+  "include": [
+    "scripts",
+    "utils",
+    "packages/*/scripts",
+    "packages/*/src",
+    "packages/*/test",
+    "packages/*/index.ts"
+  ]
 }
