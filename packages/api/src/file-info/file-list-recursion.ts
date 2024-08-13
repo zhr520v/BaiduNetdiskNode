@@ -5,7 +5,7 @@ export interface IFileListRecursionQuery {
   access_token: string
   path: string
   ctime?: number
-  desc?: string
+  desc?: number
   device_id?: string
   limit?: number
   mtime?: number
