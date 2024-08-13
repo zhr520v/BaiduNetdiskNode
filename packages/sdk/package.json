@@ -1,0 +1,43 @@
+{
+  "name": "@baidu-netdisk/sdk",
+  "version": "0.1.0-alpha.1",
+  "description": "BaiduNetdiskSdk based on BaiduNetdiskApi",
+  "keywords": [
+    "baidu",
+    "netdisk",
+    "sdk"
+  ],
+  "author": "keenghost",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keenghost/BaiduNetdiskNode.git",
+    "directory": "packages/sdk"
+  },
+  "dependencies": {
+    "@baidu-netdisk/api": "workspace:*"
+  },
+  "type": "module",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm"
+  },
+  "main": "./index.ts",
+  "moduleOptions": {
+    "main": "./index.mjs",
+    "module": "./index.mjs",
+    "types": "./index.d.ts",
+    "files": [
+      "src",
+      "index.d.ts",
+      "index.js",
+      "index.mjs"
+    ],
+    "exports": {
+      ".": {
+        "types": "./index.d.ts",
+        "import": "./index.mjs",
+        "require": "./index.js"
+      }
+    }
+  }
+}
