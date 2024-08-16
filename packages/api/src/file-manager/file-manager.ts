@@ -1,18 +1,18 @@
 import { AxiosRequestConfig } from 'axios'
 import request from '../common/request'
 
-export interface IFileManagerComQuery {
+export interface IFileManagerQuery {
   access_token: string
   opera: string
 }
 
-export interface IFileManagerComBody {
+export interface IFileManagerBody {
   async: number
   filelist: string
   ondup?: string
 }
 
-export interface IFileManagerComResponse {
+export interface IFileManagerResponse {
   errno: number
   info: {
     errno: number
@@ -22,9 +22,9 @@ export interface IFileManagerComResponse {
   taskid?: number
 }
 
-export function fileManagerCom(
-  query: IFileManagerComQuery,
-  body: IFileManagerComBody,
+export function fileManager(
+  query: IFileManagerQuery,
+  body: IFileManagerBody,
   options?: AxiosRequestConfig
 ) {
   const formData = new URLSearchParams()
@@ -34,7 +34,7 @@ export function fileManagerCom(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileManagerComResponse>({
+  return request<IFileManagerResponse>({
     ...Object.assign({}, options),
     url: 'https://pan.baidu.com/rest/2.0/xpan/file',
     method: 'POST',

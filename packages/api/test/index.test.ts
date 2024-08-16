@@ -6,7 +6,7 @@ import {
   fileInfo,
   fileList,
   fileListRecursion,
-  fileManagerCom,
+  fileManager,
   fileManagerCopy,
   fileManagerDelete,
   fileManagerMove,
@@ -389,7 +389,7 @@ describe('FILE_INFO', () => {
 
 describe('CLEANUP', () => {
   it('DeleteFolder', async () => {
-    const { data } = await fileManagerCom(
+    const { data } = await fileManager(
       {
         access_token,
         opera: 'delete',

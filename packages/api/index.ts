@@ -4,7 +4,7 @@ import { authRefreshToken } from './src/auth/auth-refresh-token'
 import { fileInfo } from './src/file-info/file-info'
 import { fileList } from './src/file-info/file-list'
 import { fileListRecursion } from './src/file-info/file-list-recursion'
-import { fileManagerCom } from './src/file-manager/file-manager'
+import { fileManager } from './src/file-manager/file-manager'
 import { fileManagerCopy } from './src/file-manager/file-manager-copy'
 import { fileManagerDelete } from './src/file-manager/file-manager-delete'
 import { fileManagerMove } from './src/file-manager/file-manager-move'
@@ -25,7 +25,7 @@ export {
   fileInfo,
   fileList,
   fileListRecursion,
-  fileManagerCom,
+  fileManager,
   fileManagerCopy,
   fileManagerDelete,
   fileManagerMove,
@@ -47,7 +47,7 @@ const BaiduNetdiskAPI = {
   fileInfo,
   fileList,
   fileListRecursion,
-  fileManagerCom,
+  fileManager,
   fileManagerCopy,
   fileManagerDelete,
   fileManagerMove,
