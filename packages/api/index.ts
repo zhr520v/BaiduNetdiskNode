@@ -6,10 +6,10 @@ import { fileList } from './src/file-info/file-list'
 import { fileListRecursion } from './src/file-info/file-list-recursion'
 import { fileManagerCom } from './src/file-manager/file-manager-com'
 import { fileManagerCopy } from './src/file-manager/file-manager-copy'
-import { fileManagerCreateFolder } from './src/file-manager/file-manager-create-folder'
 import { fileManagerDelete } from './src/file-manager/file-manager-delete'
 import { fileManagerMove } from './src/file-manager/file-manager-move'
 import { fileManagerRename } from './src/file-manager/file-manager-rename'
+import { fileUploadCreateFolder } from './src/file-upload/file-upload-create-folder'
 import { fileUploadFinish } from './src/file-upload/file-upload-finish'
 import { fileUploadId } from './src/file-upload/file-upload-id'
 import { fileUploadSlice } from './src/file-upload/file-upload-slice'
@@ -27,10 +27,10 @@ export {
   fileListRecursion,
   fileManagerCom,
   fileManagerCopy,
-  fileManagerCreateFolder,
   fileManagerDelete,
   fileManagerMove,
   fileManagerRename,
+  fileUploadCreateFolder,
   fileUploadFinish,
   fileUploadId,
   fileUploadSlice,
@@ -49,10 +49,10 @@ const BaiduNetdiskAPI = {
   fileListRecursion,
   fileManagerCom,
   fileManagerCopy,
-  fileManagerCreateFolder,
   fileManagerDelete,
   fileManagerMove,
   fileManagerRename,
+  fileUploadCreateFolder,
   fileUploadFinish,
   fileUploadId,
   fileUploadSlice,

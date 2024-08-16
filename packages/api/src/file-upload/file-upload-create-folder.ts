@@ -1,11 +1,11 @@
 import { AxiosRequestConfig } from 'axios'
 import request from '../common/request'
 
-export interface IFileManagerCreateFolderQuery {
+export interface IFileUploadCreateFolderQuery {
   access_token: string
 }
 
-export interface IFileManagerCreateFolderBody {
+export interface IFileUploadCreateFolderBody {
   path: string
   local_ctime?: number
   local_mtime?: number
@@ -13,7 +13,7 @@ export interface IFileManagerCreateFolderBody {
   rtype?: number
 }
 
-export interface IFileManagerCreateFolderResponse {
+export interface IFileUploadCreateFolderResponse {
   category: number
   ctime?: number
   errno?: number
@@ -25,9 +25,9 @@ export interface IFileManagerCreateFolderResponse {
   status?: number
 }
 
-export function fileManagerCreateFolder(
-  query: IFileManagerCreateFolderQuery,
-  body: IFileManagerCreateFolderBody,
+export function fileUploadCreateFolder(
+  query: IFileUploadCreateFolderQuery,
+  body: IFileUploadCreateFolderBody,
   options?: AxiosRequestConfig
 ) {
   const formData = new URLSearchParams()
@@ -43,7 +43,7 @@ export function fileManagerCreateFolder(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileManagerCreateFolderResponse>({
+  return request<IFileUploadCreateFolderResponse>({
     ...Object.assign({}, options),
     url: 'https://pan.baidu.com/rest/2.0/xpan/file',
     method: 'POST',

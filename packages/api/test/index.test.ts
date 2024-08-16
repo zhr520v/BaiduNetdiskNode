@@ -8,10 +8,10 @@ import {
   fileListRecursion,
   fileManagerCom,
   fileManagerCopy,
-  fileManagerCreateFolder,
   fileManagerDelete,
   fileManagerMove,
   fileManagerRename,
+  fileUploadCreateFolder,
   fileUploadFinish,
   fileUploadId,
   fileUploadSlice,
@@ -132,7 +132,7 @@ describe('CLEANUP', () => {
   })
 
   it('CreateFolder', async () => {
-    const { data } = await fileManagerCreateFolder(
+    const { data } = await fileUploadCreateFolder(
       {
         access_token,
       },
