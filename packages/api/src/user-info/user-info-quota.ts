@@ -24,11 +24,18 @@ export interface IUserInfoQuotaResponse {
   used: number // Byte
 }
 
+const __ERR_MAP__: { [key: string]: string } = {}
+
 export function userInfoQuota(query: IUserInfoQuotaQuery, options?: AxiosRequestConfig) {
-  return request<IUserInfoQuotaResponse>({
-    ...Object.assign({}, options),
-    url: 'https://pan.baidu.com/api/quota',
-    method: 'GET',
-    params: Object.assign({}, query, options?.params),
-  })
+  return request<IUserInfoQuotaResponse>(
+    {
+      ...Object.assign({}, options),
+      url: 'https://pan.baidu.com/api/quota',
+      method: 'GET',
+      params: Object.assign({}, query, options?.params),
+    },
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }

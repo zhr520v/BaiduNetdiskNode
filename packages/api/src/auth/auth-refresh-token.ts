@@ -16,17 +16,24 @@ export interface IAuthRefreshTokenResponse {
   session_secret: string
 }
 
+const __ERR_MAP__: { [key: string]: string } = {}
+
 export function authRefreshToken(query: IAuthRefreshTokenQuery, options?: AxiosRequestConfig) {
-  return request<IAuthRefreshTokenResponse>({
-    ...Object.assign({}, options),
-    url: 'https://openapi.baidu.com/oauth/2.0/token',
-    method: 'GET',
-    params: Object.assign(
-      {
-        grant_type: 'refresh_token',
-      },
-      query,
-      options?.params
-    ),
-  })
+  return request<IAuthRefreshTokenResponse>(
+    {
+      ...Object.assign({}, options),
+      url: 'https://openapi.baidu.com/oauth/2.0/token',
+      method: 'GET',
+      params: Object.assign(
+        {
+          grant_type: 'refresh_token',
+        },
+        query,
+        options?.params
+      ),
+    },
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }

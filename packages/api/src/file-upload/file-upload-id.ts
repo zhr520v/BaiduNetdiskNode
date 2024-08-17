@@ -25,6 +25,11 @@ export interface IFileUploadIdResponse {
   uploadid: string
 }
 
+const __ERR_MAP__: { [key: string]: string } = {
+  '-7': '文件或目录名错误或无权访问',
+  '-10': '容量不足',
+}
+
 export function fileUploadId(
   query: IFileUploadIdQuery,
   body: IFileUploadIdBody,
@@ -44,17 +49,22 @@ export function fileUploadId(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileUploadIdResponse>({
-    ...Object.assign({}, options),
-    url: 'https://pan.baidu.com/rest/2.0/xpan/file',
-    method: 'POST',
-    params: Object.assign(
-      {
-        method: 'precreate',
-      },
-      query,
-      options?.params
-    ),
-    data: formData.toString(),
-  })
+  return request<IFileUploadIdResponse>(
+    {
+      ...Object.assign({}, options),
+      url: 'https://pan.baidu.com/rest/2.0/xpan/file',
+      method: 'POST',
+      params: Object.assign(
+        {
+          method: 'precreate',
+        },
+        query,
+        options?.params
+      ),
+      data: formData.toString(),
+    },
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }

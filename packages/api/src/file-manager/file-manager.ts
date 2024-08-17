@@ -22,6 +22,12 @@ export interface IFileManagerResponse {
   taskid?: number
 }
 
+const __ERR_MAP__: { [key: string]: string } = {
+  '-7': '文件名非法',
+  '-9': '文件不存在',
+  '111': '有其他异步任务正在执行',
+}
+
 export function fileManager(
   query: IFileManagerQuery,
   body: IFileManagerBody,
@@ -34,17 +40,22 @@ export function fileManager(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileManagerResponse>({
-    ...Object.assign({}, options),
-    url: 'https://pan.baidu.com/rest/2.0/xpan/file',
-    method: 'POST',
-    params: Object.assign(
-      {
-        method: 'filemanager',
-      },
-      query,
-      options?.params
-    ),
-    data: formData.toString(),
-  })
+  return request<IFileManagerResponse>(
+    {
+      ...Object.assign({}, options),
+      url: 'https://pan.baidu.com/rest/2.0/xpan/file',
+      method: 'POST',
+      params: Object.assign(
+        {
+          method: 'filemanager',
+        },
+        query,
+        options?.params
+      ),
+      data: formData.toString(),
+    },
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }

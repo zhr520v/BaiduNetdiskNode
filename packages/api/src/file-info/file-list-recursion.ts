@@ -45,23 +45,34 @@ export interface IFileListRecursionResponse {
   request_id: string
 }
 
+const __ERR_MAP__: { [key: string]: string } = {
+  '31034': '命中频控,listall接口的请求频率建议不超过每分钟8-10次',
+  '31066': '文件不存在',
+  '42213': '没有共享目录的权限',
+}
+
 export function fileListRecursion(
   query: IFileListRecursionQuery,
   options?: AxiosRequestConfig
 ) {
-  return request<IFileListRecursionResponse>({
-    ...Object.assign({}, options),
-    url: 'https://pan.baidu.com/rest/2.0/xpan/multimedia',
-    method: 'GET',
-    params: Object.assign(
-      {
-        method: 'listall',
+  return request<IFileListRecursionResponse>(
+    {
+      ...Object.assign({}, options),
+      url: 'https://pan.baidu.com/rest/2.0/xpan/multimedia',
+      method: 'GET',
+      params: Object.assign(
+        {
+          method: 'listall',
+        },
+        query,
+        options?.params
+      ),
+      headers: {
+        'User-Agent': 'pan.baidu.com',
       },
-      query,
-      options?.params
-    ),
-    headers: {
-      'User-Agent': 'pan.baidu.com',
     },
-  })
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }

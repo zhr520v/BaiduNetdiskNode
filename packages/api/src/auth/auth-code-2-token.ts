@@ -17,18 +17,25 @@ export interface IAuthCode2TokenResponse {
   session_secret: string
 }
 
+const __ERR_MAP__: { [key: string]: string } = {}
+
 export function authCode2Token(query: IAuthCode2TokenQuery, options?: AxiosRequestConfig) {
-  return request<IAuthCode2TokenResponse>({
-    ...Object.assign({}, options),
-    url: 'https://openapi.baidu.com/oauth/2.0/token',
-    method: 'GET',
-    params: Object.assign(
-      {
-        grant_type: 'authorization_code',
-        redirect_uri: 'oob',
-      },
-      query,
-      options?.params
-    ),
-  })
+  return request<IAuthCode2TokenResponse>(
+    {
+      ...Object.assign({}, options),
+      url: 'https://openapi.baidu.com/oauth/2.0/token',
+      method: 'GET',
+      params: Object.assign(
+        {
+          grant_type: 'authorization_code',
+          redirect_uri: 'oob',
+        },
+        query,
+        options?.params
+      ),
+    },
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }

@@ -55,17 +55,27 @@ export interface IFileListResponse {
   request_id: number
 }
 
+const __ERR_MAP__: { [key: string]: string } = {
+  '-7': '文件或目录无权访问',
+  '-9': '文件或目录不存在',
+}
+
 export function fileList(query: IFileListQuery, options?: AxiosRequestConfig) {
-  return request<IFileListResponse>({
-    ...Object.assign({}, options),
-    url: 'https://pan.baidu.com/rest/2.0/xpan/file',
-    method: 'GET',
-    params: Object.assign(
-      {
-        method: 'list',
-      },
-      query,
-      options?.params
-    ),
-  })
+  return request<IFileListResponse>(
+    {
+      ...Object.assign({}, options),
+      url: 'https://pan.baidu.com/rest/2.0/xpan/file',
+      method: 'GET',
+      params: Object.assign(
+        {
+          method: 'list',
+        },
+        query,
+        options?.params
+      ),
+    },
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }

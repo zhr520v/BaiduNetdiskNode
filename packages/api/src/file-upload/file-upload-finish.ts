@@ -34,6 +34,16 @@ export interface IFileUploadFinishResponse {
   size: number
 }
 
+const __ERR_MAP__: { [key: string]: string } = {
+  '-7': '文件或目录名错误或无权访问',
+  '-8': '文件或目录已存在',
+  '-10': '云端容量已满',
+  '10': '创建文件失败',
+  '31190': '文件不存在',
+  '31355': '参数异常',
+  '31365': '文件总大小超限',
+}
+
 export function fileUploadFinish(
   query: IFileUploadFinishQuery,
   body: IFileUploadFinishBody,
@@ -52,17 +62,22 @@ export function fileUploadFinish(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileUploadFinishResponse>({
-    ...Object.assign({}, options),
-    url: 'https://pan.baidu.com/rest/2.0/xpan/file',
-    method: 'POST',
-    params: Object.assign(
-      {
-        method: 'create',
-      },
-      query,
-      options?.params
-    ),
-    data: formData.toString(),
-  })
+  return request<IFileUploadFinishResponse>(
+    {
+      ...Object.assign({}, options),
+      url: 'https://pan.baidu.com/rest/2.0/xpan/file',
+      method: 'POST',
+      params: Object.assign(
+        {
+          method: 'create',
+        },
+        query,
+        options?.params
+      ),
+      data: formData.toString(),
+    },
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }

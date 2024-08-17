@@ -25,6 +25,12 @@ export interface IFileUploadCreateFolderResponse {
   status?: number
 }
 
+const __ERR_MAP__: { [key: string]: string } = {
+  '-7': '文件或目录名错误或无权访问',
+  '-8': '文件或目录已存在',
+  '-10': '云端容量已满',
+}
+
 export function fileUploadCreateFolder(
   query: IFileUploadCreateFolderQuery,
   body: IFileUploadCreateFolderBody,
@@ -43,17 +49,22 @@ export function fileUploadCreateFolder(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileUploadCreateFolderResponse>({
-    ...Object.assign({}, options),
-    url: 'https://pan.baidu.com/rest/2.0/xpan/file',
-    method: 'POST',
-    params: Object.assign(
-      {
-        method: 'create',
-      },
-      query,
-      options?.params
-    ),
-    data: formData.toString(),
-  })
+  return request<IFileUploadCreateFolderResponse>(
+    {
+      ...Object.assign({}, options),
+      url: 'https://pan.baidu.com/rest/2.0/xpan/file',
+      method: 'POST',
+      params: Object.assign(
+        {
+          method: 'create',
+        },
+        query,
+        options?.params
+      ),
+      data: formData.toString(),
+    },
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }

@@ -17,6 +17,12 @@ export interface IFileUploadSmallResponse {
   size: number
 }
 
+const __ERR_MAP__: { [key: string]: string } = {
+  '31024': '没有申请上传权限',
+  '31061': '文件已存在',
+  '31064': '上传路径错误',
+}
+
 export function fileUploadSmall(
   url: string,
   query: IFileUploadSmallQuery,
@@ -29,17 +35,22 @@ export function fileUploadSmall(
     )
   }
 
-  return request<IFileUploadSmallResponse>({
-    ...Object.assign({}, options),
-    url: url + '/rest/2.0/pcs/file',
-    method: 'PUT',
-    params: Object.assign(
-      {
-        method: 'upload',
-      },
-      query,
-      options?.params
-    ),
-    data: body,
-  })
+  return request<IFileUploadSmallResponse>(
+    {
+      ...Object.assign({}, options),
+      url: url + '/rest/2.0/pcs/file',
+      method: 'PUT',
+      params: Object.assign(
+        {
+          method: 'upload',
+        },
+        query,
+        options?.params
+      ),
+      data: body,
+    },
+    {
+      errMap: __ERR_MAP__,
+    }
+  )
 }
