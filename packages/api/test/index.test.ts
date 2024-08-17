@@ -269,20 +269,20 @@ describe('FILE_MANAGER', () => {
       {
         filelist: JSON.stringify([
           {
-            path: `${__NETDISK_PATH_PREFIX__}/SmallFile.bin`,
+            path: `${__NETDISK_PATH_PREFIX__}/LargeFile.bin`,
             dest: `${__NETDISK_PATH_PREFIX__}/Copy/`,
-            newname: 'SmallFileCopy.bin',
+            newname: 'LargeFileCopied.bin',
             ondup: 'overwrite',
           },
           {
             path: `${__NETDISK_PATH_PREFIX__}/LargeFile.bin`,
-            dest: `${__NETDISK_PATH_PREFIX__}/Copy/`,
-            newname: 'LargeFileCopy.bin',
+            dest: `${__NETDISK_PATH_PREFIX__}/Rename/`,
+            newname: 'LargeFileToBeRename.bin',
           },
           {
             path: `${__NETDISK_PATH_PREFIX__}/LargeFile.bin`,
             dest: `${__NETDISK_PATH_PREFIX__}/`,
-            newname: 'LargeFileDelete.bin',
+            newname: 'LargeFileToBeDelete.bin',
           },
         ]),
         async: 0,
@@ -303,8 +303,8 @@ describe('FILE_MANAGER', () => {
         filelist: JSON.stringify([
           {
             path: `${__NETDISK_PATH_PREFIX__}/SmallFile.bin`,
-            dest: `${__NETDISK_PATH_PREFIX__}/NewMove/`,
-            newname: 'SmallFileMove.bin',
+            dest: `${__NETDISK_PATH_PREFIX__}/Move/`,
+            newname: 'SmallFileMoved.bin',
             ondup: 'overwrite',
           },
         ]),
@@ -325,8 +325,8 @@ describe('FILE_MANAGER', () => {
       {
         filelist: JSON.stringify([
           {
-            path: `${__NETDISK_PATH_PREFIX__}/Copy/LargeFileCopy.bin`,
-            newname: 'LargeFileCopyRename.bin',
+            path: `${__NETDISK_PATH_PREFIX__}/Rename/LargeFileToBeRename.bin`,
+            newname: 'LargeFileRenamed.bin',
             ondup: 'overwrite',
           },
         ]),
@@ -345,7 +345,7 @@ describe('FILE_MANAGER', () => {
         access_token,
       },
       {
-        filelist: JSON.stringify([`${__NETDISK_PATH_PREFIX__}/LargeFileDelete.bin`]),
+        filelist: JSON.stringify([`${__NETDISK_PATH_PREFIX__}/LargeFileToBeDelete.bin`]),
         async: 0,
       }
     )
@@ -366,24 +366,40 @@ describe('FILE_INFO', () => {
     })
 
     expect(data).toHaveProperties('list')
+    expect(data.list.length).toBe(1)
   })
 
   it('FileList', async () => {
     const { data } = await fileList({
       access_token,
-      dir: `/apps/${app_name}/`,
+      dir: __NETDISK_PATH_PREFIX__,
     })
 
     expect(data).toHaveProperties('list')
+    expect(data.list.length).toBe(4)
   })
+})
 
+describe('VERIFY', () => {
   it('FileListRecursion', async () => {
     const { data } = await fileListRecursion({
       access_token,
-      path: `/apps/${app_name}/`,
+      path: __NETDISK_PATH_PREFIX__,
+      recursion: 1,
     })
 
     expect(data).toHaveProperties('cursor', 'list')
+    expect(data.list.length).toBeGreaterThan(0)
+
+    const expectPaths = [
+      `${__NETDISK_PATH_PREFIX__}/LargeFile.bin`,
+      `${__NETDISK_PATH_PREFIX__}/Copy/LargeFileCopied.bin`,
+      `${__NETDISK_PATH_PREFIX__}/Move/SmallFileMoved.bin`,
+      `${__NETDISK_PATH_PREFIX__}/Rename/LargeFileRenamed.bin`,
+    ]
+    const existsPaths = data.list.filter(item => !item.isdir).map(item => item.path)
+
+    expect(expectPaths).toBePlainArrayEqual(existsPaths)
   })
 })
 
