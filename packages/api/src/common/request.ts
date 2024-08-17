@@ -1,10 +1,26 @@
 import axios, { AxiosRequestConfig } from 'axios'
 
-export default async function request<T>(inConfig: AxiosRequestConfig) {
-  const res = await axios.request<T>(inConfig)
+interface IErr extends Error {
+  res_data: { [key: string]: any }
+}
 
-  if (typeof res.data === 'object' && res.data !== null && (res as any).data['errno']) {
-    throw new Error((res as any).data['errmsg'])
+export default async function request<T>(
+  inAxiosConf: AxiosRequestConfig,
+  inRestConf?: {
+    errno2msg?: (inErrno: number) => string
+  }
+) {
+  const res = await axios.request<T>(inAxiosConf)
+  const data = res.data as { errno?: number; errmsg?: string }
+
+  if (typeof data === 'object' && data && data.errno) {
+    const errno2msg = inRestConf?.errno2msg || (() => '')
+    const newmsg = `errno: ${data.errno}, errmsg: ${data.errmsg || errno2msg(data.errno) || 'none'}`
+
+    const err = new Error(newmsg) as IErr
+    err.res_data = data
+
+    throw err
   }
 
   return res
