@@ -100,6 +100,25 @@ export function expect(inActual: any) {
         throw new Error(`  Expect: ${inActual} > ${inVal}\n  Actual: ${inActual} <= ${inVal}`)
       }
     },
+    toBePlainArrayEqual: (inVal: any[]) => {
+      const len = inVal.length
+
+      if ((inActual as any[]).length !== inVal.length) {
+        throw new Error(`  toBeArrayEqual\n  length not equal`)
+      }
+
+      const a = (inActual as any[]).map(i => i).sort()
+      const b = inVal.map(i => i).sort()
+
+      for (let i = 0; i < len; i++) {
+        const pA = a.pop()
+        const pB = b.pop()
+
+        if (pA !== pB) {
+          throw new Error(`  toBeArrayEqual\n  Expect: ${pA}\n  !==\n  Actual: ${pB}`)
+        }
+      }
+    },
     toBeTruthy: () => {
       if (!inActual) {
         throw new Error(`  Expect: Truthy: ${inActual}\n  Actual: Falsy: ${inActual}`)
