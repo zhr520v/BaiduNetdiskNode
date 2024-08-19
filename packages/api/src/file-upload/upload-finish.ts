@@ -44,7 +44,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '31365': '文件总大小超限',
 }
 
-export function fileUploadFinish(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
+export function httpUploadFinish(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign(
     {

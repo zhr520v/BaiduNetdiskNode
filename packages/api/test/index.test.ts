@@ -3,22 +3,22 @@ import fsExt from 'fs-extra'
 import pico from 'picocolors'
 import { describe, expect, it, runTest } from '../../../utils/test-suite'
 import {
-  fileInfo,
-  fileList,
-  fileListRecursion,
-  fileManager,
-  fileManagerCopy,
-  fileManagerDelete,
-  fileManagerMove,
-  fileManagerRename,
-  fileUploadCreateFolder,
-  fileUploadFinish,
-  fileUploadId,
-  fileUploadSlice,
-  fileUploadSmall,
-  fileUploadUrl,
-  userInfo,
-  userInfoQuota,
+  httpCopy,
+  httpCreateFolder,
+  httpDelete,
+  httpFileInfo,
+  httpFileList,
+  httpFileListRecursion,
+  httpFileManager,
+  httpMove,
+  httpRename,
+  httpUploadFinish,
+  httpUploadId,
+  httpUploadSlice,
+  httpUploadSmall,
+  httpUploadUrl,
+  httpUserInfo,
+  httpUserQuota,
 } from '../index'
 
 if (!fsExt.existsSync('tmp/test.config.json')) {
@@ -98,7 +98,7 @@ init()
 
 describe('USERINFO', () => {
   it('UserInfo', async () => {
-    const { data } = await userInfo({
+    const { data } = await httpUserInfo({
       access_token,
     })
 
@@ -106,7 +106,7 @@ describe('USERINFO', () => {
   })
 
   it('UserInfoQuota', async () => {
-    const { data } = await userInfoQuota({
+    const { data } = await httpUserQuota({
       access_token,
       checkexpire: 1,
       checkfree: 1,
@@ -118,7 +118,7 @@ describe('USERINFO', () => {
 
 describe('CLEANUP', () => {
   it('DeleteFolder', async () => {
-    const { data } = await fileManagerDelete(
+    const { data } = await httpDelete(
       {
         access_token,
       },
@@ -132,7 +132,7 @@ describe('CLEANUP', () => {
   })
 
   it('CreateFolder', async () => {
-    const { data } = await fileUploadCreateFolder(
+    const { data } = await httpCreateFolder(
       {
         access_token,
       },
@@ -150,7 +150,7 @@ describe('FILE_UPLOAD', () => {
   it('FileUploadId', async () => {
     const stats = fsExt.statSync('tmp/files/LargeFile-0.bin')
 
-    const { data } = await fileUploadId(
+    const { data } = await httpUploadId(
       {
         access_token,
       },
@@ -172,7 +172,7 @@ describe('FILE_UPLOAD', () => {
   })
 
   it('FileUploadUrl', async () => {
-    const { data } = await fileUploadUrl({
+    const { data } = await httpUploadUrl({
       access_token,
       path: `${__NETDISK_PATH_PREFIX__}/LargeFile.bin`,
       uploadid: testInfo.uploadId,
@@ -196,7 +196,7 @@ describe('FILE_UPLOAD', () => {
 
   it('FileUploadSlice', async () => {
     for (let i = 0; i < testInfo.largeFileMd5.length; i++) {
-      const { data } = await fileUploadSlice(
+      const { data } = await httpUploadSlice(
         testInfo.uploadUrl,
         {
           access_token,
@@ -213,7 +213,7 @@ describe('FILE_UPLOAD', () => {
   })
 
   it('FileUploadFinish', async () => {
-    const { data } = await fileUploadFinish(
+    const { data } = await httpUploadFinish(
       {
         access_token,
       },
@@ -243,7 +243,7 @@ describe('FILE_UPLOAD', () => {
   })
 
   it('FileUploadSmall', async () => {
-    const { data } = await fileUploadSmall(
+    const { data } = await httpUploadSmall(
       testInfo.uploadUrl,
       {
         access_token,
@@ -262,7 +262,7 @@ describe('FILE_UPLOAD', () => {
 
 describe('FILE_MANAGER', () => {
   it('CopyFile', async () => {
-    const { data } = await fileManagerCopy(
+    const { data } = await httpCopy(
       {
         access_token,
       },
@@ -295,7 +295,7 @@ describe('FILE_MANAGER', () => {
   })
 
   it('MoveFile', async () => {
-    const { data } = await fileManagerMove(
+    const { data } = await httpMove(
       {
         access_token,
       },
@@ -318,7 +318,7 @@ describe('FILE_MANAGER', () => {
   })
 
   it('RenameFile', async () => {
-    const { data } = await fileManagerRename(
+    const { data } = await httpRename(
       {
         access_token,
       },
@@ -340,7 +340,7 @@ describe('FILE_MANAGER', () => {
   })
 
   it('DeleteFile', async () => {
-    const { data } = await fileManagerDelete(
+    const { data } = await httpDelete(
       {
         access_token,
       },
@@ -356,7 +356,7 @@ describe('FILE_MANAGER', () => {
 
 describe('FILE_INFO', () => {
   it('FileInfo', async () => {
-    const { data } = await fileInfo({
+    const { data } = await httpFileInfo({
       access_token,
       fsids: JSON.stringify([testInfo.largeFilefsId]),
       needmedia: 1,
@@ -370,7 +370,7 @@ describe('FILE_INFO', () => {
   })
 
   it('FileList', async () => {
-    const { data } = await fileList({
+    const { data } = await httpFileList({
       access_token,
       dir: __NETDISK_PATH_PREFIX__,
     })
@@ -382,7 +382,7 @@ describe('FILE_INFO', () => {
 
 describe('VERIFY', () => {
   it('FileListRecursion', async () => {
-    const { data } = await fileListRecursion({
+    const { data } = await httpFileListRecursion({
       access_token,
       path: __NETDISK_PATH_PREFIX__,
       recursion: 1,
@@ -405,7 +405,7 @@ describe('VERIFY', () => {
 
 describe('CLEANUP', () => {
   it('DeleteFolder', async () => {
-    const { data } = await fileManager(
+    const { data } = await httpFileManager(
       {
         access_token,
         opera: 'delete',

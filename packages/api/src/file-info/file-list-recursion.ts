@@ -51,7 +51,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '42213': '没有共享目录的权限',
 }
 
-export function fileListRecursion(query: IQuery, options?: AxiosRequestConfig) {
+export function httpFileListRecursion(query: IQuery, options?: AxiosRequestConfig) {
   return request<IRes>(
     {
       ...Object.assign({}, options),

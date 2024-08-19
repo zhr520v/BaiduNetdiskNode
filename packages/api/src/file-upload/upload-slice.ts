@@ -20,7 +20,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '31364': '超出分片大小限制',
 }
 
-export function fileUploadSlice(
+export function httpUploadSlice(
   url: string,
   query: IQuery,
   body: Buffer,

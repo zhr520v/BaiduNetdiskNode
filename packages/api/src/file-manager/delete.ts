@@ -1,12 +1,12 @@
 import { AxiosRequestConfig } from 'axios'
-import { IBody, IQuery, fileManager } from './file-manager'
+import { IBody, IQuery, httpFileManager } from './file-manager'
 
-export function fileManagerDelete(
+export function httpDelete(
   query: Omit<IQuery, 'opera'>,
   body: IBody,
   options?: AxiosRequestConfig
 ) {
-  return fileManager(
+  return httpFileManager(
     Object.assign({}, query, {
       opera: 'delete',
     }),

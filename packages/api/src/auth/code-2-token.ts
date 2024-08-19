@@ -19,7 +19,7 @@ interface IRes {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function authCode2Token(query: IQuery, options?: AxiosRequestConfig) {
+export function httpCode2Token(query: IQuery, options?: AxiosRequestConfig) {
   return request<IRes>(
     {
       ...Object.assign({}, options),

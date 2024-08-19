@@ -70,7 +70,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '42214': '文件基础信息查询失败',
 }
 
-export function fileInfo(query: IQuery, options?: AxiosRequestConfig) {
+export function httpFileInfo(query: IQuery, options?: AxiosRequestConfig) {
   return request<IRes>(
     {
       ...Object.assign({}, options),

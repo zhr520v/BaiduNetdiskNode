@@ -20,7 +20,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '42905': '查询用户名失败，可重试',
 }
 
-export function userInfo(query: IQuery, options?: AxiosRequestConfig) {
+export function httpUserInfo(query: IQuery, options?: AxiosRequestConfig) {
   return request<IRes>(
     {
       ...Object.assign({}, options),

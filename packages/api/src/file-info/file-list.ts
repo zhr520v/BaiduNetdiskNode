@@ -60,7 +60,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '-9': '文件或目录不存在',
 }
 
-export function fileList(query: IQuery, options?: AxiosRequestConfig) {
+export function httpFileList(query: IQuery, options?: AxiosRequestConfig) {
   return request<IRes>(
     {
       ...Object.assign({}, options),

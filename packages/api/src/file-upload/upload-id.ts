@@ -30,7 +30,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '-10': '容量不足',
 }
 
-export function fileUploadId(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
+export function httpUploadId(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign(
     {

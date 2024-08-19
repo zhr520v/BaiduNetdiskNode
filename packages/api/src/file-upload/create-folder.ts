@@ -31,11 +31,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '-10': '云端容量已满',
 }
 
-export function fileUploadCreateFolder(
-  query: IQuery,
-  body: IBody,
-  options?: AxiosRequestConfig
-) {
+export function httpCreateFolder(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign(
     {

@@ -28,7 +28,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '111': '有其他异步任务正在执行',
 }
 
-export function fileManager(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
+export function httpFileManager(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign({}, body, options?.data)
 

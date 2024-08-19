@@ -23,7 +23,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '31064': '上传路径错误',
 }
 
-export function fileUploadSmall(
+export function httpUploadSmall(
   url: string,
   query: IQuery,
   body: Buffer,

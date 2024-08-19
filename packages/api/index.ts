@@ -1,67 +1,67 @@
 import axios from 'axios'
-import { authCode2Token } from './src/auth/code-2-token'
-import { authRefreshToken } from './src/auth/refresh-token'
-import { fileInfo } from './src/file-info/file-info'
-import { fileList } from './src/file-info/file-list'
-import { fileListRecursion } from './src/file-info/file-list-recursion'
-import { fileManagerCopy } from './src/file-manager/copy'
-import { fileManagerDelete } from './src/file-manager/delete'
-import { fileManager } from './src/file-manager/file-manager'
-import { fileManagerMove } from './src/file-manager/move'
-import { fileManagerRename } from './src/file-manager/rename'
-import { fileUploadCreateFolder } from './src/file-upload/create-folder'
-import { fileUploadFinish } from './src/file-upload/upload-finish'
-import { fileUploadId } from './src/file-upload/upload-id'
-import { fileUploadSlice } from './src/file-upload/upload-slice'
-import { fileUploadSmall } from './src/file-upload/upload-small'
-import { fileUploadUrl } from './src/file-upload/upload-url'
-import { userInfo } from './src/user-info/user-info'
-import { userInfoQuota } from './src/user-info/user-quota'
+import { httpCode2Token } from './src/auth/code-2-token'
+import { httpRefreshToken } from './src/auth/refresh-token'
+import { httpFileInfo } from './src/file-info/file-info'
+import { httpFileList } from './src/file-info/file-list'
+import { httpFileListRecursion } from './src/file-info/file-list-recursion'
+import { httpCopy } from './src/file-manager/copy'
+import { httpDelete } from './src/file-manager/delete'
+import { httpFileManager } from './src/file-manager/file-manager'
+import { httpMove } from './src/file-manager/move'
+import { httpRename } from './src/file-manager/rename'
+import { httpCreateFolder } from './src/file-upload/create-folder'
+import { httpUploadFinish } from './src/file-upload/upload-finish'
+import { httpUploadId } from './src/file-upload/upload-id'
+import { httpUploadSlice } from './src/file-upload/upload-slice'
+import { httpUploadSmall } from './src/file-upload/upload-small'
+import { httpUploadUrl } from './src/file-upload/upload-url'
+import { httpUserInfo } from './src/user-info/user-info'
+import { httpUserQuota } from './src/user-info/user-quota'
 
 export * from './src/common/defs-export'
 
 export {
   axios,
-  authCode2Token,
-  authRefreshToken,
-  fileInfo,
-  fileList,
-  fileListRecursion,
-  fileManager,
-  fileManagerCopy,
-  fileManagerDelete,
-  fileManagerMove,
-  fileManagerRename,
-  fileUploadCreateFolder,
-  fileUploadFinish,
-  fileUploadId,
-  fileUploadSlice,
-  fileUploadSmall,
-  fileUploadUrl,
-  userInfo,
-  userInfoQuota,
+  httpCode2Token,
+  httpRefreshToken,
+  httpFileInfo,
+  httpFileList,
+  httpFileListRecursion,
+  httpCopy,
+  httpDelete,
+  httpFileManager,
+  httpMove,
+  httpRename,
+  httpCreateFolder,
+  httpUploadFinish,
+  httpUploadId,
+  httpUploadSlice,
+  httpUploadSmall,
+  httpUploadUrl,
+  httpUserInfo,
+  httpUserQuota,
 }
 
 const BaiduNetdiskAPI = {
   axios,
-  authCode2Token,
-  authRefreshToken,
-  fileInfo,
-  fileList,
-  fileListRecursion,
-  fileManager,
-  fileManagerCopy,
-  fileManagerDelete,
-  fileManagerMove,
-  fileManagerRename,
-  fileUploadCreateFolder,
-  fileUploadFinish,
-  fileUploadId,
-  fileUploadSlice,
-  fileUploadSmall,
-  fileUploadUrl,
-  userInfo,
-  userInfoQuota,
+  httpCode2Token,
+  httpRefreshToken,
+  httpFileInfo,
+  httpFileList,
+  httpFileListRecursion,
+  httpCopy,
+  httpDelete,
+  httpFileManager,
+  httpMove,
+  httpRename,
+  httpCreateFolder,
+  httpUploadFinish,
+  httpUploadId,
+  httpUploadSlice,
+  httpUploadSmall,
+  httpUploadUrl,
+  httpUserInfo,
+  httpUserQuota,
 }
 
 export default BaiduNetdiskAPI

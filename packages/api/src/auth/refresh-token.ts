@@ -18,7 +18,7 @@ interface IRes {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function authRefreshToken(query: IQuery, options?: AxiosRequestConfig) {
+export function httpRefreshToken(query: IQuery, options?: AxiosRequestConfig) {
   return request<IRes>(
     {
       ...Object.assign({}, options),
