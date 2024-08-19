@@ -18,6 +18,8 @@ import { fileUploadUrl } from './src/file-upload/file-upload-url'
 import { userInfo } from './src/user-info/user-info'
 import { userInfoQuota } from './src/user-info/user-info-quota'
 
+export * from './src/common/defs-export'
+
 export {
   axios,
   authCode2Token,
