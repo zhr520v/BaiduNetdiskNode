@@ -1,8 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios'
-
-interface IErr extends Error {
-  res_data: { [key: string]: any }
-}
+import { IApiErr } from './defs-export'
 
 const __ERR_MAP__: { [key: string]: string } = {
   '-1': '权益已过期',
@@ -72,7 +69,8 @@ export default async function request<T>(
       __ERR_MAP__[`${data.errno}`] ||
       'none'
 
-    const err = new Error(`errno: ${data.errno}, errmsg: ${errmsg}`) as IErr
+    const err = new Error(`errno: ${data.errno}, errmsg: ${errmsg}`) as IApiErr
+    err.errno = data.errno
     err.res_data = data
 
     throw err
