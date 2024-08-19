@@ -1,11 +1,11 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-export interface IFileUploadCreateFolderQuery {
+interface IQuery {
   access_token: string
 }
 
-export interface IFileUploadCreateFolderBody {
+interface IBody {
   path: string
   local_ctime?: number
   local_mtime?: number
@@ -13,7 +13,7 @@ export interface IFileUploadCreateFolderBody {
   rtype?: number
 }
 
-export interface IFileUploadCreateFolderResponse {
+interface IRes {
   category: number
   ctime?: number
   errno?: number
@@ -32,8 +32,8 @@ const __ERR_MAP__: { [key: string]: string } = {
 }
 
 export function fileUploadCreateFolder(
-  query: IFileUploadCreateFolderQuery,
-  body: IFileUploadCreateFolderBody,
+  query: IQuery,
+  body: IBody,
   options?: AxiosRequestConfig
 ) {
   const formData = new URLSearchParams()
@@ -49,7 +49,7 @@ export function fileUploadCreateFolder(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileUploadCreateFolderResponse>(
+  return request<IRes>(
     {
       ...Object.assign({}, options),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',

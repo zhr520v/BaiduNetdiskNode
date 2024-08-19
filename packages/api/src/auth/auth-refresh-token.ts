@@ -1,13 +1,13 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-export interface IAuthRefreshTokenQuery {
+interface IQuery {
   client_id: string
   client_secret: string
   refresh_token: string
 }
 
-export interface IAuthRefreshTokenResponse {
+interface IRes {
   access_token: string
   expires_in: number
   refresh_token: string
@@ -18,8 +18,8 @@ export interface IAuthRefreshTokenResponse {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function authRefreshToken(query: IAuthRefreshTokenQuery, options?: AxiosRequestConfig) {
-  return request<IAuthRefreshTokenResponse>(
+export function authRefreshToken(query: IQuery, options?: AxiosRequestConfig) {
+  return request<IRes>(
     {
       ...Object.assign({}, options),
       url: 'https://openapi.baidu.com/oauth/2.0/token',

@@ -1,13 +1,13 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-export interface IFileUploadUrlQuery {
+interface IQuery {
   access_token: string
   path: string
   uploadid: string
 }
 
-export interface IFileUploadUrlResponse {
+interface IRes {
   bak_server: string[]
   bak_servers: { server: string }[]
   client_ip: string
@@ -27,8 +27,8 @@ export interface IFileUploadUrlResponse {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function fileUploadUrl(query: IFileUploadUrlQuery, options?: AxiosRequestConfig) {
-  return request<IFileUploadUrlResponse>(
+export function fileUploadUrl(query: IQuery, options?: AxiosRequestConfig) {
+  return request<IRes>(
     {
       ...Object.assign({}, options),
       url: 'https://d.pcs.baidu.com/rest/2.0/pcs/file',

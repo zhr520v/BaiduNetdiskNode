@@ -1,9 +1,9 @@
 import { AxiosRequestConfig } from 'axios'
-import { IFileManagerBody, IFileManagerQuery, fileManager } from './file-manager'
+import { IBody, IQuery, fileManager } from './file-manager'
 
 export function fileManagerMove(
-  query: Omit<IFileManagerQuery, 'opera'>,
-  body: IFileManagerBody,
+  query: Omit<IQuery, 'opera'>,
+  body: IBody,
   options?: AxiosRequestConfig
 ) {
   return fileManager(

@@ -1,13 +1,13 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-export interface IFileUploadSmallQuery {
+interface IQuery {
   access_token: string
   path: string
   ondup?: string
 }
 
-export interface IFileUploadSmallResponse {
+interface IRes {
   ctime: number
   fs_id: number
   md5: string
@@ -25,7 +25,7 @@ const __ERR_MAP__: { [key: string]: string } = {
 
 export function fileUploadSmall(
   url: string,
-  query: IFileUploadSmallQuery,
+  query: IQuery,
   body: Buffer,
   options?: AxiosRequestConfig
 ) {
@@ -35,7 +35,7 @@ export function fileUploadSmall(
     )
   }
 
-  return request<IFileUploadSmallResponse>(
+  return request<IRes>(
     {
       ...Object.assign({}, options),
       url: url + '/rest/2.0/pcs/file',

@@ -1,18 +1,18 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-export interface IFileManagerQuery {
+export interface IQuery {
   access_token: string
   opera: string
 }
 
-export interface IFileManagerBody {
+export interface IBody {
   async: number
   filelist: string
   ondup?: string
 }
 
-export interface IFileManagerResponse {
+export interface IRes {
   errno: number
   info: {
     errno: number
@@ -28,11 +28,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '111': '有其他异步任务正在执行',
 }
 
-export function fileManager(
-  query: IFileManagerQuery,
-  body: IFileManagerBody,
-  options?: AxiosRequestConfig
-) {
+export function fileManager(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign({}, body, options?.data)
 
@@ -40,7 +36,7 @@ export function fileManager(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileManagerResponse>(
+  return request<IRes>(
     {
       ...Object.assign({}, options),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',

@@ -1,11 +1,11 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-export interface IFileUploadFinishQuery {
+interface IQuery {
   access_token: string
 }
 
-export interface IFileUploadFinishBody {
+interface IBody {
   block_list: string
   size: string
   path: string
@@ -20,7 +20,7 @@ export interface IFileUploadFinishBody {
   zip_sign?: number
 }
 
-export interface IFileUploadFinishResponse {
+interface IRes {
   category: number
   ctime: number
   errno: number
@@ -44,11 +44,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '31365': '文件总大小超限',
 }
 
-export function fileUploadFinish(
-  query: IFileUploadFinishQuery,
-  body: IFileUploadFinishBody,
-  options?: AxiosRequestConfig
-) {
+export function fileUploadFinish(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign(
     {
@@ -62,7 +58,7 @@ export function fileUploadFinish(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileUploadFinishResponse>(
+  return request<IRes>(
     {
       ...Object.assign({}, options),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',

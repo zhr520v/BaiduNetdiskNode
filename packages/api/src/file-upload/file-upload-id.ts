@@ -1,11 +1,11 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-export interface IFileUploadIdQuery {
+interface IQuery {
   access_token: string
 }
 
-export interface IFileUploadIdBody {
+interface IBody {
   block_list: string
   path: string
   size: number
@@ -17,7 +17,7 @@ export interface IFileUploadIdBody {
   uploadid?: string
 }
 
-export interface IFileUploadIdResponse {
+interface IRes {
   block_list: number[]
   errno: number
   request_id: number
@@ -30,11 +30,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '-10': '容量不足',
 }
 
-export function fileUploadId(
-  query: IFileUploadIdQuery,
-  body: IFileUploadIdBody,
-  options?: AxiosRequestConfig
-) {
+export function fileUploadId(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign(
     {
@@ -49,7 +45,7 @@ export function fileUploadId(
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IFileUploadIdResponse>(
+  return request<IRes>(
     {
       ...Object.assign({}, options),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',

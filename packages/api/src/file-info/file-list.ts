@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-export interface IFileListQuery {
+interface IQuery {
   access_token: string
   desc?: number
   dir?: string
@@ -13,7 +13,7 @@ export interface IFileListQuery {
   web?: number
 }
 
-export interface IFileListItem {
+interface IFileListItem {
   category: number
   extent_tinyint7: number
   from_type: number
@@ -47,7 +47,7 @@ export interface IFileListItem {
   }
 }
 
-export interface IFileListResponse {
+interface IRes {
   errno: number
   guid: number
   guid_info: string
@@ -60,8 +60,8 @@ const __ERR_MAP__: { [key: string]: string } = {
   '-9': '文件或目录不存在',
 }
 
-export function fileList(query: IFileListQuery, options?: AxiosRequestConfig) {
-  return request<IFileListResponse>(
+export function fileList(query: IQuery, options?: AxiosRequestConfig) {
+  return request<IRes>(
     {
       ...Object.assign({}, options),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',
