@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from 'axios'
-import request from '../common/request'
+import { request } from '../common/request'
 
 export interface IFileListQuery {
   access_token: string

@@ -53,7 +53,7 @@ const __ERR_MAP__: { [key: string]: string } = {
   '50002': '播单id不存在',
 }
 
-export default async function request<T>(
+export async function request<T>(
   inAxiosConf: AxiosRequestConfig,
   inRestConf: {
     errMap: { [key: string]: string }
