@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios'
-import { IApiErr } from './defs-export'
+import { IBaiduApiError } from './defs-export'
 
 const __ERR_MAP__: { [key: string]: string } = {
   '-1': '权益已过期',
@@ -69,7 +69,7 @@ export async function request<T>(
       __ERR_MAP__[`${data.errno}`] ||
       'none'
 
-    const err = new Error(`errno: ${data.errno}, errmsg: ${errmsg}`) as IApiErr
+    const err = new Error(`errno: ${data.errno}, errmsg: ${errmsg}`) as IBaiduApiError
     err.errno = data.errno
     err.res_data = data
 
