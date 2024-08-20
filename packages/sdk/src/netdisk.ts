@@ -11,11 +11,17 @@ import {
 } from '@baidu-netdisk/api'
 import path from 'path'
 import { PromType } from './common/alpha'
+import { EAsync, EOndup, fileManage } from './common/file-manage'
 import { pick } from './common/utils'
 
 export class Netdisk {
   #app_name = ''
   #access_token = ''
+
+  static Enum = {
+    EOndup,
+    EAsync,
+  }
 
   constructor(inOpts: { app_name: string; access_token: string }) {
     this.#app_name = inOpts.app_name
@@ -258,5 +264,115 @@ export class Netdisk {
 
       throw err
     }
+  }
+
+  copyFolderOrFile(inOpts: {
+    source: string
+    target: string
+    ondup?: (typeof EOndup)[keyof typeof EOndup]
+    async?: (typeof EAsync)[keyof typeof EAsync]
+  }) {
+    return fileManage({
+      access_token: this.#access_token,
+      opera: 'copy',
+      list: [pick(inOpts, ['source', 'target'])],
+      ...pick(inOpts, ['ondup', 'async']),
+    })
+  }
+
+  copyFoldersOrFiles(inOpts: {
+    list: {
+      source: string
+      target: string
+      ondup?: (typeof EOndup)[keyof typeof EOndup]
+    }[]
+    ondup?: (typeof EOndup)[keyof typeof EOndup]
+    async?: (typeof EAsync)[keyof typeof EAsync]
+  }) {
+    return fileManage({
+      access_token: this.#access_token,
+      opera: 'copy',
+      ...inOpts,
+    })
+  }
+
+  moveFolderOrFile(inOpts: {
+    source: string
+    target: string
+    ondup?: (typeof EOndup)[keyof typeof EOndup]
+    async?: (typeof EAsync)[keyof typeof EAsync]
+  }) {
+    return fileManage({
+      access_token: this.#access_token,
+      opera: 'move',
+      list: [pick(inOpts, ['source', 'target'])],
+      ...pick(inOpts, ['ondup', 'async']),
+    })
+  }
+
+  moveFoldersOrFiles(inOpts: {
+    list: {
+      source: string
+      target: string
+      ondup?: (typeof EOndup)[keyof typeof EOndup]
+    }[]
+    ondup?: (typeof EOndup)[keyof typeof EOndup]
+    async?: (typeof EAsync)[keyof typeof EAsync]
+  }) {
+    return fileManage({
+      access_token: this.#access_token,
+      opera: 'move',
+      ...inOpts,
+    })
+  }
+
+  renameFolderOrFile(inOpts: {
+    source: string
+    newname: string
+    ondup?: (typeof EOndup)[keyof typeof EOndup]
+    async?: (typeof EAsync)[keyof typeof EAsync]
+  }) {
+    return fileManage({
+      access_token: this.#access_token,
+      opera: 'rename',
+      list: [pick(inOpts, ['source', 'newname'])],
+      ...pick(inOpts, ['ondup', 'async']),
+    })
+  }
+
+  renameFoldersOrFiles(inOpts: {
+    list: {
+      source: string
+      newname: string
+      ondup?: (typeof EOndup)[keyof typeof EOndup]
+    }[]
+    ondup?: (typeof EOndup)[keyof typeof EOndup]
+    async?: (typeof EAsync)[keyof typeof EAsync]
+  }) {
+    return fileManage({
+      access_token: this.#access_token,
+      opera: 'rename',
+      ...inOpts,
+    })
+  }
+
+  deleteFolderOrFile(inOpts: { source: string; async?: (typeof EAsync)[keyof typeof EAsync] }) {
+    return fileManage({
+      access_token: this.#access_token,
+      opera: 'delete',
+      list: [pick(inOpts, ['source'])],
+      ...pick(inOpts, ['async']),
+    })
+  }
+
+  deleteFoldersOrFiles(inOpts: {
+    list: { source: string }[]
+    async?: (typeof EAsync)[keyof typeof EAsync]
+  }) {
+    return fileManage({
+      access_token: this.#access_token,
+      opera: 'delete',
+      ...inOpts,
+    })
   }
 }
