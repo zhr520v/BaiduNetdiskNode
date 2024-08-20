@@ -1,5 +1,6 @@
 import {
   httpCode2Token,
+  httpFileInfo,
   httpFileList,
   httpFileListRecursion,
   httpRefreshToken,
@@ -170,6 +171,37 @@ export class Netdisk {
         'server_mtime',
         'size',
         'thumbs',
+      ])
+    )
+  }
+
+  async getFileInfo(inOpts: {
+    fsids: number[]
+    opts?: Pick<
+      Parameters<typeof httpFileInfo>[0],
+      'detail' | 'dlink' | 'extra' | 'needmedia' | 'path' | 'thumb'
+    >
+  }) {
+    const { data } = await httpFileInfo({
+      access_token: this.#access_token,
+      fsids: JSON.stringify(inOpts.fsids),
+      ...inOpts.opts,
+    })
+
+    return data.list.map(item =>
+      pick(item, [
+        'category',
+        'date_taken',
+        'dlink',
+        'filename',
+        'height',
+        'isdir',
+        'orientation',
+        'server_ctime',
+        'server_mtime',
+        'size',
+        'thumbs',
+        'width',
       ])
     )
   }
