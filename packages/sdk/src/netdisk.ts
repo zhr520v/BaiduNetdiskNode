@@ -1,4 +1,10 @@
-import { httpCode2Token, httpRefreshToken } from '@baidu-netdisk/api'
+import {
+  httpCode2Token,
+  httpRefreshToken,
+  httpUserInfo,
+  httpUserQuota,
+} from '@baidu-netdisk/api'
+import { pick } from './common/utils'
 
 export class Netdisk {
   #app_name = ''
@@ -54,5 +60,25 @@ export class Netdisk {
       ...data,
       expires_in: Date.now() + data.expires_in * 1000,
     }
+  }
+
+  async getUserInfo() {
+    const [{ data: user }, { data: quota }] = await Promise.all([
+      httpUserInfo({
+        access_token: this.#access_token,
+      }),
+      httpUserQuota({
+        access_token: this.#access_token,
+        checkexpire: 1,
+        checkfree: 1,
+      }),
+    ])
+
+    const info = {
+      ...pick(user, ['avatar_url', 'baidu_name', 'netdisk_name', 'uk', 'vip_type']),
+      ...pick(quota, ['expire', 'free', 'total', 'used']),
+    }
+
+    return info
   }
 }

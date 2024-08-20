@@ -20,6 +20,7 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
+    "test": "tsx test/index.test.ts",
     "build": "tsx scripts/build.ts"
   },
   "main": "./index.ts",
