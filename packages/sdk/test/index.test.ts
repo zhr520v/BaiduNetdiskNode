@@ -60,4 +60,30 @@ it('GetFileList', async () => {
   }
 })
 
+it('GetFileListRecursion', async () => {
+  const data = await netdisk.getFileListRecursion({
+    path: '/apps',
+    opts: {
+      recursion: 1,
+      infinite: true,
+    },
+  })
+
+  expect(data.length).toBeGreaterThan(0)
+
+  for (const item of data) {
+    expect(item).toHaveProperties(
+      'category',
+      'fs_id',
+      'isdir',
+      'local_ctime',
+      'local_mtime',
+      'md5',
+      'server_ctime',
+      'server_mtime',
+      'size'
+    )
+  }
+})
+
 runTest()

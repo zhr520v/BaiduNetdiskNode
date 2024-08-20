@@ -1,6 +1,7 @@
 import {
   httpCode2Token,
   httpFileList,
+  httpFileListRecursion,
   httpRefreshToken,
   httpUserInfo,
   httpUserQuota,
@@ -123,6 +124,49 @@ export class Netdisk {
         'path',
         'server_ctime',
         'server_filename',
+        'server_mtime',
+        'size',
+        'thumbs',
+      ])
+    )
+  }
+
+  async getFileListRecursion(inOpts: {
+    path: string
+    opts?: Pick<
+      Parameters<typeof httpFileListRecursion>[0],
+      'ctime' | 'desc' | 'limit' | 'mtime' | 'order' | 'recursion' | 'start' | 'web'
+    > & { infinite?: boolean }
+  }) {
+    const list: PromType<ReturnType<typeof httpFileListRecursion>>['data']['list'] = []
+
+    let has_more = false
+    let cursor = inOpts.opts?.start || 0
+    const infinite = inOpts.opts?.infinite
+
+    do {
+      const { data } = await httpFileListRecursion({
+        access_token: this.#access_token,
+        path: inOpts.path,
+        ...inOpts.opts,
+        start: cursor,
+      })
+
+      list.push(...data.list)
+
+      has_more = !!data.has_more
+      cursor = data.cursor
+    } while (has_more && infinite)
+
+    return list.map(item =>
+      pick(item, [
+        'category',
+        'fs_id',
+        'isdir',
+        'local_ctime',
+        'local_mtime',
+        'md5',
+        'server_ctime',
         'server_mtime',
         'size',
         'thumbs',
