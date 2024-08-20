@@ -37,4 +37,27 @@ it('GetUserInfo', async () => {
   expect(data.netdisk_name).toBeTruthy()
 })
 
+it('GetFileList', async () => {
+  const data = await netdisk.getFileList({
+    dir: '/',
+  })
+
+  expect(data.length).toBeGreaterThan(0)
+
+  for (const item of data) {
+    expect(item).toHaveProperties(
+      'category',
+      'fs_id',
+      'isdir',
+      'local_ctime',
+      'local_mtime',
+      'path',
+      'server_ctime',
+      'server_filename',
+      'server_mtime',
+      'size'
+    )
+  }
+})
+
 runTest()

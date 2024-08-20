@@ -1,9 +1,11 @@
 import {
   httpCode2Token,
+  httpFileList,
   httpRefreshToken,
   httpUserInfo,
   httpUserQuota,
 } from '@baidu-netdisk/api'
+import { PromType } from './common/alpha'
 import { pick } from './common/utils'
 
 export class Netdisk {
@@ -80,5 +82,51 @@ export class Netdisk {
     }
 
     return info
+  }
+
+  async getFileList(inOpts: {
+    dir: string
+    opts?: Pick<
+      Parameters<typeof httpFileList>[0],
+      'desc' | 'folder' | 'limit' | 'order' | 'showempty' | 'start' | 'web'
+    > & { infinite?: boolean }
+  }) {
+    const list: PromType<ReturnType<typeof httpFileList>>['data']['list'] = []
+
+    let may_has_more = false
+    let cursor = inOpts.opts?.start || 0
+    const limit = inOpts.opts?.limit || 1000
+    const infinite = inOpts.opts?.infinite
+
+    do {
+      const { data } = await httpFileList({
+        access_token: this.#access_token,
+        dir: inOpts.dir,
+        ...inOpts.opts,
+        start: cursor,
+      })
+
+      list.push(...data.list)
+      may_has_more = data.list.length === limit
+      cursor = cursor + data.list.length
+    } while (may_has_more && infinite)
+
+    return list.map(item =>
+      pick(item, [
+        'category',
+        'dir_empty',
+        'fs_id',
+        'isdir',
+        'local_ctime',
+        'local_mtime',
+        'md5',
+        'path',
+        'server_ctime',
+        'server_filename',
+        'server_mtime',
+        'size',
+        'thumbs',
+      ])
+    )
   }
 }
