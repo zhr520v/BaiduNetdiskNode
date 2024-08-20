@@ -21,25 +21,25 @@ const __ERR_MAP__: { [key: string]: string } = {
 }
 
 export function httpUploadSlice(
-  url: string,
-  query: IQuery,
-  body: Buffer,
-  options?: AxiosRequestConfig
+  inUrl: string,
+  inQuery: IQuery,
+  inBody: Buffer,
+  inOpts?: AxiosRequestConfig
 ) {
   return request<IRes>(
     {
-      ...Object.assign({}, options),
-      url: url + '/rest/2.0/pcs/superfile2',
+      ...Object.assign({}, inOpts),
+      url: inUrl + '/rest/2.0/pcs/superfile2',
       method: 'PUT',
       params: Object.assign(
         {
           method: 'upload',
           type: 'tmpfile',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
-      data: body,
+      data: inBody,
     },
     {
       errMap: __ERR_MAP__,

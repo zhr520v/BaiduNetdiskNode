@@ -44,14 +44,14 @@ const __ERR_MAP__: { [key: string]: string } = {
   '31365': '文件总大小超限',
 }
 
-export function httpUploadFinish(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
+export function httpUploadFinish(inQuery: IQuery, inBody: IBody, inOpts?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign(
     {
       isdir: 0,
     },
-    body,
-    options?.data
+    inBody,
+    inOpts?.data
   )
 
   for (const key in fullBody) {
@@ -60,15 +60,15 @@ export function httpUploadFinish(query: IQuery, body: IBody, options?: AxiosRequ
 
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',
       method: 'POST',
       params: Object.assign(
         {
           method: 'create',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
       data: formData.toString(),
     },

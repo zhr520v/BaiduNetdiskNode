@@ -31,14 +31,14 @@ const __ERR_MAP__: { [key: string]: string } = {
   '-10': '云端容量已满',
 }
 
-export function httpCreateFolder(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
+export function httpCreateFolder(inQuery: IQuery, inBody: IBody, inOpts?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign(
     {
       isdir: 1,
     },
-    body,
-    options?.data
+    inBody,
+    inOpts?.data
   )
 
   for (const key in fullBody) {
@@ -47,15 +47,15 @@ export function httpCreateFolder(query: IQuery, body: IBody, options?: AxiosRequ
 
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',
       method: 'POST',
       params: Object.assign(
         {
           method: 'create',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
       data: formData.toString(),
     },

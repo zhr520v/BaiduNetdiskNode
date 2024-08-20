@@ -51,18 +51,18 @@ const __ERR_MAP__: { [key: string]: string } = {
   '42213': '没有共享目录的权限',
 }
 
-export function httpFileListRecursion(query: IQuery, options?: AxiosRequestConfig) {
+export function httpFileListRecursion(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/multimedia',
       method: 'GET',
       params: Object.assign(
         {
           method: 'listall',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
       headers: {
         'User-Agent': 'pan.baidu.com',

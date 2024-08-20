@@ -20,18 +20,18 @@ const __ERR_MAP__: { [key: string]: string } = {
   '42905': '查询用户名失败，可重试',
 }
 
-export function httpUserInfo(query: IQuery, options?: AxiosRequestConfig) {
+export function httpUserInfo(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/nas',
       method: 'GET',
       params: Object.assign(
         {
           method: 'uinfo',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
     },
     {

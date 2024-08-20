@@ -28,9 +28,9 @@ const __ERR_MAP__: { [key: string]: string } = {
   '111': '有其他异步任务正在执行',
 }
 
-export function httpFileManager(query: IQuery, body: IBody, options?: AxiosRequestConfig) {
+export function httpFileManager(inQuery: IQuery, inBody: IBody, inOpts?: AxiosRequestConfig) {
   const formData = new URLSearchParams()
-  const fullBody = Object.assign({}, body, options?.data)
+  const fullBody = Object.assign({}, inBody, inOpts?.data)
 
   for (const key in fullBody) {
     formData.append(key, `${fullBody[key]}`)
@@ -38,15 +38,15 @@ export function httpFileManager(query: IQuery, body: IBody, options?: AxiosReque
 
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',
       method: 'POST',
       params: Object.assign(
         {
           method: 'filemanager',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
       data: formData.toString(),
     },

@@ -27,10 +27,10 @@ interface IRes {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function httpUploadUrl(query: IQuery, options?: AxiosRequestConfig) {
+export function httpUploadUrl(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://d.pcs.baidu.com/rest/2.0/pcs/file',
       method: 'GET',
       params: Object.assign(
@@ -39,8 +39,8 @@ export function httpUploadUrl(query: IQuery, options?: AxiosRequestConfig) {
           appid: 250528,
           upload_version: '2.0',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
     },
     {

@@ -24,12 +24,12 @@ const __ERR_MAP__: { [key: string]: string } = {
 }
 
 export function httpUploadSmall(
-  url: string,
-  query: IQuery,
-  body: Buffer,
-  options?: AxiosRequestConfig
+  inUrl: string,
+  inQuery: IQuery,
+  inBody: Buffer,
+  inOpts?: AxiosRequestConfig
 ) {
-  if (body.length > 4 * 1024 * 1024) {
+  if (inBody.length > 4 * 1024 * 1024) {
     throw new Error(
       'fileUploadSmall: buffer size must be <= 4 MB, otherwise use fileUploadId, fileUploadUrl, fileUploadSlice, fileUploadFinish.'
     )
@@ -37,17 +37,17 @@ export function httpUploadSmall(
 
   return request<IRes>(
     {
-      ...Object.assign({}, options),
-      url: url + '/rest/2.0/pcs/file',
+      ...Object.assign({}, inOpts),
+      url: inUrl + '/rest/2.0/pcs/file',
       method: 'PUT',
       params: Object.assign(
         {
           method: 'upload',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
-      data: body,
+      data: inBody,
     },
     {
       errMap: __ERR_MAP__,

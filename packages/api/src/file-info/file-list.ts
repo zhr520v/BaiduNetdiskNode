@@ -60,18 +60,18 @@ const __ERR_MAP__: { [key: string]: string } = {
   '-9': '文件或目录不存在',
 }
 
-export function httpFileList(query: IQuery, options?: AxiosRequestConfig) {
+export function httpFileList(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',
       method: 'GET',
       params: Object.assign(
         {
           method: 'list',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
     },
     {

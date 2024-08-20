@@ -19,10 +19,10 @@ interface IRes {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function httpCode2Token(query: IQuery, options?: AxiosRequestConfig) {
+export function httpCode2Token(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://openapi.baidu.com/oauth/2.0/token',
       method: 'GET',
       params: Object.assign(
@@ -30,8 +30,8 @@ export function httpCode2Token(query: IQuery, options?: AxiosRequestConfig) {
           grant_type: 'authorization_code',
           redirect_uri: 'oob',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
     },
     {

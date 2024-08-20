@@ -26,13 +26,13 @@ interface IRes {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function httpUserQuota(query: IQuery, options?: AxiosRequestConfig) {
+export function httpUserQuota(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/api/quota',
       method: 'GET',
-      params: Object.assign({}, query, options?.params),
+      params: Object.assign({}, inQuery, inOpts?.params),
     },
     {
       errMap: __ERR_MAP__,

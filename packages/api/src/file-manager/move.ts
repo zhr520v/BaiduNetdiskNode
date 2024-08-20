@@ -2,15 +2,15 @@ import { AxiosRequestConfig } from 'axios'
 import { IBody, IQuery, httpFileManager } from './file-manager'
 
 export function httpMove(
-  query: Omit<IQuery, 'opera'>,
-  body: IBody,
-  options?: AxiosRequestConfig
+  inQuery: Omit<IQuery, 'opera'>,
+  inBody: IBody,
+  inOpts?: AxiosRequestConfig
 ) {
   return httpFileManager(
-    Object.assign({}, query, {
+    Object.assign({}, inQuery, {
       opera: 'move',
     }),
-    body,
-    options
+    inBody,
+    inOpts
   )
 }

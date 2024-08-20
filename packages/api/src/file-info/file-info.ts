@@ -70,18 +70,18 @@ const __ERR_MAP__: { [key: string]: string } = {
   '42214': '文件基础信息查询失败',
 }
 
-export function httpFileInfo(query: IQuery, options?: AxiosRequestConfig) {
+export function httpFileInfo(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
   return request<IRes>(
     {
-      ...Object.assign({}, options),
+      ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/multimedia',
       method: 'GET',
       params: Object.assign(
         {
           method: 'filemetas',
         },
-        query,
-        options?.params
+        inQuery,
+        inOpts?.params
       ),
     },
     {
