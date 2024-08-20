@@ -19,6 +19,17 @@ const netdisk = new Netdisk({
   access_token: config.access_token,
 })
 
+it('CreateFolder', async () => {
+  const data = await netdisk.createFolder({
+    path: `/apps/${config.app_name}/BaiduNetdiskSdkTest`,
+    opts: {
+      verifyExists: true,
+    },
+  })
+
+  expect(data).toHaveProperties('category')
+})
+
 it('GetUserInfo', async () => {
   const data = await netdisk.getUserInfo()
 

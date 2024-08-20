@@ -1,5 +1,7 @@
 import {
+  IBaiduApiError,
   httpCode2Token,
+  httpCreateFolder,
   httpFileInfo,
   httpFileList,
   httpFileListRecursion,
@@ -7,6 +9,7 @@ import {
   httpUserInfo,
   httpUserQuota,
 } from '@baidu-netdisk/api'
+import path from 'path'
 import { PromType } from './common/alpha'
 import { pick } from './common/utils'
 
@@ -204,5 +207,56 @@ export class Netdisk {
         'width',
       ])
     )
+  }
+
+  async createFolder(inOpts: {
+    path: string
+    opts?: Pick<
+      Parameters<typeof httpCreateFolder>[1],
+      'local_ctime' | 'local_mtime' | 'mode' | 'rtype'
+    > & { verifyExists?: boolean }
+  }) {
+    try {
+      const { data } = await httpCreateFolder(
+        {
+          access_token: this.#access_token,
+        },
+        {
+          path: inOpts.path,
+          ...inOpts.opts,
+        }
+      )
+
+      return pick(data, ['category', 'ctime', 'fs_id', 'isdir', 'mtime', 'path'])
+    } catch (err) {
+      const tErr = err as IBaiduApiError
+
+      if (inOpts.opts?.verifyExists && tErr.errno === -8) {
+        const list = await this.getFileList({
+          dir: path.dirname(inOpts.path),
+          opts: {
+            folder: 1,
+            infinite: true,
+          },
+        })
+
+        const item = list.find(item => item.path === inOpts.path)
+
+        if (item) {
+          const dirObj: Pick<
+            PromType<ReturnType<typeof httpCreateFolder>>['data'],
+            'category' | 'ctime' | 'fs_id' | 'isdir' | 'mtime' | 'path'
+          > = {
+            category: 6,
+            isdir: 1,
+            path: inOpts.path,
+          }
+
+          return dirObj
+        }
+      }
+
+      throw err
+    }
   }
 }
