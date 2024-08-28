@@ -1,5 +1,4 @@
 import pico from 'picocolors'
-import { isAsyncFunction } from 'util/types'
 
 type SyncAsyncFunc = (() => void) | (() => Promise<void>)
 
@@ -62,11 +61,7 @@ export async function runTest() {
 
         process.stdout.write(pico.yellow('    = ') + curItName + '\r')
 
-        if (isAsyncFunction(func)) {
-          await func()
-        } else {
-          func()
-        }
+        await func()
 
         if (curItName) {
           console.log(pico.green('    \u2713 ') + curItName)
