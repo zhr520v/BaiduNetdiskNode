@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import fs from 'fs'
 
 export function pick<T extends {}, K extends keyof T>(inObj: T, inKeys: K[]) {
   const obj = inObj as { [key: string]: any }
@@ -96,4 +97,16 @@ export async function tryTimes<R>(
   }
 
   throw error
+}
+
+export function readFileSlice(inFd: number, inChunkSize: number, inSliceNo: number) {
+  const buf = Buffer.alloc(inChunkSize)
+  const pos = inSliceNo * inChunkSize
+  const bytesRead = fs.readSync(inFd, buf, 0, inChunkSize, pos)
+
+  if (bytesRead === 0) {
+    return Buffer.alloc(0)
+  }
+
+  return bytesRead < inChunkSize ? buf.subarray(0, bytesRead) : buf
 }
