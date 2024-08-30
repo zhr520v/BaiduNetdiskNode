@@ -10,22 +10,48 @@ import {
   httpUserQuota,
 } from '@baidu-netdisk/api'
 import path from 'path'
-import { PromType } from './common/alpha'
+import {
+  PromType,
+  __DOWNLOAD_THREADS__,
+  __TRY_DELTA__,
+  __TRY_TIMES__,
+  __UPLOAD_THREADS__,
+} from './common/alpha'
+import { DownloadTask } from './common/download-task'
 import { EAsync, EOndup, fileManage } from './common/file-manage'
-import { pick } from './common/utils'
+import { EStatus } from './common/steps'
+import { ERtype, UploadTask } from './common/upload-task'
+import { pathNormalized, pick } from './common/utils'
 
 export class Netdisk {
   #app_name = ''
   #access_token = ''
+  #gUploadThreads = __UPLOAD_THREADS__
+  #gDownloadThreads = __DOWNLOAD_THREADS__
+  #gTryTimes = __TRY_TIMES__
+  #gTryDelta = __TRY_DELTA__
 
   static Enum = {
-    EOndup,
-    EAsync,
+    EAsync: EAsync,
+    EOndup: EOndup,
+    ERtype: ERtype,
+    EStatus: EStatus,
   }
 
-  constructor(inOpts: { app_name: string; access_token: string }) {
+  constructor(inOpts: {
+    app_name: string
+    access_token: string
+    gUploadThreads?: number
+    gDownloadThreads?: number
+    gTryTimes?: number
+    gTryDelta?: number
+  }) {
     this.#app_name = inOpts.app_name
     this.#access_token = inOpts.access_token
+    this.#gUploadThreads = inOpts.gUploadThreads || this.#gUploadThreads
+    this.#gDownloadThreads = inOpts.gDownloadThreads || this.#gDownloadThreads
+    this.#gTryTimes = inOpts.gTryTimes || this.#gTryTimes
+    this.#gTryDelta = inOpts.gTryDelta || this.#gTryDelta
   }
 
   static getCodeUrl(inOpts: { app_key: string; app_id: string }) {
@@ -373,6 +399,100 @@ export class Netdisk {
       access_token: this.#access_token,
       opera: 'delete',
       ...inOpts,
+    })
+  }
+
+  upload(
+    inOpts: Pick<
+      ConstructorParameters<typeof UploadTask>[0],
+      'encrypt' | 'local' | 'apiOpts' | 'remote' | 'rtype' | 'threads' | 'tryDelta' | 'tryTimes'
+    >
+  ) {
+    if (pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}`)) {
+      throw new Error(`only support upload to specific folder ${this.#app_name} for now`)
+    }
+
+    const task = new UploadTask({
+      ...inOpts,
+      app_name: this.#app_name,
+      access_token: this.#access_token,
+      noSilent: true,
+      threads: inOpts.threads || this.#gUploadThreads,
+      tryTimes: inOpts.tryTimes || this.#gTryTimes,
+      tryDelta: inOpts.tryDelta || this.#gTryDelta,
+    })
+
+    task.run()
+
+    return task.done
+  }
+
+  uploadTask(
+    inOpts: Pick<
+      ConstructorParameters<typeof UploadTask>[0],
+      'encrypt' | 'local' | 'apiOpts' | 'remote' | 'rtype' | 'threads' | 'tryDelta' | 'tryTimes'
+    >
+  ) {
+    if (pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}`)) {
+      throw new Error(`only support upload to specific folder ${this.#app_name} for now`)
+    }
+
+    return new UploadTask({
+      ...inOpts,
+      app_name: this.#app_name,
+      access_token: this.#access_token,
+      threads: inOpts.threads || this.#gUploadThreads,
+      tryTimes: inOpts.tryTimes || this.#gTryTimes,
+      tryDelta: inOpts.tryDelta || this.#gTryDelta,
+    })
+  }
+
+  download(
+    inOpts: Pick<
+      ConstructorParameters<typeof DownloadTask>[0],
+      | 'encrypt'
+      | 'local'
+      | 'threads'
+      | 'tryDelta'
+      | 'tryTimes'
+      | 'withDlink'
+      | 'withFsid'
+      | 'withPath'
+    >
+  ) {
+    const task = new DownloadTask({
+      ...inOpts,
+      access_token: this.#access_token,
+      noSilent: true,
+      threads: inOpts.threads || this.#gDownloadThreads,
+      tryTimes: inOpts.tryTimes || this.#gTryTimes,
+      tryDelta: inOpts.tryDelta || this.#gTryDelta,
+    })
+
+    task.run()
+
+    return task.done
+  }
+
+  downloadTask(
+    inOpts: Pick<
+      ConstructorParameters<typeof DownloadTask>[0],
+      | 'encrypt'
+      | 'local'
+      | 'threads'
+      | 'tryDelta'
+      | 'tryTimes'
+      | 'withDlink'
+      | 'withFsid'
+      | 'withPath'
+    >
+  ) {
+    return new DownloadTask({
+      ...inOpts,
+      access_token: this.#access_token,
+      threads: inOpts.threads || this.#gDownloadThreads,
+      tryTimes: inOpts.tryTimes || this.#gTryTimes,
+      tryDelta: inOpts.tryDelta || this.#gTryDelta,
     })
   }
 }
