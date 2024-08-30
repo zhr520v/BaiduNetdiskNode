@@ -4,6 +4,10 @@ import { fileURLToPath } from 'url'
 import { MessagePort, Worker } from 'worker_threads'
 import { __ES__ } from './alpha'
 
+export interface IErrorRes {
+  msg: string
+}
+
 export class WorkerParent {
   #entity: Worker
   #recvDataFuncs: Map<string, (inData: any) => void> = new Map()
