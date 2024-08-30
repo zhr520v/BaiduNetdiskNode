@@ -76,11 +76,7 @@ export class Steps {
   }
 
   async stop() {
-    if (this.status !== EStatus.RUNNING) {
-      throw new Error('Stop task failed, task is not RUNNING')
-    }
-
-    if (!this.#step) {
+    if (this.status !== EStatus.RUNNING || !this.#step) {
       return
     }
 
