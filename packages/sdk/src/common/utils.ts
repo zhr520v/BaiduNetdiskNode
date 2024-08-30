@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import fs from 'fs'
+import path from 'path'
 
 export function pick<T extends {}, K extends keyof T>(inObj: T, inKeys: K[]) {
   const obj = inObj as { [key: string]: any }
@@ -109,4 +110,8 @@ export function readFileSlice(inFd: number, inChunkSize: number, inSliceNo: numb
   }
 
   return bytesRead < inChunkSize ? buf.subarray(0, bytesRead) : buf
+}
+
+export function pathNormalized(inPath: string) {
+  return path.normalize(inPath).replace(/\\/g, '/')
 }
