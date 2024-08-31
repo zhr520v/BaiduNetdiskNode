@@ -418,6 +418,12 @@ describe('CLEANUP', () => {
 
     expect(data).toHaveProperties('info')
   })
+
+  it('DeleteLocalFolder', async () => {
+    fsExt.removeSync('tmp/files')
+
+    expect(fsExt.existsSync('tmp/files')).toBe(false)
+  })
 })
 
 runTest()
