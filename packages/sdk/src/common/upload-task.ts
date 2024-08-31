@@ -158,8 +158,8 @@ export class UploadTask {
   async #__STEP__GetFileInfo__() {
     const stats = await FS_STAT_ASYNC(this.#local)
 
-    this.#ctimeMs = stats.ctimeMs
-    this.#mtimeMs = stats.mtimeMs
+    this.#ctimeMs = Math.floor(stats.ctimeMs)
+    this.#mtimeMs = Math.floor(stats.mtimeMs)
     this.#oriSize = stats.size
 
     const needfulParams = getChunkMbComSize(stats.size, !!this.#keyBuf.length)
