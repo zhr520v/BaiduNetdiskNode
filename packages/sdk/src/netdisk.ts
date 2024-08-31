@@ -408,7 +408,7 @@ export class Netdisk {
       'encrypt' | 'local' | 'apiOpts' | 'remote' | 'rtype' | 'threads' | 'tryDelta' | 'tryTimes'
     >
   ) {
-    if (pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}`)) {
+    if (!pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}/`)) {
       throw new Error(`only support upload to specific folder ${this.#app_name} for now`)
     }
 
@@ -433,7 +433,7 @@ export class Netdisk {
       'encrypt' | 'local' | 'apiOpts' | 'remote' | 'rtype' | 'threads' | 'tryDelta' | 'tryTimes'
     >
   ) {
-    if (pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}`)) {
+    if (!pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}/`)) {
       throw new Error(`only support upload to specific folder ${this.#app_name} for now`)
     }
 
