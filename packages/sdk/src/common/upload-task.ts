@@ -117,9 +117,7 @@ export class UploadTask {
     this.#onError = inOpts.onError || this.#onError
     this.#onStatusChanged = inOpts.onStatusChanged || this.#onStatusChanged
 
-    if (!this.#onDone) {
-      this.#doneProm = new PromBat<IUploadFinish>()
-    }
+    this.#doneProm = this.#onDone ? this.#doneProm : new PromBat<IUploadFinish>()
 
     this.#formatEncrypt(inOpts.encrypt)
 
@@ -438,8 +436,8 @@ export class UploadTask {
   }
 
   run() {
-    if (this.#steps.error && !this.#onDone) {
-      this.#doneProm = new PromBat<IUploadFinish>()
+    if (this.#steps.error) {
+      this.#doneProm = this.#onDone ? this.#doneProm : new PromBat<IUploadFinish>()
     }
 
     this.#steps.run()

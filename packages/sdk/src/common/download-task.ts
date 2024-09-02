@@ -90,9 +90,7 @@ export class DownloadTask {
     this.#onError = inOpts.onError || this.#onError
     this.#onStatusChanged = inOpts.onStatusChanged || this.#onStatusChanged
 
-    if (!this.#onDone) {
-      this.#doneProm = new PromBat<IDownloadFinish>()
-    }
+    this.#doneProm = this.#onDone ? this.#doneProm : new PromBat<IDownloadFinish>()
 
     if (inOpts.withDlink) {
       this.#dlink = inOpts.withDlink.dlink
@@ -439,8 +437,8 @@ export class DownloadTask {
   }
 
   run() {
-    if (this.#steps.error && !this.#onDone) {
-      this.#doneProm = new PromBat<IDownloadFinish>()
+    if (this.#steps.error) {
+      this.#doneProm = this.#onDone ? this.#doneProm : new PromBat<IDownloadFinish>()
     }
 
     this.#steps.run()
