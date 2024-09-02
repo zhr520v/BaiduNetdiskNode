@@ -49,10 +49,10 @@ export class DownloadTask {
   #downloadSpeed = 0
 
   #steps: Steps
-  #donePromBat = new PromBat<IDownloadFinish>()
-  onDone: (inData: IDownloadFinish) => void = () => {}
-  onError: (inError: Error) => void = () => {}
-  onStatusChanged: (
+  #doneProm: PromBat<IDownloadFinish> | undefined
+  #onDone: ((inData: IDownloadFinish) => void) | undefined
+  #onError: (inError: Error) => void = () => {}
+  #onStatusChanged: (
     inNewStatus: (typeof EStatus)[keyof typeof EStatus],
     inError: Error | null
   ) => void = () => {}
@@ -86,9 +86,13 @@ export class DownloadTask {
     this.#tryTimes = inOpts.tryTimes || this.#tryTimes
     this.#tryDelta = inOpts.tryDelta || this.#tryDelta
     this.#threads = inOpts.threads || this.#threads
-    this.onDone = inOpts.onDone || this.onDone
-    this.onError = inOpts.onError || this.onError
-    this.onStatusChanged = inOpts.onStatusChanged || this.onStatusChanged
+    this.#onDone = inOpts.onDone || this.#onDone
+    this.#onError = inOpts.onError || this.#onError
+    this.#onStatusChanged = inOpts.onStatusChanged || this.#onStatusChanged
+
+    if (!this.#onDone) {
+      this.#doneProm = new PromBat<IDownloadFinish>()
+    }
 
     if (inOpts.withDlink) {
       this.#dlink = inOpts.withDlink.dlink
@@ -117,11 +121,11 @@ export class DownloadTask {
       ],
       onStatusChanged: inNewStatus => {
         if (inNewStatus === EStatus.STOPPED && this.#steps.error && this.#noSilent) {
-          this.#donePromBat.rej(this.#steps.error)
-          this.onError(this.#steps.error)
+          this.#doneProm?.rej(this.#steps.error)
+          this.#onError(this.#steps.error)
         }
 
-        this.onStatusChanged(inNewStatus, this.#steps.error)
+        this.#onStatusChanged(inNewStatus, this.#steps.error)
       },
     })
   }
@@ -330,8 +334,8 @@ export class DownloadTask {
   }
 
   async #__STEP__DownloadFinish__() {
-    this.#donePromBat.res({ local: this.#local })
-    this.onDone({ local: this.#local })
+    this.#doneProm?.res({ local: this.#local })
+    this.#onDone?.({ local: this.#local })
   }
 
   async #__STOP__DownloadSlices__() {
@@ -435,8 +439,8 @@ export class DownloadTask {
   }
 
   run() {
-    if (this.#steps.error) {
-      this.#donePromBat = new PromBat<IDownloadFinish>()
+    if (this.#steps.error && !this.#onDone) {
+      this.#doneProm = new PromBat<IDownloadFinish>()
     }
 
     this.#steps.run()
@@ -447,7 +451,7 @@ export class DownloadTask {
   }
 
   get done() {
-    return this.#donePromBat.prom
+    return this.#doneProm?.prom
   }
 
   get info() {

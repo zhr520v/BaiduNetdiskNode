@@ -244,27 +244,25 @@ describe('UPLOAD_TASK', () => {
         local: path.resolve('tmp/files/512.task.bin'),
         remote: `${__PATH_PREFIX__}/512.task.bin`,
         threads: 2,
+        onDone: inData => {
+          expect(inData).toHaveProperties(
+            'category',
+            'ctime',
+            'fs_id',
+            'isdir',
+            'md5',
+            'mtime',
+            'name',
+            'path',
+            'size'
+          )
+
+          resolve()
+        },
+        onError: inError => {
+          reject(inError)
+        },
       })
-
-      task.onDone = inData => {
-        expect(inData).toHaveProperties(
-          'category',
-          'ctime',
-          'fs_id',
-          'isdir',
-          'md5',
-          'mtime',
-          'name',
-          'path',
-          'size'
-        )
-
-        resolve()
-      }
-
-      task.onError = inError => {
-        reject(inError)
-      }
 
       task.run()
 
@@ -293,27 +291,25 @@ describe('UPLOAD_TASK', () => {
         remote: `${__PATH_PREFIX__}/512.task.bin.e`,
         encrypt: 'keenghost',
         threads: 2,
+        onDone: inData => {
+          expect(inData).toHaveProperties(
+            'category',
+            'ctime',
+            'fs_id',
+            'isdir',
+            'md5',
+            'mtime',
+            'name',
+            'path',
+            'size'
+          )
+
+          resolve()
+        },
+        onError: inError => {
+          reject(inError)
+        },
       })
-
-      task.onDone = inData => {
-        expect(inData).toHaveProperties(
-          'category',
-          'ctime',
-          'fs_id',
-          'isdir',
-          'md5',
-          'mtime',
-          'name',
-          'path',
-          'size'
-        )
-
-        resolve()
-      }
-
-      task.onError = inError => {
-        reject(inError)
-      }
 
       task.run()
 
@@ -384,17 +380,15 @@ describe('DOWNLOAD_TASK', () => {
         withPath: `${__PATH_PREFIX__}/512.task.bin`,
         local: path.resolve('tmp/files/512.task.bin.download'),
         threads: 3,
+        onDone: inData => {
+          expect(inData).toHaveProperties('local')
+
+          resolve()
+        },
+        onError: inError => {
+          reject(inError)
+        },
       })
-
-      task.onDone = inData => {
-        expect(inData).toHaveProperties('local')
-
-        resolve()
-      }
-
-      task.onError = inError => {
-        reject(inError)
-      }
 
       task.run()
 
@@ -420,17 +414,15 @@ describe('DOWNLOAD_TASK', () => {
         local: path.resolve('tmp/files/512.task.bin.e.download'),
         encrypt: 'keenghost',
         threads: 3,
+        onDone: inData => {
+          expect(inData).toHaveProperties('local')
+
+          resolve()
+        },
+        onError: inError => {
+          reject(inError)
+        },
       })
-
-      task.onDone = inData => {
-        expect(inData).toHaveProperties('local')
-
-        resolve()
-      }
-
-      task.onError = inError => {
-        reject(inError)
-      }
 
       task.run()
 

@@ -73,10 +73,10 @@ export class UploadTask {
   #uploadSpeed = 0
 
   #steps: Steps
-  #donePromBat: PromBat<IUploadFinish> = new PromBat()
-  onDone: (inData: IUploadFinish) => void = () => {}
-  onError: (inError: Error) => void = () => {}
-  onStatusChanged: (
+  #doneProm: PromBat<IUploadFinish> | undefined
+  #onDone: ((inData: IUploadFinish) => void) | undefined
+  #onError: (inError: Error) => void = () => {}
+  #onStatusChanged: (
     inNewStatus: (typeof EStatus)[keyof typeof EStatus],
     inError: Error | null
   ) => void = () => {}
@@ -113,9 +113,13 @@ export class UploadTask {
     this.#tryTimes = inOpts.tryTimes || this.#tryTimes
     this.#tryDelta = inOpts.tryDelta || this.#tryDelta
     this.#apiOpts = inOpts.apiOpts || this.#apiOpts
-    this.onDone = inOpts.onDone || this.onDone
-    this.onError = inOpts.onError || this.onError
-    this.onStatusChanged = inOpts.onStatusChanged || this.onStatusChanged
+    this.#onDone = inOpts.onDone || this.#onDone
+    this.#onError = inOpts.onError || this.#onError
+    this.#onStatusChanged = inOpts.onStatusChanged || this.#onStatusChanged
+
+    if (!this.#onDone) {
+      this.#doneProm = new PromBat<IUploadFinish>()
+    }
 
     this.#formatEncrypt(inOpts.encrypt)
 
@@ -146,11 +150,11 @@ export class UploadTask {
       },
       onStatusChanged: inNewStatus => {
         if (inNewStatus === EStatus.STOPPED && this.#steps.error && this.#noSilent) {
-          this.#donePromBat.rej(this.#steps.error)
-          this.onError(this.#steps.error)
+          this.#doneProm?.rej(this.#steps.error)
+          this.#onError(this.#steps.error)
         }
 
-        this.onStatusChanged(inNewStatus, this.#steps.error)
+        this.#onStatusChanged(inNewStatus, this.#steps.error)
       },
     })
   }
@@ -322,8 +326,8 @@ export class UploadTask {
       'size',
     ])
 
-    this.#donePromBat.res(returnData)
-    this.onDone(returnData)
+    this.#doneProm?.res(returnData)
+    this.#onDone?.(returnData)
   }
 
   async #__STOP__GetLocalMd5__() {
@@ -434,8 +438,8 @@ export class UploadTask {
   }
 
   run() {
-    if (this.#steps.error) {
-      this.#donePromBat = new PromBat<IUploadFinish>()
+    if (this.#steps.error && !this.#onDone) {
+      this.#doneProm = new PromBat<IUploadFinish>()
     }
 
     this.#steps.run()
@@ -446,7 +450,7 @@ export class UploadTask {
   }
 
   get done() {
-    return this.#donePromBat.prom
+    return this.#doneProm?.prom
   }
 
   get info() {

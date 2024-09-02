@@ -430,7 +430,17 @@ export class Netdisk {
   uploadTask(
     inOpts: Pick<
       ConstructorParameters<typeof UploadTask>[0],
-      'encrypt' | 'local' | 'apiOpts' | 'remote' | 'rtype' | 'threads' | 'tryDelta' | 'tryTimes'
+      | 'encrypt'
+      | 'local'
+      | 'apiOpts'
+      | 'onDone'
+      | 'onError'
+      | 'onStatusChanged'
+      | 'remote'
+      | 'rtype'
+      | 'threads'
+      | 'tryDelta'
+      | 'tryTimes'
     >
   ) {
     if (!pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}/`)) {
@@ -479,6 +489,9 @@ export class Netdisk {
       ConstructorParameters<typeof DownloadTask>[0],
       | 'encrypt'
       | 'local'
+      | 'onDone'
+      | 'onError'
+      | 'onStatusChanged'
       | 'threads'
       | 'tryDelta'
       | 'tryTimes'
