@@ -1,8 +1,8 @@
-export const EStatus = {
-  CREATED: 0,
-  RUNNING: 1,
-  STOPPED: 2,
-  FINISHED: 3,
+export const enum EStatus {
+  CREATED = 0,
+  RUNNING = 1,
+  STOPPED = 2,
+  FINISHED = 3,
 }
 
 interface IStepItem {
@@ -21,16 +21,16 @@ interface ICurrStep {
 export class Steps {
   #names: string[] = []
   #steps: IStepItem[] = []
-  #status: (typeof EStatus)[keyof typeof EStatus] = EStatus.CREATED
+  #status: EStatus = EStatus.CREATED
   #error: Error | null = null
   #step: ICurrStep | null = null
   #onBeforeRun: () => Promise<void> = async () => {}
-  #onStatusChanged: (inNewStatus: (typeof EStatus)[keyof typeof EStatus]) => void = () => {}
+  #onStatusChanged: (inNewStatus: EStatus) => void = () => {}
 
   constructor(inOpts: {
     steps: IStepItem[]
     onBeforeRun?: () => Promise<void>
-    onStatusChanged?: (inNewStatus: (typeof EStatus)[keyof typeof EStatus]) => void
+    onStatusChanged?: (inNewStatus: EStatus) => void
   }) {
     this.#steps = inOpts.steps
     this.#onBeforeRun = inOpts.onBeforeRun || this.#onBeforeRun
@@ -88,7 +88,7 @@ export class Steps {
     }
   }
 
-  #setStatus(inNewStatus: (typeof EStatus)[keyof typeof EStatus]) {
+  #setStatus(inNewStatus: EStatus) {
     this.#status = inNewStatus
     this.#onStatusChanged(inNewStatus)
   }

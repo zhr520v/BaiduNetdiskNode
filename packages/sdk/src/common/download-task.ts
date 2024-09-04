@@ -52,10 +52,7 @@ export class DownloadTask {
   #doneProm: PromBat<IDownloadFinish> | undefined
   #onDone: ((inData: IDownloadFinish) => void) | undefined
   #onError: (inError: Error) => void = () => {}
-  #onStatusChanged: (
-    inNewStatus: (typeof EStatus)[keyof typeof EStatus],
-    inError: Error | null
-  ) => void = () => {}
+  #onStatusChanged: (inNewStatus: EStatus, inError: Error | null) => void = () => {}
 
   constructor(inOpts: {
     access_token: string
@@ -74,10 +71,7 @@ export class DownloadTask {
     tryDelta?: number
     onDone?: (inData: IDownloadFinish) => void
     onError?: (inError: Error) => void
-    onStatusChanged?: (
-      inNewStatus: (typeof EStatus)[keyof typeof EStatus],
-      inError: Error | null
-    ) => void
+    onStatusChanged?: (inNewStatus: EStatus, inError: Error | null) => void
   }) {
     this.#access_token = inOpts.access_token
     this.#local = inOpts.local

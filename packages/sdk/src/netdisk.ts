@@ -19,8 +19,7 @@ import {
 } from './common/alpha'
 import { DownloadTask } from './common/download-task'
 import { EAsync, EOndup, fileManage } from './common/file-manage'
-import { EStatus } from './common/steps'
-import { ERtype, UploadTask } from './common/upload-task'
+import { UploadTask } from './common/upload-task'
 import { pathNormalized, pick } from './common/utils'
 
 export class Netdisk {
@@ -30,13 +29,6 @@ export class Netdisk {
   #gDownloadThreads = __DOWNLOAD_THREADS__
   #gTryTimes = __TRY_TIMES__
   #gTryDelta = __TRY_DELTA__
-
-  static Enum = {
-    EAsync: EAsync,
-    EOndup: EOndup,
-    ERtype: ERtype,
-    EStatus: EStatus,
-  }
 
   constructor(inOpts: {
     app_name: string
@@ -292,12 +284,7 @@ export class Netdisk {
     }
   }
 
-  copyFolderOrFile(inOpts: {
-    source: string
-    target: string
-    ondup?: (typeof EOndup)[keyof typeof EOndup]
-    async?: (typeof EAsync)[keyof typeof EAsync]
-  }) {
+  copyFolderOrFile(inOpts: { source: string; target: string; ondup?: EOndup; async?: EAsync }) {
     return fileManage({
       access_token: this.#access_token,
       opera: 'copy',
@@ -310,10 +297,10 @@ export class Netdisk {
     list: {
       source: string
       target: string
-      ondup?: (typeof EOndup)[keyof typeof EOndup]
+      ondup?: EOndup
     }[]
-    ondup?: (typeof EOndup)[keyof typeof EOndup]
-    async?: (typeof EAsync)[keyof typeof EAsync]
+    ondup?: EOndup
+    async?: EAsync
   }) {
     return fileManage({
       access_token: this.#access_token,
@@ -322,12 +309,7 @@ export class Netdisk {
     })
   }
 
-  moveFolderOrFile(inOpts: {
-    source: string
-    target: string
-    ondup?: (typeof EOndup)[keyof typeof EOndup]
-    async?: (typeof EAsync)[keyof typeof EAsync]
-  }) {
+  moveFolderOrFile(inOpts: { source: string; target: string; ondup?: EOndup; async?: EAsync }) {
     return fileManage({
       access_token: this.#access_token,
       opera: 'move',
@@ -340,10 +322,10 @@ export class Netdisk {
     list: {
       source: string
       target: string
-      ondup?: (typeof EOndup)[keyof typeof EOndup]
+      ondup?: EOndup
     }[]
-    ondup?: (typeof EOndup)[keyof typeof EOndup]
-    async?: (typeof EAsync)[keyof typeof EAsync]
+    ondup?: EOndup
+    async?: EAsync
   }) {
     return fileManage({
       access_token: this.#access_token,
@@ -355,8 +337,8 @@ export class Netdisk {
   renameFolderOrFile(inOpts: {
     source: string
     newname: string
-    ondup?: (typeof EOndup)[keyof typeof EOndup]
-    async?: (typeof EAsync)[keyof typeof EAsync]
+    ondup?: EOndup
+    async?: EAsync
   }) {
     return fileManage({
       access_token: this.#access_token,
@@ -370,10 +352,10 @@ export class Netdisk {
     list: {
       source: string
       newname: string
-      ondup?: (typeof EOndup)[keyof typeof EOndup]
+      ondup?: EOndup
     }[]
-    ondup?: (typeof EOndup)[keyof typeof EOndup]
-    async?: (typeof EAsync)[keyof typeof EAsync]
+    ondup?: EOndup
+    async?: EAsync
   }) {
     return fileManage({
       access_token: this.#access_token,
@@ -382,7 +364,7 @@ export class Netdisk {
     })
   }
 
-  deleteFolderOrFile(inOpts: { source: string; async?: (typeof EAsync)[keyof typeof EAsync] }) {
+  deleteFolderOrFile(inOpts: { source: string; async?: EAsync }) {
     return fileManage({
       access_token: this.#access_token,
       opera: 'delete',
@@ -391,10 +373,7 @@ export class Netdisk {
     })
   }
 
-  deleteFoldersOrFiles(inOpts: {
-    list: { source: string }[]
-    async?: (typeof EAsync)[keyof typeof EAsync]
-  }) {
+  deleteFoldersOrFiles(inOpts: { list: { source: string }[]; async?: EAsync }) {
     return fileManage({
       access_token: this.#access_token,
       opera: 'delete',

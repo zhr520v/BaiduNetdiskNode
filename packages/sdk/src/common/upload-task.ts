@@ -18,11 +18,11 @@ import { IErrorRes, WorkerParent, newWorker } from './worker'
 
 const FS_STAT_ASYNC = util.promisify(fs.stat)
 
-export const ERtype = {
-  FAIL: 0,
-  RENAME: 1,
-  DIFF_RENAME: 2,
-  OVERWRITE: 3,
+export const enum ERtype {
+  FAIL = 0,
+  RENAME = 1,
+  DIFF_RENAME = 2,
+  OVERWRITE = 3,
 }
 
 interface IUploadFinish
@@ -36,7 +36,7 @@ export class UploadTask {
   #access_token = ''
   #local = ''
   #remote = ''
-  #rtype: (typeof ERtype)[keyof typeof ERtype] = ERtype.FAIL
+  #rtype: ERtype = ERtype.FAIL
   #threads = __UPLOAD_THREADS__
   #noSilent = false
   #tryTimes = __TRY_TIMES__
@@ -76,17 +76,14 @@ export class UploadTask {
   #doneProm: PromBat<IUploadFinish> | undefined
   #onDone: ((inData: IUploadFinish) => void) | undefined
   #onError: (inError: Error) => void = () => {}
-  #onStatusChanged: (
-    inNewStatus: (typeof EStatus)[keyof typeof EStatus],
-    inError: Error | null
-  ) => void = () => {}
+  #onStatusChanged: (inNewStatus: EStatus, inError: Error | null) => void = () => {}
 
   constructor(inOpts: {
     app_name: string
     access_token: string
     local: string
     remote: string
-    rtype?: (typeof ERtype)[keyof typeof ERtype]
+    rtype?: ERtype
     encrypt?: string
     threads?: number
     noSilent?: boolean
@@ -98,10 +95,7 @@ export class UploadTask {
     >
     onDone?: (inData: IUploadFinish) => void
     onError?: (inError: Error) => void
-    onStatusChanged?: (
-      inNewStatus: (typeof EStatus)[keyof typeof EStatus],
-      inError: Error | null
-    ) => void
+    onStatusChanged?: (inNewStatus: EStatus, inError: Error | null) => void
   }) {
     this.#app_name = inOpts.app_name
     this.#access_token = inOpts.access_token
