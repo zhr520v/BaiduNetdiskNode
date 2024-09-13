@@ -8,7 +8,7 @@ child_process.execSync('pnpm tsc -p scripts/tsconfig.cjs.json')
 
 const omit_keys = ['type', 'main', 'scripts', 'devDependencies', 'moduleOptions']
 const packagejson = JSON.parse(fsExt.readFileSync('package.json', { encoding: 'utf-8' }))
-const newpackagejson: { [key: string]: any } = {}
+const newpackagejson: Record<string, any> = {}
 
 for (const key in packagejson) {
   if (!omit_keys.includes(key)) {

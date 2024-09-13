@@ -41,27 +41,3 @@ export {
   httpUserInfo,
   httpUserQuota,
 }
-
-const BaiduNetdiskAPI = {
-  axios,
-  httpCode2Token,
-  httpRefreshToken,
-  httpFileInfo,
-  httpFileList,
-  httpFileListRecursion,
-  httpCopy,
-  httpDelete,
-  httpFileManager,
-  httpMove,
-  httpRename,
-  httpCreateFolder,
-  httpUploadFinish,
-  httpUploadId,
-  httpUploadSlice,
-  httpUploadSmall,
-  httpUploadUrl,
-  httpUserInfo,
-  httpUserQuota,
-}
-
-export default BaiduNetdiskAPI
