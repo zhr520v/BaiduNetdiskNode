@@ -61,10 +61,14 @@ export async function runTest() {
 
         process.stdout.write(pico.yellow('    = ') + curItName + '\r')
 
+        const start = Date.now()
+
         await func()
 
         if (curItName) {
-          console.log(pico.green('    \u2713 ') + curItName)
+          console.log(
+            pico.green('    \u2713 ') + curItName + pico.green(` (${Date.now() - start}ms)`)
+          )
         }
       }
 
