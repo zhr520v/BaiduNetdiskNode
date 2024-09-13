@@ -19,6 +19,10 @@
   "dependencies": {
     "axios": "^1.7.3"
   },
+  "engines": {
+    "node": "^18.0.0 || >= 20.0.0",
+    "pnpm": "^9.0.0"
+  },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "test": "tsx test/index.test.ts",

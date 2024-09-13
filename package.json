@@ -10,6 +10,10 @@
   },
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "^18.0.0 || >= 20.0.0",
+    "pnpm": "^9.0.0"
+  },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "postinstall": "simple-git-hooks && tsx scripts/post-install.ts",
