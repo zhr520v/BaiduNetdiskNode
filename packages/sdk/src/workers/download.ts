@@ -1,6 +1,6 @@
 import { axios } from 'baidu-netdisk-api'
-import fs from 'fs'
-import { parentPort, workerData } from 'worker_threads'
+import fs from 'node:fs'
+import { parentPort, workerData } from 'node:worker_threads'
 import { decrypt, tryTimes } from '../common/utils'
 import { IErrorRes, WorkerChild } from '../common/worker'
 

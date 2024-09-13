@@ -1,7 +1,7 @@
 import { httpUploadFinish, httpUploadId } from 'baidu-netdisk-api'
-import crypto from 'crypto'
-import fs from 'fs'
-import util from 'util'
+import crypto from 'node:crypto'
+import fs from 'node:fs'
+import util from 'node:util'
 import { IMd5Req, IMd5Res } from '../workers/md5'
 import { ISliceReq, ISliceRes, ISpeedRes, IUploadReq } from '../workers/upload'
 import {

@@ -1,5 +1,5 @@
 import { httpFileManager } from 'baidu-netdisk-api'
-import path from 'path'
+import path from 'node:path'
 import { pick } from './utils'
 
 export enum EOndup {

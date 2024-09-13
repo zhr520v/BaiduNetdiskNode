@@ -1,5 +1,4 @@
-// @ts-ignore
+import { workerData } from 'node:worker_threads'
 import { tsImport } from 'tsx/esm/api'
-import { workerData } from 'worker_threads'
 
 tsImport(workerData.__worker_filepath__, import.meta.url)

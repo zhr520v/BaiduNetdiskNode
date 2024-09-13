@@ -1,6 +1,6 @@
 import { axios, httpFileInfo, httpFileList } from 'baidu-netdisk-api'
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { IDownloadReq, ISliceReq, ISliceRes, ISpeedRes } from '../workers/download'
 import {
   __DOWNLOAD_THREADS__,

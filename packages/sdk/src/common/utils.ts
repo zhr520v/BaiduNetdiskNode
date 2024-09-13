@@ -1,6 +1,6 @@
-import crypto from 'crypto'
-import fs from 'fs'
-import path from 'path'
+import crypto from 'node:crypto'
+import fs from 'node:fs'
+import path from 'node:path'
 
 export function pick<T extends {}, K extends keyof T>(inObj: T, inKeys: K[]) {
   const obj = inObj as { [key: string]: any }

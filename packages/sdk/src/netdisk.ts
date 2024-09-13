@@ -9,7 +9,7 @@ import {
   httpUserInfo,
   httpUserQuota,
 } from 'baidu-netdisk-api'
-import path from 'path'
+import path from 'node:path'
 import {
   PromType,
   __DOWNLOAD_THREADS__,

@@ -1,6 +1,6 @@
 import { httpUploadSlice } from 'baidu-netdisk-api'
-import fs from 'fs'
-import { parentPort, workerData } from 'worker_threads'
+import fs from 'node:fs'
+import { parentPort, workerData } from 'node:worker_threads'
 import { __PRESV_ENC_BLOCK_SIZE__ } from '../common/alpha'
 import { encrypt, readFileSlice, tryTimes } from '../common/utils'
 import { IErrorRes, WorkerChild } from '../common/worker'

@@ -1,7 +1,7 @@
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { MessagePort, Worker } from 'worker_threads'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { MessagePort, Worker } from 'node:worker_threads'
 import { __ES__ } from './alpha'
 
 export interface IErrorRes {

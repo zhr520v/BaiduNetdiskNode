@@ -1,6 +1,6 @@
-import child_process from 'child_process'
-import fs from 'fs'
 import minimist from 'minimist'
+import child_process from 'node:child_process'
+import fs from 'node:fs'
 import pico from 'picocolors'
 
 const args = minimist(process.argv.slice(2))
