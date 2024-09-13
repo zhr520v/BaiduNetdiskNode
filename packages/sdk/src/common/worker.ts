@@ -72,15 +72,14 @@ export class WorkerChild {
   }
 }
 
+// @ts-ignore
+const __DIRNAME__ = path.dirname(fileURLToPath(import.meta.url))
 const __WORKER_CACHE__: Map<string, string> = new Map()
-const __WORKER_LOADER__ = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../workers/_loader'
-)
+const __WORKER_LOADER__ = path.resolve(__DIRNAME__, '../workers/_loader')
 
 export function newWorker<T>(inWorkerName: string, inWorkerData: T) {
   const workerPath = __ES__
-    ? path.resolve(path.dirname(fileURLToPath(import.meta.url)), `../workers/${inWorkerName}`)
+    ? path.resolve(__DIRNAME__, `../workers/${inWorkerName}`)
     : path.resolve(__dirname, `../workers/${inWorkerName}`)
 
   if (!__WORKER_CACHE__.get(workerPath)) {
