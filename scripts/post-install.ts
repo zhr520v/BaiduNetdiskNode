@@ -1,5 +1,5 @@
-import fsExt from 'fs-extra'
+import fs from 'fs'
 
-const pnpmlock = fsExt.readFileSync('pnpm-lock.yaml', { encoding: 'utf-8' })
+const pnpmlock = fs.readFileSync('pnpm-lock.yaml', { encoding: 'utf-8' })
 
-fsExt.writeFileSync('pnpm-lock.yaml', pnpmlock.replace(/, tarball: .*}/g, '}'))
+fs.writeFileSync('pnpm-lock.yaml', pnpmlock.replace(/, tarball: .*}/g, '}'))

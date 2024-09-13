@@ -1,11 +1,11 @@
 import crypto from 'crypto'
-import fsExt from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 import pico from 'picocolors'
 import { describe, expect, it, runTest } from '../../../utils/test-suite'
 import { Netdisk } from '../index'
 
-if (!fsExt.existsSync('tmp/test.config.json')) {
+if (!fs.existsSync('tmp/test.config.json')) {
   console.log(pico.red('config file not found.'))
   console.log(pico.yellow('should prepare tmp/test.config.json format below:'))
   console.log(pico.yellow('{\n  "app_name": "string",\n  "access_token": "string"\n}\n'))
@@ -23,7 +23,7 @@ if (!fsExt.existsSync('tmp/test.config.json')) {
 const config: {
   app_name: string
   access_token: string
-} = JSON.parse(fsExt.readFileSync('tmp/test.config.json', 'utf8'))
+} = JSON.parse(fs.readFileSync('tmp/test.config.json', 'utf8'))
 
 const netdisk = new Netdisk({
   app_name: config.app_name,
@@ -54,7 +54,7 @@ const __FILES_LISTS__ = [
 function getFileMd5(inFilePath: string) {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('md5')
-    const input = fsExt.createReadStream(inFilePath)
+    const input = fs.createReadStream(inFilePath)
 
     input.on('data', chunk => {
       hash.update(chunk)
@@ -83,14 +83,17 @@ function genRandomBuffer(inSize: number) {
 
 describe('PREPARE', () => {
   it('CreatLocalFile', async () => {
-    fsExt.removeSync('tmp/files')
-    fsExt.mkdirpSync('tmp/files')
+    try {
+      fs.rmSync('tmp/files', { recursive: true })
+    } catch {}
+
+    fs.mkdirSync('tmp/files')
 
     for (const item of __FILES_LISTS__) {
-      fsExt.writeFileSync(`tmp/files/${item.name}`, genRandomBuffer(item.size * 1024 * 1024))
+      fs.writeFileSync(`tmp/files/${item.name}`, genRandomBuffer(item.size * 1024 * 1024))
     }
 
-    fsExt.writeFileSync('tmp/files/64.task.bin', genRandomBuffer(64 * 1024 * 1024))
+    fs.writeFileSync('tmp/files/64.task.bin', genRandomBuffer(64 * 1024 * 1024))
   })
 
   it('DeleteFolder', async () => {
@@ -602,9 +605,9 @@ describe('CLEANUP', () => {
   })
 
   it('DeleteLocalFolder', async () => {
-    fsExt.removeSync('tmp/files')
+    fs.rmSync('tmp/files', { recursive: true })
 
-    expect(fsExt.existsSync('tmp/files')).toBe(false)
+    expect(fs.existsSync('tmp/files')).toBe(false)
   })
 })
 

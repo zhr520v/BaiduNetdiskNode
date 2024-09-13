@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import fsExt from 'fs-extra'
+import fs from 'fs'
 import pico from 'picocolors'
 import { describe, expect, it, runTest } from '../../../utils/test-suite'
 import {
@@ -21,7 +21,7 @@ import {
   httpUserQuota,
 } from '../index'
 
-if (!fsExt.existsSync('tmp/test.config.json')) {
+if (!fs.existsSync('tmp/test.config.json')) {
   console.log(pico.red('config file not found.'))
   console.log(pico.yellow('should prepare tmp/test.config.json format below:'))
   console.log(pico.yellow('{\n  "app_name": "string",\n  "access_token": "string"\n}\n'))
@@ -39,7 +39,7 @@ if (!fsExt.existsSync('tmp/test.config.json')) {
 const config: {
   app_name: string
   access_token: string
-} = JSON.parse(fsExt.readFileSync('tmp/test.config.json', 'utf8'))
+} = JSON.parse(fs.readFileSync('tmp/test.config.json', 'utf8'))
 
 function md5(inData: Buffer) {
   return crypto.createHash('md5').update(inData).digest('hex')
@@ -76,11 +76,14 @@ const access_token = config.access_token
 const __NETDISK_PATH_PREFIX__ = `/apps/${app_name}/BaiduNetdiskApiTest`
 
 function init() {
-  fsExt.removeSync('tmp/files')
-  fsExt.mkdirpSync('tmp/files')
+  try {
+    fs.rmSync('tmp/files', { recursive: true })
+  } catch {}
+
+  fs.mkdirSync('tmp/files')
 
   const smallFileBuf = genRandomBuffer(4 * 1024 * 1024)
-  fsExt.writeFileSync('tmp/files/SmallFile.bin', smallFileBuf)
+  fs.writeFileSync('tmp/files/SmallFile.bin', smallFileBuf)
 
   const largeFileBuf = genRandomBuffer(5.5 * 1024 * 1024)
   testInfo.largeFileSize = largeFileBuf.length
@@ -90,7 +93,7 @@ function init() {
     const buf = largeFileBuf.subarray(pointer, nextPointer)
     testInfo.largeFileMd5.push(md5(buf))
     pointer = nextPointer
-    fsExt.writeFileSync(`tmp/files/LargeFile-${i}.bin`, buf)
+    fs.writeFileSync(`tmp/files/LargeFile-${i}.bin`, buf)
   }
 }
 
@@ -148,7 +151,7 @@ describe('CLEANUP', () => {
 
 describe('FILE_UPLOAD', () => {
   it('FileUploadId', async () => {
-    const stats = fsExt.statSync('tmp/files/LargeFile-0.bin')
+    const stats = fs.statSync('tmp/files/LargeFile-0.bin')
 
     const { data } = await httpUploadId(
       {
@@ -204,7 +207,7 @@ describe('FILE_UPLOAD', () => {
           partseq: i,
           uploadid: testInfo.uploadId,
         },
-        fsExt.readFileSync(`tmp/files/LargeFile-${i}.bin`)
+        fs.readFileSync(`tmp/files/LargeFile-${i}.bin`)
       )
 
       expect(data).toHaveProperties('md5')
@@ -250,7 +253,7 @@ describe('FILE_UPLOAD', () => {
         path: `${__NETDISK_PATH_PREFIX__}/SmallFile.bin`,
         ondup: 'overwrite',
       },
-      fsExt.readFileSync('tmp/files/SmallFile.bin')
+      fs.readFileSync('tmp/files/SmallFile.bin')
     )
 
     expect(data).toHaveProperties('ctime', 'fs_id', 'md5', 'mtime', 'path', 'size')
@@ -420,9 +423,9 @@ describe('CLEANUP', () => {
   })
 
   it('DeleteLocalFolder', async () => {
-    fsExt.removeSync('tmp/files')
+    fs.rmSync('tmp/files', { recursive: true })
 
-    expect(fsExt.existsSync('tmp/files')).toBe(false)
+    expect(fs.existsSync('tmp/files')).toBe(false)
   })
 })
 
