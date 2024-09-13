@@ -22,7 +22,8 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "test": "tsx test/index.test.ts",
-    "build": "tsx scripts/build.ts"
+    "build": "tsx scripts/build.ts",
+    "release": "cd dist && npm publish"
   },
   "moduleOptions": {
     "main": "./index.mjs",
