@@ -8,7 +8,7 @@ import {
   httpRefreshToken,
   httpUserInfo,
   httpUserQuota,
-} from '@baidu-netdisk/api'
+} from 'baidu-netdisk-api'
 import path from 'path'
 import {
   PromType,

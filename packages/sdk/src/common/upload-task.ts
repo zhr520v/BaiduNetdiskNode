@@ -1,4 +1,4 @@
-import { httpUploadFinish, httpUploadId } from '@baidu-netdisk/api'
+import { httpUploadFinish, httpUploadId } from 'baidu-netdisk-api'
 import crypto from 'crypto'
 import fs from 'fs'
 import util from 'util'
@@ -18,21 +18,21 @@ import { IErrorRes, WorkerParent, newWorker } from './worker'
 
 const FS_STAT_ASYNC = util.promisify(fs.stat)
 
-export const enum ERtype {
+export enum ERtype {
   FAIL = 0,
   RENAME = 1,
   DIFF_RENAME = 2,
   OVERWRITE = 3,
 }
 
-interface IUploadFinish
+export interface IUploadFinish
   extends Pick<
     PromType<ReturnType<typeof httpUploadFinish>>['data'],
     'category' | 'ctime' | 'fs_id' | 'isdir' | 'md5' | 'mtime' | 'name' | 'path' | 'size'
   > {}
 
 export class UploadTask {
-  #app_name = ''
+  // #app_name = ''
   #access_token = ''
   #local = ''
   #remote = ''
@@ -54,7 +54,7 @@ export class UploadTask {
   #comSize = 0
   #chunkMb = 4
   #md5s: string[] = []
-  #md5full = ''
+  // #md5full = ''
   #keyBuf = Buffer.alloc(0)
   #ivBuf = Buffer.alloc(0)
   #endSliceNo = 0
@@ -97,7 +97,7 @@ export class UploadTask {
     onError?: (inError: Error) => void
     onStatusChanged?: (inNewStatus: EStatus, inError: Error | null) => void
   }) {
-    this.#app_name = inOpts.app_name
+    // this.#app_name = inOpts.app_name
     this.#access_token = inOpts.access_token
     this.#local = inOpts.local
     this.#remote = pathNormalized(inOpts.remote)
@@ -189,7 +189,7 @@ export class UploadTask {
       const fixedWorker = new WorkerParent(worker)
 
       fixedWorker.onRecvData<IMd5Res>('md5', inData => {
-        this.#md5full = inData.md5full
+        // this.#md5full = inData.md5full
         this.#md5s = inData.md5s
         resolve()
       })

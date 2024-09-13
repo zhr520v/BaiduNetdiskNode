@@ -1,17 +1,17 @@
-export const enum EStatus {
+export enum EStatus {
   CREATED = 0,
   RUNNING = 1,
   STOPPED = 2,
   FINISHED = 3,
 }
 
-interface IStepItem {
+export interface IStepItem {
   name: string
   exec: () => Promise<void>
   stop?: () => Promise<void>
 }
 
-interface ICurrStep {
+export interface ICurrStep {
   name: string
   stop: () => Promise<void>
   res: () => void

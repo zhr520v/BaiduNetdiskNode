@@ -1,15 +1,15 @@
-import { httpFileManager } from '@baidu-netdisk/api'
+import { httpFileManager } from 'baidu-netdisk-api'
 import path from 'path'
 import { pick } from './utils'
 
-export const enum EOndup {
+export enum EOndup {
   FAIL = 'fail',
   OVERWRITE = 'overwrite',
   NEWCOPY = 'newcopy',
   SKIP = 'skip',
 }
 
-export const enum EAsync {
+export enum EAsync {
   SYNC = 0,
   ADAPTIVE = 1,
   ASYNC = 2,

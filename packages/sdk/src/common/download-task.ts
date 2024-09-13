@@ -1,4 +1,4 @@
-import { axios, httpFileInfo, httpFileList } from '@baidu-netdisk/api'
+import { axios, httpFileInfo, httpFileList } from 'baidu-netdisk-api'
 import fs from 'fs'
 import path from 'path'
 import { IDownloadReq, ISliceReq, ISliceRes, ISpeedRes } from '../workers/download'
@@ -12,7 +12,7 @@ import { EStatus, Steps } from './steps'
 import { PromBat, pathNormalized } from './utils'
 import { IErrorRes, WorkerParent, newWorker } from './worker'
 
-interface IDownloadFinish {
+export interface IDownloadFinish {
   local: string
 }
 

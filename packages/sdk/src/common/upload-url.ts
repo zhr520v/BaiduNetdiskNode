@@ -1,4 +1,4 @@
-import { httpUploadUrl } from '@baidu-netdisk/api'
+import { httpUploadUrl } from 'baidu-netdisk-api'
 
 const __CACHED_HOURS__ = 6
 

@@ -1,4 +1,4 @@
-import { axios } from '@baidu-netdisk/api'
+import { axios } from 'baidu-netdisk-api'
 import fs from 'fs'
 import { parentPort, workerData } from 'worker_threads'
 import { decrypt, tryTimes } from '../common/utils'
