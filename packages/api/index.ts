@@ -18,7 +18,7 @@ import { httpUploadUrl } from './src/file-upload/upload-url'
 import { httpUserInfo } from './src/user-info/user-info'
 import { httpUserQuota } from './src/user-info/user-quota'
 
-export * from './src/common/defs-export'
+export * from './src/common/types-export'
 
 export {
   axios,
