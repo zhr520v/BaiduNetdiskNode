@@ -12,9 +12,10 @@
   "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "simple-git-hooks",
+    "postinstall": "simple-git-hooks && tsx scripts/post-install.ts",
     "test": "tsx scripts/test.ts",
-    "build": "tsx scripts/build.ts"
+    "build": "tsx scripts/build.ts",
+    "release": "tsx scripts/release.ts"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
