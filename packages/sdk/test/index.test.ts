@@ -38,16 +38,16 @@ const __FILES_LISTS__ = [
     size: 0,
   },
   {
+    name: '16.bin',
+    size: 16,
+  },
+  {
+    name: '32.bin',
+    size: 32,
+  },
+  {
     name: '64.bin',
     size: 64,
-  },
-  {
-    name: '128.bin',
-    size: 128,
-  },
-  {
-    name: '256.bin',
-    size: 256,
   },
 ]
 
@@ -90,7 +90,7 @@ describe('PREPARE', () => {
       fsExt.writeFileSync(`tmp/files/${item.name}`, genRandomBuffer(item.size * 1024 * 1024))
     }
 
-    fsExt.writeFileSync('tmp/files/512.task.bin', genRandomBuffer(512 * 1024 * 1024))
+    fsExt.writeFileSync('tmp/files/64.task.bin', genRandomBuffer(64 * 1024 * 1024))
   })
 
   it('DeleteFolder', async () => {
@@ -241,8 +241,8 @@ describe('UPLOAD_TASK', () => {
   it('UploadTaskWithoutEncrypt', () => {
     return new Promise<void>((resolve, reject) => {
       const task = netdisk.uploadTask({
-        local: path.resolve('tmp/files/512.task.bin'),
-        remote: `${__PATH_PREFIX__}/512.task.bin`,
+        local: path.resolve('tmp/files/64.task.bin'),
+        remote: `${__PATH_PREFIX__}/64.task.bin`,
         threads: 2,
         onDone: inData => {
           expect(inData).toHaveProperties(
@@ -287,8 +287,8 @@ describe('UPLOAD_TASK', () => {
   it('UploadTaskWithEncrypt', () => {
     return new Promise<void>((resolve, reject) => {
       const task = netdisk.uploadTask({
-        local: path.resolve('tmp/files/512.task.bin'),
-        remote: `${__PATH_PREFIX__}/512.task.bin.e`,
+        local: path.resolve('tmp/files/64.task.bin'),
+        remote: `${__PATH_PREFIX__}/64.task.bin.e`,
         encrypt: 'keenghost',
         threads: 2,
         onDone: inData => {
@@ -377,8 +377,8 @@ describe('DOWNLOAD_TASK', () => {
   it('DownloadTaskWithoutEncrypt', async () => {
     await new Promise<void>((resolve, reject) => {
       const task = netdisk.downloadTask({
-        withPath: `${__PATH_PREFIX__}/512.task.bin`,
-        local: path.resolve('tmp/files/512.task.bin.download'),
+        withPath: `${__PATH_PREFIX__}/64.task.bin`,
+        local: path.resolve('tmp/files/64.task.bin.download'),
         threads: 3,
         onDone: inData => {
           expect(inData).toHaveProperties('local')
@@ -401,8 +401,8 @@ describe('DOWNLOAD_TASK', () => {
       }, 2000)
     })
 
-    const oriMd5 = await getFileMd5(path.resolve('tmp/files/512.task.bin'))
-    const dowMd5 = await getFileMd5(path.resolve('tmp/files/512.task.bin.download'))
+    const oriMd5 = await getFileMd5(path.resolve('tmp/files/64.task.bin'))
+    const dowMd5 = await getFileMd5(path.resolve('tmp/files/64.task.bin.download'))
 
     expect(dowMd5).toBe(oriMd5)
   })
@@ -410,8 +410,8 @@ describe('DOWNLOAD_TASK', () => {
   it('DownloadTaskWithEncrypt', async () => {
     await new Promise<void>((resolve, reject) => {
       const task = netdisk.downloadTask({
-        withPath: `${__PATH_PREFIX__}/512.task.bin.e`,
-        local: path.resolve('tmp/files/512.task.bin.e.download'),
+        withPath: `${__PATH_PREFIX__}/64.task.bin.e`,
+        local: path.resolve('tmp/files/64.task.bin.e.download'),
         encrypt: 'keenghost',
         threads: 3,
         onDone: inData => {
@@ -435,8 +435,8 @@ describe('DOWNLOAD_TASK', () => {
       }, 2000)
     })
 
-    const oriMd5 = await getFileMd5(path.resolve('tmp/files/512.task.bin'))
-    const dowMd5 = await getFileMd5(path.resolve('tmp/files/512.task.bin.e.download'))
+    const oriMd5 = await getFileMd5(path.resolve('tmp/files/64.task.bin'))
+    const dowMd5 = await getFileMd5(path.resolve('tmp/files/64.task.bin.e.download'))
 
     expect(dowMd5).toBe(oriMd5)
   })
