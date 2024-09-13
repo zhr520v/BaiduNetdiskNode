@@ -3,7 +3,7 @@ import fsExt from 'fs-extra'
 import path from 'path'
 import pico from 'picocolors'
 import { describe, expect, it, runTest } from '../../../utils/test-suite'
-import Netdisk from '../index'
+import { Netdisk } from '../index'
 
 if (!fsExt.existsSync('tmp/test.config.json')) {
   console.log(pico.red('config file not found.'))
