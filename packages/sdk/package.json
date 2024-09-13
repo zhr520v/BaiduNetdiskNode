@@ -1,6 +1,6 @@
 {
   "name": "baidu-netdisk-sdk",
-  "version": "0.2.3",
+  "version": "0.1.1",
   "description": "BaiduNetdiskSdk based on BaiduNetdiskApi",
   "keywords": [
     "baidu",
