@@ -1,5 +1,5 @@
 {
-  "name": "@baidu-netdisk/api",
+  "name": "baidu-netdisk-api",
   "version": "0.2.3",
   "description": "BaiduNetdiskApi based on official developer api",
   "keywords": [
@@ -14,11 +14,11 @@
     "url": "git+https://github.com/keenghost/BaiduNetdiskNode.git",
     "directory": "packages/api"
   },
+  "type": "module",
+  "main": "./index.ts",
   "dependencies": {
     "axios": "^1.7.3"
   },
-  "type": "module",
-  "main": "./index.ts",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "test": "tsx test/index.test.ts",
