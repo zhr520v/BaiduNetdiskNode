@@ -62,7 +62,7 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@baidu-netdisk/api':
+      baidu-netdisk-api:
         specifier: workspace:*
         version: link:../api
 
