@@ -1,11 +1,11 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-interface IQuery {
+export interface IQuery {
   access_token: string
 }
 
-interface IRes {
+export interface IRes {
   avatar_url: string
   baidu_name: string
   errmsg: string

@@ -1,13 +1,13 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-interface IQuery {
+export interface IQuery {
   access_token: string
   path: string
   ondup?: string
 }
 
-interface IRes {
+export interface IRes {
   ctime: number
   fs_id: number
   md5: string

@@ -1,13 +1,13 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-interface IQuery {
+export interface IQuery {
   access_token: string
   checkexpire: number
   checkfree: number
 }
 
-interface IRes {
+export interface IRes {
   errmsg: string
   errno: number
   expire: boolean // Will expire in 7 days

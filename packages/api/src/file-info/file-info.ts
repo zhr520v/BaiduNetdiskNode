@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-interface IQuery {
+export interface IQuery {
   access_token: string
   fsids: string
   detail?: number
@@ -12,7 +12,7 @@ interface IQuery {
   thumb?: number
 }
 
-interface IFileInfoItem {
+export interface IItem {
   category: number
   filename: string
   fs_id: number
@@ -55,10 +55,10 @@ interface IFileInfoItem {
   width?: number
 }
 
-interface IRes {
+export interface IRes {
   errmsg: string
   errno: number
-  list: IFileInfoItem[]
+  list: IItem[]
   names: {}
   request_id: string
 }

@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-interface IQuery {
+export interface IQuery {
   access_token: string
   path: string
   ctime?: number
@@ -15,7 +15,7 @@ interface IQuery {
   web?: number
 }
 
-interface IFileListRecursionItem {
+export interface IItem {
   category: number
   fs_id: number
   isdir: number
@@ -36,12 +36,12 @@ interface IFileListRecursionItem {
   }
 }
 
-interface IRes {
+export interface IRes {
   cursor: number
   errmsg: string
   errno: number
   has_more: number
-  list: IFileListRecursionItem[]
+  list: IItem[]
   request_id: string
 }
 

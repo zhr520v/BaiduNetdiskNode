@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-interface IQuery {
+export interface IQuery {
   access_token: string
   desc?: number
   dir?: string
@@ -13,7 +13,7 @@ interface IQuery {
   web?: number
 }
 
-interface IFileListItem {
+export interface IItem {
   category: number
   extent_tinyint7: number
   from_type: number
@@ -47,11 +47,11 @@ interface IFileListItem {
   }
 }
 
-interface IRes {
+export interface IRes {
   errno: number
   guid: number
   guid_info: string
-  list: IFileListItem[]
+  list: IItem[]
   request_id: number
 }
 

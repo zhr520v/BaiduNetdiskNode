@@ -1,11 +1,11 @@
 import { AxiosRequestConfig } from 'axios'
 import { request } from '../common/request'
 
-interface IQuery {
+export interface IQuery {
   access_token: string
 }
 
-interface IBody {
+export interface IBody {
   block_list: string
   size: string
   path: string
@@ -20,7 +20,7 @@ interface IBody {
   zip_sign?: number
 }
 
-interface IRes {
+export interface IRes {
   category: number
   ctime: number
   errno: number
