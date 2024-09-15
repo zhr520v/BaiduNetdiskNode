@@ -1,5 +1,6 @@
-import { AxiosRequestConfig } from 'axios'
-import { IBody, IQuery, httpFileManager } from './file-manager'
+import type { AxiosRequestConfig } from 'axios'
+import { httpFileManager } from './file-manager'
+import type { IBody, IQuery } from './file-manager'
 
 export function httpRename(
   inQuery: Omit<IQuery, 'opera'>,
