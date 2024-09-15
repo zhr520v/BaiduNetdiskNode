@@ -2,19 +2,20 @@ import { httpUploadFinish, httpUploadId } from 'baidu-netdisk-api'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import util from 'node:util'
-import { IMd5Req, IMd5Res } from '../workers/md5'
-import { ISliceReq, ISliceRes, ISpeedRes, IUploadReq } from '../workers/upload'
+import type { IMd5Req, IMd5Res } from '../workers/md5'
+import type { ISliceReq, ISliceRes, ISpeedRes, IUploadReq } from '../workers/upload'
 import {
-  PromType,
   __PRESV_ENC_BLOCK_SIZE__,
   __TRY_DELTA__,
   __TRY_TIMES__,
   __UPLOAD_THREADS__,
 } from './alpha'
+import type { PromType } from './alpha'
 import { EStatus, Steps } from './steps'
 import { getUploadUrl } from './upload-url'
 import { PromBat, pathNormalized, pick } from './utils'
-import { IErrorRes, WorkerParent, newWorker } from './worker'
+import { WorkerParent, newWorker } from './worker'
+import type { IErrorRes } from './worker'
 
 const FS_STAT_ASYNC = util.promisify(fs.stat)
 

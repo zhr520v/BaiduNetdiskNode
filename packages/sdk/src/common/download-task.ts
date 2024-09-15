@@ -1,7 +1,7 @@
 import { axios, httpFileInfo, httpFileList } from 'baidu-netdisk-api'
 import fs from 'node:fs'
 import path from 'node:path'
-import { IDownloadReq, ISliceReq, ISliceRes, ISpeedRes } from '../workers/download'
+import type { IDownloadReq, ISliceReq, ISliceRes, ISpeedRes } from '../workers/download'
 import {
   __DOWNLOAD_THREADS__,
   __PRESV_ENC_BLOCK_SIZE__,
@@ -10,7 +10,8 @@ import {
 } from './alpha'
 import { EStatus, Steps } from './steps'
 import { PromBat, pathNormalized } from './utils'
-import { IErrorRes, WorkerParent, newWorker } from './worker'
+import { WorkerParent, newWorker } from './worker'
+import type { IErrorRes } from './worker'
 
 export interface IDownloadFinish {
   local: string

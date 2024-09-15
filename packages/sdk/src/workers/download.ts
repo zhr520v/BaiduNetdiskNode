@@ -2,7 +2,8 @@ import { axios } from 'baidu-netdisk-api'
 import fs from 'node:fs'
 import { parentPort, workerData } from 'node:worker_threads'
 import { decrypt, tryTimes } from '../common/utils'
-import { IErrorRes, WorkerChild } from '../common/worker'
+import { WorkerChild } from '../common/worker'
+import type { IErrorRes } from '../common/worker'
 
 export interface IDownloadReq {
   access_token: string
