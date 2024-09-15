@@ -1,5 +1,5 @@
-import { Netdisk } from './src/netdisk'
+import * as _ from './src/lib'
 
-export { Netdisk }
+export default _
 
-export * from './src/common/types-export'
+export * from './src/lib'

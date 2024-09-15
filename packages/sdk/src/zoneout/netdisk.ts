@@ -1,5 +1,4 @@
 import {
-  IBaiduApiError,
   httpCode2Token,
   httpCreateFolder,
   httpFileInfo,
@@ -9,18 +8,19 @@ import {
   httpUserInfo,
   httpUserQuota,
 } from 'baidu-netdisk-api'
+import type { IBaiduApiError } from 'baidu-netdisk-api'
 import path from 'node:path'
 import {
-  PromType,
   __DOWNLOAD_THREADS__,
   __TRY_DELTA__,
   __TRY_TIMES__,
   __UPLOAD_THREADS__,
-} from './common/alpha'
-import { DownloadTask } from './common/download-task'
-import { EAsync, EOndup, fileManage } from './common/file-manage'
-import { UploadTask } from './common/upload-task'
-import { pathNormalized, pick } from './common/utils'
+} from '../common/alpha'
+import type { PromType } from '../common/alpha'
+import { DownloadTask } from '../common/download-task'
+import { EAsync, EOndup, fileManage } from '../common/file-manage'
+import { UploadTask } from '../common/upload-task'
+import { pathNormalized, pick } from '../common/utils'
 
 export class Netdisk {
   #app_name = ''
