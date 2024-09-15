@@ -20,7 +20,7 @@ import type { PromType } from '../common/alpha'
 import { DownloadTask } from '../common/download-task'
 import { EAsync, EOndup, fileManage } from '../common/file-manage'
 import { UploadTask } from '../common/upload-task'
-import { pathNormalized, pick } from '../common/utils'
+import { pathNormalized, pick, tryTimes } from '../common/utils'
 
 export class Netdisk {
   #app_name = ''
@@ -63,12 +63,16 @@ export class Netdisk {
     secret_key: string
     redirect_uri?: string
   }) {
-    const { data } = await httpCode2Token({
-      code: inOpts.code,
-      client_id: inOpts.app_key,
-      client_secret: inOpts.secret_key,
-      redirect_uri: inOpts.redirect_uri || 'oob',
-    })
+    const { data } = await tryTimes(
+      () =>
+        httpCode2Token({
+          code: inOpts.code,
+          client_id: inOpts.app_key,
+          client_secret: inOpts.secret_key,
+          redirect_uri: inOpts.redirect_uri || 'oob',
+        }),
+      { times: __TRY_TIMES__, delta: __TRY_DELTA__ }
+    )
 
     return {
       ...data,
@@ -81,11 +85,15 @@ export class Netdisk {
     secret_key: string
     refresh_token: string
   }) {
-    const { data } = await httpRefreshToken({
-      client_id: inOpts.app_key,
-      client_secret: inOpts.secret_key,
-      refresh_token: inOpts.refresh_token,
-    })
+    const { data } = await tryTimes(
+      () =>
+        httpRefreshToken({
+          client_id: inOpts.app_key,
+          client_secret: inOpts.secret_key,
+          refresh_token: inOpts.refresh_token,
+        }),
+      { times: __TRY_TIMES__, delta: __TRY_DELTA__ }
+    )
 
     return {
       ...data,
@@ -95,14 +103,22 @@ export class Netdisk {
 
   async getUserInfo() {
     const [{ data: user }, { data: quota }] = await Promise.all([
-      httpUserInfo({
-        access_token: this.#access_token,
-      }),
-      httpUserQuota({
-        access_token: this.#access_token,
-        checkexpire: 1,
-        checkfree: 1,
-      }),
+      tryTimes(
+        () =>
+          httpUserInfo({
+            access_token: this.#access_token,
+          }),
+        { times: this.#gTryTimes, delta: this.#gTryDelta }
+      ),
+      tryTimes(
+        () =>
+          httpUserQuota({
+            access_token: this.#access_token,
+            checkexpire: 1,
+            checkfree: 1,
+          }),
+        { times: this.#gTryTimes, delta: this.#gTryDelta }
+      ),
     ])
 
     const info = {
@@ -128,12 +144,16 @@ export class Netdisk {
     const infinite = inOpts.opts?.infinite
 
     do {
-      const { data } = await httpFileList({
-        access_token: this.#access_token,
-        dir: inOpts.dir,
-        ...inOpts.opts,
-        start: cursor,
-      })
+      const { data } = await tryTimes(
+        () =>
+          httpFileList({
+            access_token: this.#access_token,
+            dir: inOpts.dir,
+            ...inOpts.opts,
+            start: cursor,
+          }),
+        { times: this.#gTryTimes, delta: this.#gTryDelta }
+      )
 
       list.push(...data.list)
       may_has_more = data.list.length === limit
@@ -173,12 +193,16 @@ export class Netdisk {
     const infinite = inOpts.opts?.infinite
 
     do {
-      const { data } = await httpFileListRecursion({
-        access_token: this.#access_token,
-        path: inOpts.path,
-        ...inOpts.opts,
-        start: cursor,
-      })
+      const { data } = await tryTimes(
+        () =>
+          httpFileListRecursion({
+            access_token: this.#access_token,
+            path: inOpts.path,
+            ...inOpts.opts,
+            start: cursor,
+          }),
+        { times: this.#gTryTimes, delta: this.#gTryDelta }
+      )
 
       list.push(...data.list)
 
@@ -209,11 +233,15 @@ export class Netdisk {
       'detail' | 'dlink' | 'extra' | 'needmedia' | 'path' | 'thumb'
     >
   }) {
-    const { data } = await httpFileInfo({
-      access_token: this.#access_token,
-      fsids: JSON.stringify(inOpts.fsids),
-      ...inOpts.opts,
-    })
+    const { data } = await tryTimes(
+      () =>
+        httpFileInfo({
+          access_token: this.#access_token,
+          fsids: JSON.stringify(inOpts.fsids),
+          ...inOpts.opts,
+        }),
+      { times: this.#gTryTimes, delta: this.#gTryDelta }
+    )
 
     return data.list.map(item =>
       pick(item, [
@@ -241,14 +269,18 @@ export class Netdisk {
     > & { verifyExists?: boolean }
   }) {
     try {
-      const { data } = await httpCreateFolder(
-        {
-          access_token: this.#access_token,
-        },
-        {
-          path: inOpts.path,
-          ...inOpts.opts,
-        }
+      const { data } = await tryTimes(
+        () =>
+          httpCreateFolder(
+            {
+              access_token: this.#access_token,
+            },
+            {
+              path: inOpts.path,
+              ...inOpts.opts,
+            }
+          ),
+        { times: this.#gTryTimes, delta: this.#gTryDelta }
       )
 
       return pick(data, ['category', 'ctime', 'fs_id', 'isdir', 'mtime', 'path'])
@@ -285,12 +317,16 @@ export class Netdisk {
   }
 
   copyFolderOrFile(inOpts: { source: string; target: string; ondup?: EOndup; async?: EAsync }) {
-    return fileManage({
-      access_token: this.#access_token,
-      opera: 'copy',
-      list: [pick(inOpts, ['source', 'target'])],
-      ...pick(inOpts, ['ondup', 'async']),
-    })
+    return tryTimes(
+      () =>
+        fileManage({
+          access_token: this.#access_token,
+          opera: 'copy',
+          list: [pick(inOpts, ['source', 'target'])],
+          ...pick(inOpts, ['ondup', 'async']),
+        }),
+      { times: this.#gTryTimes, delta: this.#gTryDelta }
+    )
   }
 
   copyFoldersOrFiles(inOpts: {
@@ -302,20 +338,28 @@ export class Netdisk {
     ondup?: EOndup
     async?: EAsync
   }) {
-    return fileManage({
-      access_token: this.#access_token,
-      opera: 'copy',
-      ...inOpts,
-    })
+    return tryTimes(
+      () =>
+        fileManage({
+          access_token: this.#access_token,
+          opera: 'copy',
+          ...inOpts,
+        }),
+      { times: this.#gTryTimes, delta: this.#gTryDelta }
+    )
   }
 
   moveFolderOrFile(inOpts: { source: string; target: string; ondup?: EOndup; async?: EAsync }) {
-    return fileManage({
-      access_token: this.#access_token,
-      opera: 'move',
-      list: [pick(inOpts, ['source', 'target'])],
-      ...pick(inOpts, ['ondup', 'async']),
-    })
+    return tryTimes(
+      () =>
+        fileManage({
+          access_token: this.#access_token,
+          opera: 'move',
+          list: [pick(inOpts, ['source', 'target'])],
+          ...pick(inOpts, ['ondup', 'async']),
+        }),
+      { times: this.#gTryTimes, delta: this.#gTryDelta }
+    )
   }
 
   moveFoldersOrFiles(inOpts: {
@@ -327,11 +371,15 @@ export class Netdisk {
     ondup?: EOndup
     async?: EAsync
   }) {
-    return fileManage({
-      access_token: this.#access_token,
-      opera: 'move',
-      ...inOpts,
-    })
+    return tryTimes(
+      () =>
+        fileManage({
+          access_token: this.#access_token,
+          opera: 'move',
+          ...inOpts,
+        }),
+      { times: this.#gTryTimes, delta: this.#gTryDelta }
+    )
   }
 
   renameFolderOrFile(inOpts: {
@@ -340,12 +388,16 @@ export class Netdisk {
     ondup?: EOndup
     async?: EAsync
   }) {
-    return fileManage({
-      access_token: this.#access_token,
-      opera: 'rename',
-      list: [pick(inOpts, ['source', 'newname'])],
-      ...pick(inOpts, ['ondup', 'async']),
-    })
+    return tryTimes(
+      () =>
+        fileManage({
+          access_token: this.#access_token,
+          opera: 'rename',
+          list: [pick(inOpts, ['source', 'newname'])],
+          ...pick(inOpts, ['ondup', 'async']),
+        }),
+      { times: this.#gTryTimes, delta: this.#gTryDelta }
+    )
   }
 
   renameFoldersOrFiles(inOpts: {
@@ -357,28 +409,40 @@ export class Netdisk {
     ondup?: EOndup
     async?: EAsync
   }) {
-    return fileManage({
-      access_token: this.#access_token,
-      opera: 'rename',
-      ...inOpts,
-    })
+    return tryTimes(
+      () =>
+        fileManage({
+          access_token: this.#access_token,
+          opera: 'rename',
+          ...inOpts,
+        }),
+      { times: this.#gTryTimes, delta: this.#gTryDelta }
+    )
   }
 
   deleteFolderOrFile(inOpts: { source: string; async?: EAsync }) {
-    return fileManage({
-      access_token: this.#access_token,
-      opera: 'delete',
-      list: [pick(inOpts, ['source'])],
-      ...pick(inOpts, ['async']),
-    })
+    return tryTimes(
+      () =>
+        fileManage({
+          access_token: this.#access_token,
+          opera: 'delete',
+          list: [pick(inOpts, ['source'])],
+          ...pick(inOpts, ['async']),
+        }),
+      { times: this.#gTryTimes, delta: this.#gTryDelta }
+    )
   }
 
   deleteFoldersOrFiles(inOpts: { list: { source: string }[]; async?: EAsync }) {
-    return fileManage({
-      access_token: this.#access_token,
-      opera: 'delete',
-      ...inOpts,
-    })
+    return tryTimes(
+      () =>
+        fileManage({
+          access_token: this.#access_token,
+          opera: 'delete',
+          ...inOpts,
+        }),
+      { times: this.#gTryTimes, delta: this.#gTryDelta }
+    )
   }
 
   upload(

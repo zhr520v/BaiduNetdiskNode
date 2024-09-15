@@ -9,7 +9,7 @@ import {
   __TRY_TIMES__,
 } from './alpha'
 import { EStatus, Steps } from './steps'
-import { PromBat, pathNormalized } from './utils'
+import { PromBat, pathNormalized, tryTimes } from './utils'
 import { WorkerParent, newWorker } from './worker'
 import type { IErrorRes } from './worker'
 
@@ -136,11 +136,15 @@ export class DownloadTask {
     const limit = 1000
 
     do {
-      const { data } = await httpFileList({
-        access_token: this.#access_token,
-        dir: parentPath,
-        start: cursor,
-      })
+      const { data } = await tryTimes(
+        () =>
+          httpFileList({
+            access_token: this.#access_token,
+            dir: parentPath,
+            start: cursor,
+          }),
+        { times: this.#tryTimes, delta: this.#tryDelta }
+      )
 
       const target = data.list.find(i => i.path === this.#withPath)
 
@@ -168,11 +172,15 @@ export class DownloadTask {
       return
     }
 
-    const { data } = await httpFileInfo({
-      access_token: this.#access_token,
-      fsids: JSON.stringify([this.#withFsid]),
-      dlink: 1,
-    })
+    const { data } = await tryTimes(
+      () =>
+        httpFileInfo({
+          access_token: this.#access_token,
+          fsids: JSON.stringify([this.#withFsid]),
+          dlink: 1,
+        }),
+      { times: this.#tryTimes, delta: this.#tryDelta }
+    )
 
     const file = data.list[0]
 
@@ -201,17 +209,21 @@ export class DownloadTask {
       return
     }
 
-    const { data } = await axios.get<ArrayBuffer>(this.#dlink, {
-      params: {
-        access_token: this.#access_token,
-      },
-      headers: {
-        'User-Agent': 'pan.baidu.com',
-        Range: `bytes=${this.#comSize - __PRESV_ENC_BLOCK_SIZE__}-${this.#comSize - 1}`,
-      },
-      responseType: 'arraybuffer',
-      responseEncoding: 'binary',
-    })
+    const { data } = await tryTimes(
+      () =>
+        axios.get<ArrayBuffer>(this.#dlink, {
+          params: {
+            access_token: this.#access_token,
+          },
+          headers: {
+            'User-Agent': 'pan.baidu.com',
+            Range: `bytes=${this.#comSize - __PRESV_ENC_BLOCK_SIZE__}-${this.#comSize - 1}`,
+          },
+          responseType: 'arraybuffer',
+          responseEncoding: 'binary',
+        }),
+      { times: this.#tryTimes, delta: this.#tryDelta }
+    )
 
     const presvBuf = Buffer.from(data)
 

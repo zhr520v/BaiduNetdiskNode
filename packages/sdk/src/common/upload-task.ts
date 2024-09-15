@@ -13,7 +13,7 @@ import {
 import type { PromType } from './alpha'
 import { EStatus, Steps } from './steps'
 import { getUploadUrl } from './upload-url'
-import { PromBat, pathNormalized, pick } from './utils'
+import { PromBat, pathNormalized, pick, tryTimes } from './utils'
 import { WorkerParent, newWorker } from './worker'
 import type { IErrorRes } from './worker'
 
@@ -207,21 +207,28 @@ export class UploadTask {
   }
 
   async #__STEP__GetUploadId__() {
-    const info = await httpUploadId(
-      { access_token: this.#access_token },
-      {
-        path: this.#remote,
-        block_list: JSON.stringify(this.#md5s),
-        size: this.#comSize,
-        rtype: this.#rtype,
-      }
+    const info = await tryTimes(
+      () =>
+        httpUploadId(
+          { access_token: this.#access_token },
+          {
+            path: this.#remote,
+            block_list: JSON.stringify(this.#md5s),
+            size: this.#comSize,
+            rtype: this.#rtype,
+          }
+        ),
+      { times: this.#tryTimes, delta: this.#tryDelta }
     )
 
     this.#uploadId = info.data.uploadid
   }
 
   async #__STEP__UploadSlices__() {
-    this.#uploadUrl = await getUploadUrl()
+    this.#uploadUrl = await tryTimes(() => getUploadUrl(), {
+      times: this.#tryTimes,
+      delta: this.#tryDelta,
+    })
 
     this.#timerSpeed()
 
@@ -291,20 +298,24 @@ export class UploadTask {
   }
 
   async #__STEP__UploadFinish__() {
-    const { data } = await httpUploadFinish(
-      {
-        access_token: this.#access_token,
-      },
-      {
-        ...this.#apiOpts,
-        block_list: JSON.stringify(this.#md5s),
-        path: this.#remote,
-        size: `${this.#comSize}`,
-        uploadid: this.#uploadId,
-        rtype: this.#rtype,
-        local_ctime: `${Math.floor(this.#ctimeMs / 1000)}`,
-        local_mtime: `${Math.floor(this.#mtimeMs / 1000)}`,
-      }
+    const { data } = await tryTimes(
+      () =>
+        httpUploadFinish(
+          {
+            access_token: this.#access_token,
+          },
+          {
+            ...this.#apiOpts,
+            block_list: JSON.stringify(this.#md5s),
+            path: this.#remote,
+            size: `${this.#comSize}`,
+            uploadid: this.#uploadId,
+            rtype: this.#rtype,
+            local_ctime: `${Math.floor(this.#ctimeMs / 1000)}`,
+            local_mtime: `${Math.floor(this.#mtimeMs / 1000)}`,
+          }
+        ),
+      { times: this.#tryTimes, delta: this.#tryDelta }
     )
 
     const returnData = pick(data, [
