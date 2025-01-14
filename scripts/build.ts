@@ -37,7 +37,7 @@ for (const proj of projs) {
         const pkgjson = fs.readFileSync(pkgpath, 'utf8')
         const pkgpkg = JSON.parse(pkgjson)
         const pkgversion = pkgpkg.version
-        deps[dep] = deps[dep].replace('workspace:', '').replace('*', `^${pkgversion}`)
+        deps[dep] = deps[dep].replace('workspace:', '').replace('*', pkgversion)
       }
     }
 

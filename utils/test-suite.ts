@@ -125,9 +125,9 @@ export function expect(inActual: any) {
     },
     toHaveProperties: (...args: string[]) => {
       for (const arg of args) {
-        if (!(inActual as Object).hasOwnProperty(arg)) {
+        if (!(inActual as object).hasOwnProperty(arg)) {
           throw new Error(
-            `  Expect: '${arg}'\n  Actual: ${Object.keys(inActual as Object)
+            `  Expect: '${arg}'\n  Actual: ${Object.keys(inActual as object)
               .map(i => `'${i}'`)
               .join(' ')}`
           )
