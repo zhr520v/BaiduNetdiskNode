@@ -1,13 +1,13 @@
-import type { AxiosRequestConfig } from 'axios'
-import { request } from '../common/request'
+import { type AxiosRequestConfig } from 'axios'
+import { request } from '../common/request.js'
 
-export interface IQuery {
+export interface IUserQuotaQuery {
   access_token: string
   checkexpire: number
   checkfree: number
 }
 
-export interface IRes {
+export interface IUserQuotaRes {
   errmsg: string
   errno: number
   expire: boolean // Will expire in 7 days
@@ -26,8 +26,8 @@ export interface IRes {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function httpUserQuota(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
-  return request<IRes>(
+export function httpUserQuota(inQuery: IUserQuotaQuery, inOpts?: AxiosRequestConfig) {
+  return request<IUserQuotaRes>(
     {
       ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/api/quota',

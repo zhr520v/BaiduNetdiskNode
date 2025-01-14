@@ -1,11 +1,11 @@
-import type { AxiosRequestConfig } from 'axios'
-import { request } from '../common/request'
+import { type AxiosRequestConfig } from 'axios'
+import { request } from '../common/request.js'
 
-export interface IQuery {
+export interface IUserInfoQuery {
   access_token: string
 }
 
-export interface IRes {
+export interface IUserInfoRes {
   avatar_url: string
   baidu_name: string
   errmsg: string
@@ -20,8 +20,8 @@ const __ERR_MAP__: { [key: string]: string } = {
   '42905': '查询用户名失败，可重试',
 }
 
-export function httpUserInfo(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
-  return request<IRes>(
+export function httpUserInfo(inQuery: IUserInfoQuery, inOpts?: AxiosRequestConfig) {
+  return request<IUserInfoRes>(
     {
       ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/nas',

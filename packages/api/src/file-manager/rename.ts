@@ -1,10 +1,13 @@
-import type { AxiosRequestConfig } from 'axios'
-import { httpFileManager } from './file-manager'
-import type { IBody, IQuery } from './file-manager'
+import { type AxiosRequestConfig } from 'axios'
+import {
+  type IFileManagerBody,
+  type IFileManagerQuery,
+  httpFileManager,
+} from './file-manager.js'
 
 export function httpRename(
-  inQuery: Omit<IQuery, 'opera'>,
-  inBody: IBody,
+  inQuery: Omit<IFileManagerQuery, 'opera'>,
+  inBody: IFileManagerBody,
   inOpts?: AxiosRequestConfig
 ) {
   return httpFileManager(

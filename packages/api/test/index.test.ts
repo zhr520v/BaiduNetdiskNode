@@ -1,7 +1,7 @@
+import { describe, expect, it, runTest } from '@root/utils/test-suite'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import pico from 'picocolors'
-import { describe, expect, it, runTest } from '../../../utils/test-suite'
 import {
   httpCopy,
   httpCreateFolder,

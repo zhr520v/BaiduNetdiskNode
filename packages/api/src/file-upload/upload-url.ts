@@ -1,13 +1,13 @@
-import type { AxiosRequestConfig } from 'axios'
-import { request } from '../common/request'
+import { type AxiosRequestConfig } from 'axios'
+import { request } from '../common/request.js'
 
-export interface IQuery {
+export interface IUploadUrlQuery {
   access_token: string
   path: string
   uploadid: string
 }
 
-export interface IRes {
+export interface IUploadUrlRes {
   bak_server: string[]
   bak_servers: { server: string }[]
   client_ip: string
@@ -27,8 +27,8 @@ export interface IRes {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function httpUploadUrl(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
-  return request<IRes>(
+export function httpUploadUrl(inQuery: IUploadUrlQuery, inOpts?: AxiosRequestConfig) {
+  return request<IUploadUrlRes>(
     {
       ...Object.assign({}, inOpts),
       url: 'https://d.pcs.baidu.com/rest/2.0/pcs/file',

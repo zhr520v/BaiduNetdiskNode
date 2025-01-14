@@ -1,7 +1,7 @@
-import type { AxiosRequestConfig } from 'axios'
-import { request } from '../common/request'
+import { type AxiosRequestConfig } from 'axios'
+import { request } from '../common/request.js'
 
-export interface IQuery {
+export interface IFileInfoQuery {
   access_token: string
   fsids: string
   detail?: number
@@ -12,7 +12,7 @@ export interface IQuery {
   thumb?: number
 }
 
-export interface IItem {
+export interface IFileInfoItem {
   category: number
   filename: string
   fs_id: number
@@ -55,11 +55,11 @@ export interface IItem {
   width?: number
 }
 
-export interface IRes {
+export interface IFileInfoRes {
   errmsg: string
   errno: number
-  list: IItem[]
-  names: {}
+  list: IFileInfoItem[]
+  names: object
   request_id: string
 }
 
@@ -70,8 +70,8 @@ const __ERR_MAP__: { [key: string]: string } = {
   '42214': '文件基础信息查询失败',
 }
 
-export function httpFileInfo(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
-  return request<IRes>(
+export function httpFileInfo(inQuery: IFileInfoQuery, inOpts?: AxiosRequestConfig) {
+  return request<IFileInfoRes>(
     {
       ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/multimedia',

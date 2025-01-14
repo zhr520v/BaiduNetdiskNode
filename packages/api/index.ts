@@ -1,5 +1,5 @@
-import * as _ from './src/lib'
+import * as BaiduNetdiskApi from './src/lib.js'
 
-export default _
+export default BaiduNetdiskApi
 
-export * from './src/lib'
+export * from './src/lib.js'

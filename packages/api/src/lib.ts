@@ -1,43 +1,19 @@
-import axios from 'axios'
-import { httpCode2Token } from './auth/code-2-token'
-import { httpRefreshToken } from './auth/refresh-token'
-import { httpFileInfo } from './file-info/file-info'
-import { httpFileList } from './file-info/file-list'
-import { httpFileListRecursion } from './file-info/file-list-recursion'
-import { httpCopy } from './file-manager/copy'
-import { httpDelete } from './file-manager/delete'
-import { httpFileManager } from './file-manager/file-manager'
-import { httpMove } from './file-manager/move'
-import { httpRename } from './file-manager/rename'
-import { httpCreateFolder } from './file-upload/create-folder'
-import { httpUploadFinish } from './file-upload/upload-finish'
-import { httpUploadId } from './file-upload/upload-id'
-import { httpUploadSlice } from './file-upload/upload-slice'
-import { httpUploadSmall } from './file-upload/upload-small'
-import { httpUploadUrl } from './file-upload/upload-url'
-import { httpUserInfo } from './user-info/user-info'
-import { httpUserQuota } from './user-info/user-quota'
-
-export * from './common/types-export'
-
-export {
-  axios,
-  httpCode2Token,
-  httpRefreshToken,
-  httpFileInfo,
-  httpFileList,
-  httpFileListRecursion,
-  httpCopy,
-  httpDelete,
-  httpFileManager,
-  httpMove,
-  httpRename,
-  httpCreateFolder,
-  httpUploadFinish,
-  httpUploadId,
-  httpUploadSlice,
-  httpUploadSmall,
-  httpUploadUrl,
-  httpUserInfo,
-  httpUserQuota,
-}
+export { default as axios } from 'axios'
+export { httpCode2Token } from './auth/code-2-token.js'
+export { httpRefreshToken } from './auth/refresh-token.js'
+export { httpFileInfo } from './file-info/file-info.js'
+export { httpFileListRecursion } from './file-info/file-list-recursion.js'
+export { httpFileList } from './file-info/file-list.js'
+export { httpCopy } from './file-manager/copy.js'
+export { httpDelete } from './file-manager/delete.js'
+export { httpFileManager } from './file-manager/file-manager.js'
+export { httpMove } from './file-manager/move.js'
+export { httpRename } from './file-manager/rename.js'
+export { httpCreateFolder } from './file-upload/create-folder.js'
+export { httpUploadFinish } from './file-upload/upload-finish.js'
+export { httpUploadId } from './file-upload/upload-id.js'
+export { httpUploadSlice } from './file-upload/upload-slice.js'
+export { httpUploadSmall } from './file-upload/upload-small.js'
+export { httpUploadUrl } from './file-upload/upload-url.js'
+export { httpUserInfo } from './user-info/user-info.js'
+export { httpUserQuota } from './user-info/user-quota.js'

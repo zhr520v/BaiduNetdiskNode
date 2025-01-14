@@ -1,14 +1,14 @@
-import type { AxiosRequestConfig } from 'axios'
-import { request } from '../common/request'
+import { type AxiosRequestConfig } from 'axios'
+import { request } from '../common/request.js'
 
-export interface IQuery {
+export interface ICode2TokenQuery {
   client_id: string
   client_secret: string
   code: string
   redirect_uri?: string
 }
 
-export interface IRes {
+export interface ICode2TokenRes {
   access_token: string
   expires_in: number
   refresh_token: string
@@ -19,8 +19,8 @@ export interface IRes {
 
 const __ERR_MAP__: { [key: string]: string } = {}
 
-export function httpCode2Token(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
-  return request<IRes>(
+export function httpCode2Token(inQuery: ICode2TokenQuery, inOpts?: AxiosRequestConfig) {
+  return request<ICode2TokenRes>(
     {
       ...Object.assign({}, inOpts),
       url: 'https://openapi.baidu.com/oauth/2.0/token',

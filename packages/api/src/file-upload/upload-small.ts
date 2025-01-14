@@ -1,13 +1,13 @@
-import type { AxiosRequestConfig } from 'axios'
-import { request } from '../common/request'
+import { type AxiosRequestConfig } from 'axios'
+import { request } from '../common/request.js'
 
-export interface IQuery {
+export interface IUploadSmallQuery {
   access_token: string
   path: string
   ondup?: string
 }
 
-export interface IRes {
+export interface IUploadSmallRes {
   ctime: number
   fs_id: number
   md5: string
@@ -25,7 +25,7 @@ const __ERR_MAP__: { [key: string]: string } = {
 
 export function httpUploadSmall(
   inUrl: string,
-  inQuery: IQuery,
+  inQuery: IUploadSmallQuery,
   inBody: Buffer,
   inOpts?: AxiosRequestConfig
 ) {
@@ -35,7 +35,7 @@ export function httpUploadSmall(
     )
   }
 
-  return request<IRes>(
+  return request<IUploadSmallRes>(
     {
       ...Object.assign({}, inOpts),
       url: inUrl + '/rest/2.0/pcs/file',

@@ -1,7 +1,7 @@
-import type { AxiosRequestConfig } from 'axios'
-import { request } from '../common/request'
+import { type AxiosRequestConfig } from 'axios'
+import { request } from '../common/request.js'
 
-export interface IQuery {
+export interface IFileListRecursionQuery {
   access_token: string
   path: string
   ctime?: number
@@ -15,7 +15,7 @@ export interface IQuery {
   web?: number
 }
 
-export interface IItem {
+export interface IFileListRecursionItem {
   category: number
   fs_id: number
   isdir: number
@@ -36,12 +36,12 @@ export interface IItem {
   }
 }
 
-export interface IRes {
+export interface IFileListRecursionRes {
   cursor: number
   errmsg: string
   errno: number
   has_more: number
-  list: IItem[]
+  list: IFileListRecursionItem[]
   request_id: string
 }
 
@@ -51,8 +51,11 @@ const __ERR_MAP__: { [key: string]: string } = {
   '42213': '没有共享目录的权限',
 }
 
-export function httpFileListRecursion(inQuery: IQuery, inOpts?: AxiosRequestConfig) {
-  return request<IRes>(
+export function httpFileListRecursion(
+  inQuery: IFileListRecursionQuery,
+  inOpts?: AxiosRequestConfig
+) {
+  return request<IFileListRecursionRes>(
     {
       ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/multimedia',

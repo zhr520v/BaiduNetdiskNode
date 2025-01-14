@@ -1,6 +1,5 @@
-import axios from 'axios'
-import type { AxiosRequestConfig } from 'axios'
-import type { IBaiduApiError } from './types-export'
+import axios, { type AxiosRequestConfig } from 'axios'
+import { type IBaiduApiError } from '../../types.js'
 
 const __ERR_MAP__: { [key: string]: string } = {
   '-1': '权益已过期',

@@ -14,14 +14,27 @@
     "url": "git+https://github.com/keenghost/BaiduNetdiskNode.git",
     "directory": "packages/api"
   },
-  "type": "module",
-  "main": "./index.ts",
-  "dependencies": {
-    "axios": "^1.7.3"
-  },
   "engines": {
-    "node": "^18.0.0 || >= 20.0.0",
+    "node": ">=18.0.0",
     "pnpm": "^9.0.0"
+  },
+  "type": "module",
+  "files": [
+    "src",
+    "index.d.ts",
+    "index.js",
+    "types.d.ts",
+    "types.js"
+  ],
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./types": {
+      "types": "./types.d.ts",
+      "default": "./types.js"
+    }
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -29,23 +42,7 @@
     "build": "tsx scripts/build.ts",
     "release": "cd dist && npm publish"
   },
-  "moduleOptions": {
-    "type": "module",
-    "main": "./index.js",
-    "module": "./index.js",
-    "types": "./index.d.ts",
-    "files": [
-      "src",
-      "index.d.ts",
-      "index.js",
-      "index.cjs"
-    ],
-    "exports": {
-      ".": {
-        "types": "./index.d.ts",
-        "import": "./index.js",
-        "require": "./index.cjs"
-      }
-    }
+  "dependencies": {
+    "axios": "^1.7.9"
   }
 }

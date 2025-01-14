@@ -1,14 +1,14 @@
-import type { AxiosRequestConfig } from 'axios'
-import { request } from '../common/request'
+import { type AxiosRequestConfig } from 'axios'
+import { request } from '../common/request.js'
 
-export interface IQuery {
+export interface IUploadSliceQuery {
   access_token: string
   path: string
   partseq: number
   uploadid: string
 }
 
-export interface IRes {
+export interface IUploadSliceRes {
   md5: string
   request_id: number
 }
@@ -22,11 +22,11 @@ const __ERR_MAP__: { [key: string]: string } = {
 
 export function httpUploadSlice(
   inUrl: string,
-  inQuery: IQuery,
+  inQuery: IUploadSliceQuery,
   inBody: Buffer,
   inOpts?: AxiosRequestConfig
 ) {
-  return request<IRes>(
+  return request<IUploadSliceRes>(
     {
       ...Object.assign({}, inOpts),
       url: inUrl + '/rest/2.0/pcs/superfile2',

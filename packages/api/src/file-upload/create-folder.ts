@@ -1,11 +1,11 @@
-import type { AxiosRequestConfig } from 'axios'
-import { request } from '../common/request'
+import { type AxiosRequestConfig } from 'axios'
+import { request } from '../common/request.js'
 
-export interface IQuery {
+export interface ICreateFolderQuery {
   access_token: string
 }
 
-export interface IBody {
+export interface ICreateFolderBody {
   path: string
   local_ctime?: number
   local_mtime?: number
@@ -13,7 +13,7 @@ export interface IBody {
   rtype?: number
 }
 
-export interface IRes {
+export interface ICreateFolderRes {
   category: number
   ctime?: number
   errno?: number
@@ -31,7 +31,11 @@ const __ERR_MAP__: { [key: string]: string } = {
   '-10': '云端容量已满',
 }
 
-export function httpCreateFolder(inQuery: IQuery, inBody: IBody, inOpts?: AxiosRequestConfig) {
+export function httpCreateFolder(
+  inQuery: ICreateFolderQuery,
+  inBody: ICreateFolderBody,
+  inOpts?: AxiosRequestConfig
+) {
   const formData = new URLSearchParams()
   const fullBody = Object.assign(
     {
@@ -45,7 +49,7 @@ export function httpCreateFolder(inQuery: IQuery, inBody: IBody, inOpts?: AxiosR
     formData.append(key, `${fullBody[key]}`)
   }
 
-  return request<IRes>(
+  return request<ICreateFolderRes>(
     {
       ...Object.assign({}, inOpts),
       url: 'https://pan.baidu.com/rest/2.0/xpan/file',
