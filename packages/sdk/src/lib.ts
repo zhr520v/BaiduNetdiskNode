@@ -1,4 +1,4 @@
-import { Netdisk } from './zoneout/netdisk.js'
+import { Netdisk } from './netdisk.js'
 
 export { Netdisk }
 
