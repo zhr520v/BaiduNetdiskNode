@@ -26,24 +26,24 @@ export const enum EStepStatus {
 }
 
 export const enum EUploadSteps {
-  GET_FILE_INFO = 1,
-  GET_LOCAL_MD5 = 2,
-  GET_UPLOAD_ID = 3,
+  FILE_INFO = 1,
+  LOCAL_MD5 = 2,
+  UPLOAD_ID = 3,
   UPLOAD_SLICES = 4,
   COMBINE = 5,
-  PRE_DOWNLOAD_INFO = 6,
+  DOWNLOAD_INFO = 6,
   VERIFY_DOWNLOAD = 7,
   FINISH = 8,
 }
 
 export const enum EDownloadSteps {
-  GET_FSID_WITH_PATH = 1,
-  GET_DLINK_WITH_FSID = 2,
-  CHECK_DOWNLOAD_INFO = 3,
-  GET_DECRYPT_INFO = 4,
-  PREPARE_FOR_DOWNLOAD = 5,
+  FSID_BY_PATH = 1,
+  DLINK_BY_FSID = 2,
+  DOWNLOAD_INFO = 3,
+  DECRYPT_INFO = 4,
+  PREPARE_DOWNLOAD = 5,
   DOWNLOAD_SLICES = 6,
-  CHECK_MD5_DISK = 7,
-  SET_LOCAL_MTIME = 8,
-  DOWNLOAD_FINISH = 9,
+  MD5_ON_DISK = 7,
+  LOCAL_MTIME = 8,
+  FINISH = 9,
 }

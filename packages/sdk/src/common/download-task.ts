@@ -109,23 +109,23 @@ export class DownloadTask {
     this.#steps = new Steps({
       steps: [
         {
-          id: EDownloadSteps.GET_FSID_WITH_PATH,
+          id: EDownloadSteps.FSID_BY_PATH,
           exec: () => this.#stepFsidByPath(),
         },
         {
-          id: EDownloadSteps.GET_DLINK_WITH_FSID,
+          id: EDownloadSteps.DLINK_BY_FSID,
           exec: () => this.#stepDlinkByFsid(),
         },
         {
-          id: EDownloadSteps.CHECK_DOWNLOAD_INFO,
+          id: EDownloadSteps.DOWNLOAD_INFO,
           exec: () => this.#stepDownloadInfo(),
         },
         {
-          id: EDownloadSteps.GET_DECRYPT_INFO,
+          id: EDownloadSteps.DECRYPT_INFO,
           exec: () => this.#stepDecryptInfo(),
         },
         {
-          id: EDownloadSteps.PREPARE_FOR_DOWNLOAD,
+          id: EDownloadSteps.PREPARE_DOWNLOAD,
           exec: () => this.#stepPrepareDownload(),
         },
         {
@@ -134,12 +134,12 @@ export class DownloadTask {
           stop: (inForce?: boolean) => this.#stopDownloadSlices(inForce),
         },
         {
-          id: EDownloadSteps.CHECK_MD5_DISK,
+          id: EDownloadSteps.MD5_ON_DISK,
           exec: () => this.#stepMd5OnDisk(),
           stop: () => this.#stopMd5OnDisk(),
         },
-        { id: EDownloadSteps.SET_LOCAL_MTIME, exec: () => this.#stepLocalMTime() },
-        { id: EDownloadSteps.DOWNLOAD_FINISH, exec: () => this.#stepFinish() },
+        { id: EDownloadSteps.LOCAL_MTIME, exec: () => this.#stepLocalMTime() },
+        { id: EDownloadSteps.FINISH, exec: () => this.#stepFinish() },
       ],
       onStatusChanged: inNewStatus => {
         if (inNewStatus === EStepStatus.STOPPED && this.#steps.error && this.#noSilent) {
@@ -421,13 +421,13 @@ export class DownloadTask {
   async terminate() {
     await this.#steps.stop(true)
 
-    if (this.#steps.id > EDownloadSteps.PREPARE_FOR_DOWNLOAD) {
+    if (this.#steps.id > EDownloadSteps.PREPARE_DOWNLOAD) {
       await fs.promises.rm(this.#local, { force: true }).catch()
 
       return
     }
 
-    if (this.#steps.id > EDownloadSteps.CHECK_MD5_DISK) {
+    if (this.#steps.id > EDownloadSteps.MD5_ON_DISK) {
       await fs.promises.rm(this.#local, { force: true }).catch()
 
       return

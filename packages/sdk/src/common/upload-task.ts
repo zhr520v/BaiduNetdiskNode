@@ -131,13 +131,13 @@ export class UploadTask {
 
     this.#steps = new Steps({
       steps: [
-        { id: EUploadSteps.GET_FILE_INFO, exec: () => this.#stopFileInfo() },
+        { id: EUploadSteps.FILE_INFO, exec: () => this.#stopFileInfo() },
         {
-          id: EUploadSteps.GET_LOCAL_MD5,
+          id: EUploadSteps.LOCAL_MD5,
           exec: () => this.#stepLocalMd5(),
           stop: () => this.#stopLocalMd5(),
         },
-        { id: EUploadSteps.GET_UPLOAD_ID, exec: () => this.#stepUploadId() },
+        { id: EUploadSteps.UPLOAD_ID, exec: () => this.#stepUploadId() },
         {
           id: EUploadSteps.UPLOAD_SLICES,
           exec: () => this.#stepUploadSlices(),
@@ -148,7 +148,7 @@ export class UploadTask {
           exec: () => this.#stepCombine(),
         },
         {
-          id: EUploadSteps.PRE_DOWNLOAD_INFO,
+          id: EUploadSteps.DOWNLOAD_INFO,
           exec: () => this.#stepPreDownload(),
         },
         {
