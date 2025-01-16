@@ -1,15 +1,14 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import { parentPort, workerData } from 'node:worker_threads'
-import { __PRESV_ENC_BLOCK_SIZE__ } from '../common/alpha'
-import { encrypt, md5, readFileSlice } from '../common/utils'
-import { WorkerChild } from '../common/worker'
-import type { IErrorRes } from '../common/worker'
+import { __PRESV_ENC_BLOCK_SIZE__ } from '../common//alpha.js'
+import { encrypt, md5, readFileSlice } from '../common//utils.js'
+import { type IErrorRes, WorkerChild } from '../common//worker.js'
 
 export interface IMd5Req {
   local: string
   oriSize: number
-  chunkMb: number
+  chunkMB: number
   keyBuf: Buffer
   ivBuf: Buffer
   endSliceNo: number
@@ -31,39 +30,47 @@ async function exec() {
     const hash = crypto.createHash('md5')
     const useEncrypt = !!tWorkerData.keyBuf.length
     const readChunkSize = useEncrypt
-      ? tWorkerData.chunkMb * 1024 * 1024 - 1
-      : tWorkerData.chunkMb * 1024 * 1024
+      ? tWorkerData.chunkMB * 1024 * 1024 - 1
+      : tWorkerData.chunkMB * 1024 * 1024
+
+    let md5full = ''
 
     for (let i = 0; i <= tWorkerData.endSliceNo; i++) {
       const isEnd = i === tWorkerData.endSliceNo
       const rawChunk = readFileSlice(fd, readChunkSize, i)
-      let chunk = useEncrypt
+
+      hash.update(rawChunk)
+
+      const chunk = useEncrypt
         ? encrypt(rawChunk, tWorkerData.keyBuf, tWorkerData.ivBuf)
         : rawChunk
 
       if (isEnd) {
+        md5full = hash.digest('hex').toUpperCase()
+
         const presvBuf = Buffer.alloc(__PRESV_ENC_BLOCK_SIZE__)
-        Buffer.from(tWorkerData.ivBuf).copy(presvBuf, 0, 0, tWorkerData.ivBuf.length)
-        presvBuf.writeBigUInt64BE(BigInt(tWorkerData.chunkMb * 1024 * 1024), 16)
-        presvBuf.writeBigUInt64BE(BigInt(tWorkerData.oriSize), 16 + 8)
+        Buffer.from(tWorkerData.ivBuf).copy(presvBuf, 0, 0, tWorkerData.ivBuf.length) // AES IV
+        Buffer.from(md5full.substring(8, 24)).copy(presvBuf, 16, 0, 16) // MD5 Middle 16
+        presvBuf.writeBigUInt64BE(BigInt(tWorkerData.oriSize), 16 + 16) // Raw Size
+        presvBuf.writeUint32BE(tWorkerData.chunkMB, 16 + 16 + 8) // Chunk MB
+        presvBuf.writeUint32BE(
+          presvBuf.subarray(0, 16 + 16 + 8 + 4).reduce((pre, cur) => pre + cur),
+          16 + 16 + 8 + 4
+        ) // Verify
 
-        chunk = useEncrypt ? Buffer.concat([chunk, presvBuf]) : chunk
+        const newChunk = useEncrypt ? Buffer.concat([chunk, presvBuf]) : chunk
 
-        if (chunk.length > tWorkerData.chunkMb * 1024 * 1024) {
-          const subChunk1 = chunk.subarray(0, tWorkerData.chunkMb * 1024 * 1024)
-          const subChunk2 = chunk.subarray(tWorkerData.chunkMb * 1024 * 1024)
+        if (newChunk.length > tWorkerData.chunkMB * 1024 * 1024) {
+          const subChunk1 = newChunk.subarray(0, tWorkerData.chunkMB * 1024 * 1024)
+          const subChunk2 = newChunk.subarray(tWorkerData.chunkMB * 1024 * 1024)
           md5s.push(md5(subChunk1), md5(subChunk2))
         } else {
-          md5s.push(md5(chunk))
+          md5s.push(md5(newChunk))
         }
       } else {
         md5s.push(md5(chunk))
       }
-
-      hash.update(chunk)
     }
-
-    const md5full = hash.digest('hex')
 
     worker.sendData<IMd5Res>('md5', {
       md5full: md5full,

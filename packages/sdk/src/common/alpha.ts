@@ -1,5 +1,8 @@
-export const __ES__ = !(typeof module !== 'undefined' && typeof module.exports !== 'undefined')
-export const __PRESV_ENC_BLOCK_SIZE__ = 32
+/**
+ * 00000000 00000000   00000000 00000000   0000 0000       0000        0000
+ *     16:AESIV          16:MD5Middle      8:RawSize    4:ChunkMB    4:Verify
+ */
+export const __PRESV_ENC_BLOCK_SIZE__ = 48
 
 export type PromType<T> = T extends Promise<infer A> ? A : never
 
