@@ -131,32 +131,32 @@ export class UploadTask {
 
     this.#steps = new Steps({
       steps: [
-        { id: EUploadSteps.GET_FILE_INFO, exec: () => this.#__STEP__GetFileInfo__() },
+        { id: EUploadSteps.GET_FILE_INFO, exec: () => this.#stopFileInfo() },
         {
           id: EUploadSteps.GET_LOCAL_MD5,
-          exec: () => this.#__STEP__GetLocalMd5__(),
-          stop: () => this.#__STOP__GetLocalMd5__(),
+          exec: () => this.#stepLocalMd5(),
+          stop: () => this.#stopLocalMd5(),
         },
-        { id: EUploadSteps.GET_UPLOAD_ID, exec: () => this.#__STEP__GetUploadId__() },
+        { id: EUploadSteps.GET_UPLOAD_ID, exec: () => this.#stepUploadId() },
         {
           id: EUploadSteps.UPLOAD_SLICES,
-          exec: () => this.#__STEP__UploadSlices__(),
-          stop: (inForce?: boolean) => this.#__STOP__UploadSlices__(inForce),
+          exec: () => this.#stepUploadSlices(),
+          stop: (inForce?: boolean) => this.#stopUploadSlices(inForce),
         },
         {
           id: EUploadSteps.COMBINE,
-          exec: () => this.#__STEP_Combine__(),
+          exec: () => this.#stepCombine(),
         },
         {
           id: EUploadSteps.PRE_DOWNLOAD_INFO,
-          exec: () => this.#__STEP__PreDownloadInfo(),
+          exec: () => this.#stepPreDownload(),
         },
         {
           id: EUploadSteps.VERIFY_DOWNLOAD,
-          exec: () => this.#__STEP__VerifyDownload__(),
-          stop: (inForce?: boolean) => this.#__STOP__VerifyDownload__(inForce),
+          exec: () => this.#stepVerifyDownload(),
+          stop: (inForce?: boolean) => this.#stopVerifyDownload(inForce),
         },
-        { id: EUploadSteps.FINISH, exec: () => this.#__STEP__Finish__() },
+        { id: EUploadSteps.FINISH, exec: () => this.#stepFinish() },
       ],
       onBeforeRun: async () => {
         if (this.#mtimeMs > 0) {
@@ -178,7 +178,7 @@ export class UploadTask {
     })
   }
 
-  async #__STEP__GetFileInfo__() {
+  async #stopFileInfo() {
     if (!this.#remote.startsWith(`/apps/${this.#app_name}/`)) {
       // TODO: 允许上传至其他目录
     }
@@ -202,7 +202,7 @@ export class UploadTask {
     )
   }
 
-  async #__STEP__GetLocalMd5__() {
+  async #stepLocalMd5() {
     await new Promise<void>((resolve, reject) => {
       const worker = newWorker<IMd5Req>('md5', {
         local: this.#local,
@@ -222,17 +222,17 @@ export class UploadTask {
       })
 
       fixedWorker.onRecvData<Error>('error', inError => {
-        this.#__STOP__GetLocalMd5__()
+        this.#stopLocalMd5()
         reject(inError)
       })
 
       this.#md5Worker = fixedWorker
     })
 
-    await this.#__STOP__GetLocalMd5__()
+    await this.#stopLocalMd5()
   }
 
-  async #__STEP__GetUploadId__() {
+  async #stepUploadId() {
     const info = await tryTimes(
       () =>
         httpUploadId(
@@ -250,7 +250,7 @@ export class UploadTask {
     this.#uploadId = info.data.uploadid
   }
 
-  async #__STEP__UploadSlices__() {
+  async #stepUploadSlices() {
     const uploadUrl = await tryTimes(() => getUploadUrl(), {
       times: this.#tryTimes,
       delta: this.#tryDelta,
@@ -295,10 +295,10 @@ export class UploadTask {
       })
     })
 
-    await this.#__STOP__UploadSlices__(true)
+    await this.#stopUploadSlices(true)
   }
 
-  async #__STEP_Combine__() {
+  async #stepCombine() {
     const { data } = await tryTimes(
       () =>
         httpUploadFinish(
@@ -332,7 +332,7 @@ export class UploadTask {
     ])
   }
 
-  async #__STEP__PreDownloadInfo() {
+  async #stepPreDownload() {
     if (this.#noVerify) {
       return
     }
@@ -420,7 +420,7 @@ export class UploadTask {
     }
   }
 
-  async #__STEP__VerifyDownload__() {
+  async #stepVerifyDownload() {
     if (this.#noVerify) {
       return
     }
@@ -465,7 +465,7 @@ export class UploadTask {
 
       this.#downloadWorker?.onRecvData<IDownloadMainDoneRes>('DOWNLOAD_MAIN_DONE', inData => {
         if (this.#md5full !== inData.md5) {
-          this.#__STOP__VerifyDownload__(true)
+          this.#stopVerifyDownload(true)
 
           return reject(new Error('MD5 not match'))
         }
@@ -481,19 +481,19 @@ export class UploadTask {
       })
     })
 
-    await this.#__STOP__VerifyDownload__(true)
+    await this.#stopVerifyDownload(true)
   }
 
-  async #__STEP__Finish__() {
+  async #stepFinish() {
     this.#doneProm?.res(this.#finishData!)
     this.#onDone?.(this.#finishData!)
   }
 
-  async #__STOP__GetLocalMd5__() {
+  async #stopLocalMd5() {
     await this.#md5Worker?.terminate()
   }
 
-  async #__STOP__UploadSlices__(inForce?: boolean) {
+  async #stopUploadSlices(inForce?: boolean) {
     this.#uploadWorker?.sendData('UPLOAD_MAIN_STOP')
 
     if (inForce) {
@@ -503,7 +503,7 @@ export class UploadTask {
     }
   }
 
-  async #__STOP__VerifyDownload__(inForce?: boolean) {
+  async #stopVerifyDownload(inForce?: boolean) {
     this.#downloadWorker?.sendData('DOWNLOAD_MAIN_STOP')
 
     if (inForce) {

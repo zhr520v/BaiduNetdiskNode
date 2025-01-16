@@ -110,36 +110,36 @@ export class DownloadTask {
       steps: [
         {
           id: EDownloadSteps.GET_FSID_WITH_PATH,
-          exec: () => this.#__STEP__GetFsidWithPath__(),
+          exec: () => this.#stepFsidByPath(),
         },
         {
           id: EDownloadSteps.GET_DLINK_WITH_FSID,
-          exec: () => this.#__STEP__GetDlinkWithFsid__(),
+          exec: () => this.#stepDlinkByFsid(),
         },
         {
           id: EDownloadSteps.CHECK_DOWNLOAD_INFO,
-          exec: () => this.#__STEP__CheckDownloadInfo__(),
+          exec: () => this.#stepDownloadInfo(),
         },
         {
           id: EDownloadSteps.GET_DECRYPT_INFO,
-          exec: () => this.#__STEP__GetDecryptInfo__(),
+          exec: () => this.#stepDecryptInfo(),
         },
         {
           id: EDownloadSteps.PREPARE_FOR_DOWNLOAD,
-          exec: () => this.#__STEP__PrepareForDownload__(),
+          exec: () => this.#stepPrepareDownload(),
         },
         {
           id: EDownloadSteps.DOWNLOAD_SLICES,
-          exec: () => this.#__STEP__DownloadSlices__(),
-          stop: (inForce?: boolean) => this.#__STOP__DownloadSlices__(inForce),
+          exec: () => this.#stepDownloadSlices(),
+          stop: (inForce?: boolean) => this.#stopDownloadSlices(inForce),
         },
         {
           id: EDownloadSteps.CHECK_MD5_DISK,
-          exec: () => this.#__STEP__CheckMD5OnDisk__(),
-          stop: () => this.#__STOP__CheckMD5OnDisk__(),
+          exec: () => this.#stepMd5OnDisk(),
+          stop: () => this.#stopMd5OnDisk(),
         },
-        { id: EDownloadSteps.SET_LOCAL_MTIME, exec: () => this.#__STEP__SetLocalMTime__() },
-        { id: EDownloadSteps.DOWNLOAD_FINISH, exec: () => this.#__STEP__DownloadFinish__() },
+        { id: EDownloadSteps.SET_LOCAL_MTIME, exec: () => this.#stepLocalMTime() },
+        { id: EDownloadSteps.DOWNLOAD_FINISH, exec: () => this.#stepFinish() },
       ],
       onStatusChanged: inNewStatus => {
         if (inNewStatus === EStepStatus.STOPPED && this.#steps.error && this.#noSilent) {
@@ -152,9 +152,7 @@ export class DownloadTask {
     })
   }
 
-  async #__STEP__GetFsidWithPath__() {
-    // throw new Error('字典故意的错误')
-
+  async #stepFsidByPath() {
     if (!this.#withPath) {
       return
     }
@@ -198,7 +196,7 @@ export class DownloadTask {
     } while (!found && may_has_more)
   }
 
-  async #__STEP__GetDlinkWithFsid__() {
+  async #stepDlinkByFsid() {
     if (!this.#withFsid) {
       return
     }
@@ -226,7 +224,7 @@ export class DownloadTask {
     this.#dlink = file.dlink || this.#dlink
   }
 
-  async #__STEP__CheckDownloadInfo__() {
+  async #stepDownloadInfo() {
     if (!this.#dlink) {
       throw new Error('No download link was provided')
     }
@@ -236,7 +234,7 @@ export class DownloadTask {
     }
   }
 
-  async #__STEP__GetDecryptInfo__() {
+  async #stepDecryptInfo() {
     if (!this.#keyBuf.length) {
       return
     }
@@ -270,7 +268,7 @@ export class DownloadTask {
     }
   }
 
-  async #__STEP__PrepareForDownload__() {
+  async #stepPrepareDownload() {
     createDirectory(path.dirname(this.#local))
     fs.writeFileSync(this.#local, Buffer.alloc(0))
     fs.truncateSync(this.#local, this.#oriSize)
@@ -287,7 +285,7 @@ export class DownloadTask {
     this.#totalSlice = Math.ceil(rawSlices / this.#splitSlice)
   }
 
-  async #__STEP__DownloadSlices__() {
+  async #stepDownloadSlices() {
     if (!this.#downloadWorker) {
       const worker = newWorker<IDownloadMainThreadData>('download-main', {
         access_token: this.#access_token,
@@ -322,7 +320,7 @@ export class DownloadTask {
       this.#downloadWorker?.onRecvData<IDownloadMainDoneRes>('DOWNLOAD_MAIN_DONE', inData => {
         if (!this.#noVerify && this.#noVerifyOnDisk && this.#keyBuf.length) {
           if (this.#md5Middle !== inData.md5.substring(8, 24)) {
-            this.#__STOP__DownloadSlices__(true)
+            this.#stopDownloadSlices(true)
 
             return reject(new Error('MD5 not match'))
           }
@@ -339,10 +337,10 @@ export class DownloadTask {
       })
     })
 
-    await this.#__STOP__DownloadSlices__(true)
+    await this.#stopDownloadSlices(true)
   }
 
-  async #__STEP__CheckMD5OnDisk__() {
+  async #stepMd5OnDisk() {
     if (this.#noVerify || this.#noVerifyOnDisk || !this.#keyBuf.length) {
       return
     }
@@ -368,16 +366,16 @@ export class DownloadTask {
     })
   }
 
-  async #__STEP__SetLocalMTime__() {
+  async #stepLocalMTime() {
     fs.utimesSync(this.#local, new Date(Date.now()), new Date(this.#mtimeS * 1000))
   }
 
-  async #__STEP__DownloadFinish__() {
+  async #stepFinish() {
     this.#doneProm?.res({ local: this.#local })
     this.#onDone?.({ local: this.#local })
   }
 
-  async #__STOP__DownloadSlices__(inForce?: boolean) {
+  async #stopDownloadSlices(inForce?: boolean) {
     this.#downloadWorker?.sendData('DOWNLOAD_MAIN_STOP')
 
     if (inForce) {
@@ -387,7 +385,7 @@ export class DownloadTask {
     }
   }
 
-  async #__STOP__CheckMD5OnDisk__() {
+  async #stopMd5OnDisk() {
     await this.#checkMD5Worker?.terminate()
     this.#checkMD5Worker = void 0
   }
