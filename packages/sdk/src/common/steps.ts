@@ -1,20 +1,20 @@
 import { EStepStatus } from '../types/enums.js'
 
 export interface IStepItem {
-  name: string
+  id: number
   exec: () => Promise<void>
-  stop?: () => Promise<void>
+  stop?: (inForce?: boolean) => Promise<void>
 }
 
 export interface ICurrStep {
-  name: string
-  stop: () => Promise<void>
+  id: number
+  stop: (inForce?: boolean) => Promise<void>
   res: () => void
   rej: (inReason?: any) => void
 }
 
 export class Steps {
-  #names: string[] = []
+  #ids: number[] = []
   #steps: IStepItem[] = []
   #status: EStepStatus = EStepStatus.CREATED
   #error: Error | null = null
@@ -44,13 +44,13 @@ export class Steps {
 
     try {
       for (const step of this.#steps) {
-        if (this.#names.includes(step.name)) {
+        if (this.#ids.includes(step.id)) {
           continue
         }
 
         await new Promise<void>((res, rej) => {
           this.#step = {
-            name: step.name,
+            id: step.id,
             stop: step.stop || (async () => {}),
             res: res,
             rej: rej,
@@ -59,7 +59,7 @@ export class Steps {
           step.exec().then(res).catch(rej)
         })
 
-        this.#names.push(step.name)
+        this.#ids.push(step.id)
         this.#step = null
       }
 
@@ -70,13 +70,13 @@ export class Steps {
     }
   }
 
-  async stop() {
-    if (this.status !== EStepStatus.RUNNING || !this.#step) {
+  async stop(inForce?: boolean) {
+    if (!this.#step) {
       return
     }
 
     try {
-      await this.#step.stop()
+      await this.#step.stop(inForce)
       this.#step.rej(null)
     } catch (inError) {
       this.#step.rej(inError)
@@ -88,8 +88,8 @@ export class Steps {
     this.#onStatusChanged(inNewStatus)
   }
 
-  get name() {
-    return this.#step?.name
+  get id() {
+    return this.#step?.id || 0
   }
 
   get status() {

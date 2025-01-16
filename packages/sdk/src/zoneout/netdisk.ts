@@ -8,19 +8,20 @@ import {
   httpUserInfo,
   httpUserQuota,
 } from 'baidu-netdisk-api'
-import type { IBaiduApiError } from 'baidu-netdisk-api'
+import { type IBaiduApiError } from 'baidu-netdisk-api/types'
 import path from 'node:path'
 import {
+  type PromType,
   __DOWNLOAD_THREADS__,
   __TRY_DELTA__,
   __TRY_TIMES__,
   __UPLOAD_THREADS__,
-} from '../common/alpha'
-import type { PromType } from '../common/alpha'
-import { DownloadTask } from '../common/download-task'
-import { EAsync, EOndup, fileManage } from '../common/file-manage'
-import { UploadTask } from '../common/upload-task'
-import { pathNormalized, pick, tryTimes } from '../common/utils'
+} from '../common/alpha.js'
+import { DownloadTask } from '../common/download-task.js'
+import { fileManage } from '../common/file-manage.js'
+import { UploadTask } from '../common/upload-task.js'
+import { pathNormalized, pick, tryTimes } from '../common/utils.js'
+import { EFileManageAsync, EFileManageOndup } from '../types/enums.js'
 
 export class Netdisk {
   #app_name = ''
@@ -160,23 +161,27 @@ export class Netdisk {
       cursor = cursor + data.list.length
     } while (may_has_more && infinite)
 
-    return list.map(item =>
-      pick(item, [
-        'category',
-        'dir_empty',
-        'fs_id',
-        'isdir',
-        'local_ctime',
-        'local_mtime',
-        'md5',
-        'path',
-        'server_ctime',
-        'server_filename',
-        'server_mtime',
-        'size',
-        'thumbs',
-      ])
-    )
+    return {
+      cursor: cursor,
+      may_has_more: may_has_more,
+      list: list.map(item =>
+        pick(item, [
+          'category',
+          'dir_empty',
+          'fs_id',
+          'isdir',
+          'local_ctime',
+          'local_mtime',
+          'md5',
+          'path',
+          'server_ctime',
+          'server_filename',
+          'server_mtime',
+          'size',
+          'thumbs',
+        ])
+      ),
+    }
   }
 
   async getFileListRecursion(inOpts: {
@@ -210,20 +215,25 @@ export class Netdisk {
       cursor = data.cursor
     } while (has_more && infinite)
 
-    return list.map(item =>
-      pick(item, [
-        'category',
-        'fs_id',
-        'isdir',
-        'local_ctime',
-        'local_mtime',
-        'md5',
-        'server_ctime',
-        'server_mtime',
-        'size',
-        'thumbs',
-      ])
-    )
+    return {
+      cursor: cursor,
+      has_more: has_more,
+      list: list.map(item =>
+        pick(item, [
+          'category',
+          'fs_id',
+          'isdir',
+          'local_ctime',
+          'local_mtime',
+          'md5',
+          'path',
+          'server_ctime',
+          'server_mtime',
+          'size',
+          'thumbs',
+        ])
+      ),
+    }
   }
 
   async getFileInfo(inOpts: {
@@ -288,7 +298,7 @@ export class Netdisk {
       const tErr = err as IBaiduApiError
 
       if (inOpts.opts?.verifyExists && tErr.errno === -8) {
-        const list = await this.getFileList({
+        const { list } = await this.getFileList({
           dir: path.dirname(inOpts.path),
           opts: {
             folder: 1,
@@ -316,7 +326,12 @@ export class Netdisk {
     }
   }
 
-  copyFolderOrFile(inOpts: { source: string; target: string; ondup?: EOndup; async?: EAsync }) {
+  copyFolderOrFile(inOpts: {
+    source: string
+    target: string
+    ondup?: EFileManageOndup
+    async?: EFileManageAsync
+  }) {
     return tryTimes(
       () =>
         fileManage({
@@ -333,10 +348,10 @@ export class Netdisk {
     list: {
       source: string
       target: string
-      ondup?: EOndup
+      ondup?: EFileManageOndup
     }[]
-    ondup?: EOndup
-    async?: EAsync
+    ondup?: EFileManageOndup
+    async?: EFileManageAsync
   }) {
     return tryTimes(
       () =>
@@ -349,7 +364,12 @@ export class Netdisk {
     )
   }
 
-  moveFolderOrFile(inOpts: { source: string; target: string; ondup?: EOndup; async?: EAsync }) {
+  moveFolderOrFile(inOpts: {
+    source: string
+    target: string
+    ondup?: EFileManageOndup
+    async?: EFileManageAsync
+  }) {
     return tryTimes(
       () =>
         fileManage({
@@ -366,10 +386,10 @@ export class Netdisk {
     list: {
       source: string
       target: string
-      ondup?: EOndup
+      ondup?: EFileManageOndup
     }[]
-    ondup?: EOndup
-    async?: EAsync
+    ondup?: EFileManageOndup
+    async?: EFileManageAsync
   }) {
     return tryTimes(
       () =>
@@ -385,8 +405,8 @@ export class Netdisk {
   renameFolderOrFile(inOpts: {
     source: string
     newname: string
-    ondup?: EOndup
-    async?: EAsync
+    ondup?: EFileManageOndup
+    async?: EFileManageAsync
   }) {
     return tryTimes(
       () =>
@@ -404,10 +424,10 @@ export class Netdisk {
     list: {
       source: string
       newname: string
-      ondup?: EOndup
+      ondup?: EFileManageOndup
     }[]
-    ondup?: EOndup
-    async?: EAsync
+    ondup?: EFileManageOndup
+    async?: EFileManageAsync
   }) {
     return tryTimes(
       () =>
@@ -420,7 +440,7 @@ export class Netdisk {
     )
   }
 
-  deleteFolderOrFile(inOpts: { source: string; async?: EAsync }) {
+  deleteFolderOrFile(inOpts: { source: string; async?: EFileManageAsync }) {
     return tryTimes(
       () =>
         fileManage({
@@ -433,7 +453,7 @@ export class Netdisk {
     )
   }
 
-  deleteFoldersOrFiles(inOpts: { list: { source: string }[]; async?: EAsync }) {
+  deleteFoldersOrFiles(inOpts: { list: { source: string }[]; async?: EFileManageAsync }) {
     return tryTimes(
       () =>
         fileManage({
@@ -445,10 +465,19 @@ export class Netdisk {
     )
   }
 
-  upload(
+  async upload(
     inOpts: Pick<
       ConstructorParameters<typeof UploadTask>[0],
-      'encrypt' | 'local' | 'apiOpts' | 'remote' | 'rtype' | 'threads' | 'tryDelta' | 'tryTimes'
+      | 'encrypt'
+      | 'local'
+      | 'apiOpts'
+      | 'remote'
+      | 'rtype'
+      | 'threads'
+      | 'noVerify'
+      | 'downloadThreads'
+      | 'tryDelta'
+      | 'tryTimes'
     >
   ) {
     if (!pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}/`)) {
@@ -467,7 +496,12 @@ export class Netdisk {
 
     task.run()
 
-    return task.done
+    try {
+      return await task.done
+    } catch (inError) {
+      task.terminate()
+      throw inError
+    }
   }
 
   uploadTask(
@@ -482,6 +516,8 @@ export class Netdisk {
       | 'remote'
       | 'rtype'
       | 'threads'
+      | 'noVerify'
+      | 'downloadThreads'
       | 'tryDelta'
       | 'tryTimes'
     >
@@ -500,7 +536,7 @@ export class Netdisk {
     })
   }
 
-  download(
+  async download(
     inOpts: Pick<
       ConstructorParameters<typeof DownloadTask>[0],
       | 'encrypt'
@@ -511,6 +547,8 @@ export class Netdisk {
       | 'withDlink'
       | 'withFsid'
       | 'withPath'
+      | 'noVerify'
+      | 'noVerifyOnDisk'
     >
   ) {
     const task = new DownloadTask({
@@ -524,7 +562,12 @@ export class Netdisk {
 
     task.run()
 
-    return task.done
+    try {
+      return await task.done
+    } catch (inError) {
+      task.terminate()
+      throw inError
+    }
   }
 
   downloadTask(
@@ -536,6 +579,8 @@ export class Netdisk {
       | 'onError'
       | 'onStatusChanged'
       | 'threads'
+      | 'noVerify'
+      | 'noVerifyOnDisk'
       | 'tryDelta'
       | 'tryTimes'
       | 'withDlink'
