@@ -1,0 +1,49 @@
+export const enum EUploadRtype {
+  FAIL = 0,
+  RENAME = 1,
+  DIFF_RENAME = 2,
+  OVERWRITE = 3,
+}
+
+export const enum EFileManageOndup {
+  FAIL = 'fail',
+  OVERWRITE = 'overwrite',
+  NEWCOPY = 'newcopy',
+  SKIP = 'skip',
+}
+
+export const enum EFileManageAsync {
+  SYNC = 0,
+  ADAPTIVE = 1,
+  ASYNC = 2,
+}
+
+export const enum EStepStatus {
+  CREATED = 0,
+  RUNNING = 1,
+  STOPPED = 2,
+  FINISHED = 3,
+}
+
+export const enum EUploadSteps {
+  GET_FILE_INFO = 'GET_FILE_INFO',
+  GET_LOCAL_MD5 = 'GET_LOCAL_MD5',
+  GET_UPLOAD_ID = 'GET_UPLOAD_ID',
+  UPLOAD_SLICES = 'UPLOAD_SLICES',
+  COMBINE = 'COMBINE',
+  PRE_DOWNLOAD_INFO = 'PRE_DOWNLOAD_INFO',
+  VERIFY_DOWNLOAD = 'VERIFY_DOWNLOAD',
+  FINISH = 'FINISH',
+}
+
+export const enum EDownloadSteps {
+  GET_FSID_WITH_PATH = 'GET_FSID_WITH_PATH',
+  GET_DLINK_WITH_FSID = 'GET_DLINK_WITH_FSID',
+  CHECK_DOWNLOAD_INFO = 'CHECK_DOWNLOAD_INFO',
+  GET_DECRYPT_INFO = 'GET_DECRYPT_INFO',
+  PREPARE_FOR_DOWNLOAD = 'PREPARE_FOR_DOWNLOAD',
+  DOWNLOAD_SLICES = 'DOWNLOAD_SLICES',
+  CHECK_MD5_DISK = 'CHECK_MD5_DISK',
+  SET_LOCAL_MTIME = 'SET_LOCAL_MTIME',
+  DOWNLOAD_FINISH = 'DOWNLOAD_FINISH',
+}

@@ -1,5 +1,3 @@
-import { Netdisk } from './zoneout/netdisk'
+import { Netdisk } from './zoneout/netdisk.js'
 
 export { Netdisk }
-
-export * from './common/types-export'

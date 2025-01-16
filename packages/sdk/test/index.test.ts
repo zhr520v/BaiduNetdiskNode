@@ -1,8 +1,8 @@
+import { describe, expect, it, runTest } from '@root/utils/test-suite'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import pico from 'picocolors'
-import { describe, expect, it, runTest } from '../../../utils/test-suite'
 import { Netdisk } from '../index'
 
 if (!fs.existsSync('tmp/test.config.json')) {
@@ -136,13 +136,13 @@ describe('FUNCTION_TEST', () => {
   })
 
   it('GetFileList', async () => {
-    const data = await netdisk.getFileList({
+    const { list } = await netdisk.getFileList({
       dir: '/',
     })
 
-    expect(data.length).toBeGreaterThan(0)
+    expect(list.length).toBeGreaterThan(0)
 
-    for (const item of data) {
+    for (const item of list) {
       expect(item).toHaveProperties(
         'category',
         'fs_id',
@@ -159,7 +159,7 @@ describe('FUNCTION_TEST', () => {
   })
 
   it('GetFileListRecursion', async () => {
-    const data = await netdisk.getFileListRecursion({
+    const { list } = await netdisk.getFileListRecursion({
       path: '/apps',
       opts: {
         recursion: 1,
@@ -167,9 +167,9 @@ describe('FUNCTION_TEST', () => {
       },
     })
 
-    expect(data.length).toBeGreaterThan(0)
+    expect(list.length).toBeGreaterThan(0)
 
-    for (const item of data) {
+    for (const item of list) {
       expect(item).toHaveProperties(
         'category',
         'fs_id',
@@ -576,7 +576,7 @@ describe('FILE_MANAGE', () => {
   })
 
   it('VerifyFileManage', async () => {
-    const data = await netdisk.getFileList({
+    const { list } = await netdisk.getFileList({
       dir: `${__PATH_PREFIX__}/SubFolder`,
     })
 
@@ -589,7 +589,7 @@ describe('FILE_MANAGE', () => {
       `${__PATH_PREFIX__}/SubFolder/Renamed1.bin`,
       `${__PATH_PREFIX__}/SubFolder/Renamed2.bin`,
     ]
-    const existsPaths = data.filter(item => !item.isdir).map(item => item.path)
+    const existsPaths = list.filter(item => !item.isdir).map(item => item.path)
 
     expect(expectPaths).toBePlainArrayEqual(existsPaths)
   })

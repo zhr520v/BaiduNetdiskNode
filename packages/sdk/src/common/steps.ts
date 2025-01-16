@@ -1,9 +1,4 @@
-export enum EStatus {
-  CREATED = 0,
-  RUNNING = 1,
-  STOPPED = 2,
-  FINISHED = 3,
-}
+import { EStepStatus } from '../types/enums.js'
 
 export interface IStepItem {
   name: string
@@ -21,16 +16,16 @@ export interface ICurrStep {
 export class Steps {
   #names: string[] = []
   #steps: IStepItem[] = []
-  #status: EStatus = EStatus.CREATED
+  #status: EStepStatus = EStepStatus.CREATED
   #error: Error | null = null
   #step: ICurrStep | null = null
   #onBeforeRun: () => Promise<void> = async () => {}
-  #onStatusChanged: (inNewStatus: EStatus) => void = () => {}
+  #onStatusChanged: (inNewStatus: EStepStatus) => void = () => {}
 
   constructor(inOpts: {
     steps: IStepItem[]
     onBeforeRun?: () => Promise<void>
-    onStatusChanged?: (inNewStatus: EStatus) => void
+    onStatusChanged?: (inNewStatus: EStepStatus) => void
   }) {
     this.#steps = inOpts.steps
     this.#onBeforeRun = inOpts.onBeforeRun || this.#onBeforeRun
@@ -38,12 +33,12 @@ export class Steps {
   }
 
   async run() {
-    if (this.#status === EStatus.FINISHED || this.#status === EStatus.RUNNING) {
+    if (this.#status === EStepStatus.FINISHED || this.#status === EStepStatus.RUNNING) {
       return
     }
 
     this.#error = null
-    this.#setStatus(EStatus.RUNNING)
+    this.#setStatus(EStepStatus.RUNNING)
 
     await this.#onBeforeRun()
 
@@ -68,15 +63,15 @@ export class Steps {
         this.#step = null
       }
 
-      this.#setStatus(EStatus.FINISHED)
+      this.#setStatus(EStepStatus.FINISHED)
     } catch (inError) {
       this.#error = inError as Error
-      this.#setStatus(EStatus.STOPPED)
+      this.#setStatus(EStepStatus.STOPPED)
     }
   }
 
   async stop() {
-    if (this.status !== EStatus.RUNNING || !this.#step) {
+    if (this.status !== EStepStatus.RUNNING || !this.#step) {
       return
     }
 
@@ -88,7 +83,7 @@ export class Steps {
     }
   }
 
-  #setStatus(inNewStatus: EStatus) {
+  #setStatus(inNewStatus: EStepStatus) {
     this.#status = inNewStatus
     this.#onStatusChanged(inNewStatus)
   }

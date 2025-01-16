@@ -1,19 +1,7 @@
 import { httpFileManager } from 'baidu-netdisk-api'
 import path from 'node:path'
-import { pick } from './utils'
-
-export enum EOndup {
-  FAIL = 'fail',
-  OVERWRITE = 'overwrite',
-  NEWCOPY = 'newcopy',
-  SKIP = 'skip',
-}
-
-export enum EAsync {
-  SYNC = 0,
-  ADAPTIVE = 1,
-  ASYNC = 2,
-}
+import { EFileManageAsync, EFileManageOndup } from '../types/enums.js'
+import { pick } from './utils.js'
 
 export async function fileManage(inOpts: {
   access_token: string
@@ -22,10 +10,10 @@ export async function fileManage(inOpts: {
     source: string
     target?: string
     newname?: string
-    ondup?: EOndup
+    ondup?: EFileManageOndup
   }[]
-  ondup?: EOndup
-  async?: EAsync
+  ondup?: EFileManageOndup
+  async?: EFileManageAsync
 }) {
   const list = inOpts.list.map(item => {
     const source = item.source

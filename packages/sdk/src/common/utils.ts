@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 
-export function pick<T extends {}, K extends keyof T>(inObj: T, inKeys: K[]) {
+export function pick<T extends object, K extends keyof T>(inObj: T, inKeys: K[]) {
   const obj = inObj as { [key: string]: any }
   const keys = inKeys as string[]
   const result: { [key: string]: any } = {}
@@ -16,7 +16,7 @@ export function pick<T extends {}, K extends keyof T>(inObj: T, inKeys: K[]) {
   return result as Pick<T, K>
 }
 
-export function omit<T extends {}, K extends keyof T>(inObj: T, inKeys: K[]) {
+export function omit<T extends object, K extends keyof T>(inObj: T, inKeys: K[]) {
   const obj = inObj as { [key: string]: any }
   const keys = inKeys as string[]
   const result: { [key: string]: any } = {}
