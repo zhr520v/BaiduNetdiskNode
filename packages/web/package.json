@@ -1,0 +1,40 @@
+{
+  "name": "baidu-netdisk-web",
+  "version": "0.1.0",
+  "description": "BaiduNetdiskSync frontend",
+  "keywords": [
+    "baidu",
+    "netdisk",
+    "sync"
+  ],
+  "author": "keenghost",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keenghost/BaiduNetdiskNode.git",
+    "directory": "packages/web"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": "^9.0.0"
+  },
+  "type": "module",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "autoprefixer": "^10.4.20",
+    "axios": "^1.7.9",
+    "baidu-netdisk-api": "workspace:^*",
+    "baidu-netdisk-sdk": "workspace:^*",
+    "baidu-netdisk-srv": "workspace:^*",
+    "mitt": "^3.0.1",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.7",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  }
+}

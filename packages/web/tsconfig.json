@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@assets/*": ["./assets/*"]
+    }
+  },
+  "include": ["src", "**/*.vue"],
+  "extends": "../../tsconfig.json"
+}
