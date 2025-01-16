@@ -1,0 +1,46 @@
+{
+  "name": "baidu-netdisk-xth",
+  "version": "0.1.0",
+  "description": "BaiduNetdiskSync auth server",
+  "keywords": [
+    "baidu",
+    "netdisk",
+    "xth",
+    "auth"
+  ],
+  "author": "keenghost",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keenghost/BaiduNetdiskNode.git",
+    "directory": "packages/xth"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": "^9.0.0"
+  },
+  "type": "module",
+  "exports": {
+    "./types": {
+      "types": "./types.d.ts",
+      "default": "./types.js"
+    }
+  },
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev": "tsx watch ./src/app.ts",
+    "build": "tsx scripts/build.ts",
+    "start": "node ./src/app.js"
+  },
+  "dependencies": {
+    "baidu-netdisk-api": "workspace:^*",
+    "koa": "^2.15.3",
+    "koa-bodyparser": "^4.4.1",
+    "koa-router": "^13.0.1"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.15.0",
+    "@types/koa-bodyparser": "^4.3.12",
+    "@types/koa-router": "^7.4.8"
+  }
+}
