@@ -11,16 +11,15 @@ import {
 import { type IBaiduApiError } from 'baidu-netdisk-api/types'
 import path from 'node:path'
 import {
-  type PromType,
   __DOWNLOAD_THREADS__,
   __TRY_DELTA__,
   __TRY_TIMES__,
   __UPLOAD_THREADS__,
-} from '../common/alpha.js'
+} from '../common/const.js'
 import { DownloadTask } from '../common/download-task.js'
 import { fileManage } from '../common/file-manage.js'
 import { UploadTask } from '../common/upload-task.js'
-import { pathNormalized, pick, tryTimes } from '../common/utils.js'
+import { type PromType, pathNormalized, pick, tryTimes } from '../common/utils.js'
 import { EFileManageAsync, EFileManageOndup } from '../types/enums.js'
 
 export class Netdisk {

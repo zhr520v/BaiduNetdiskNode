@@ -14,7 +14,7 @@ import {
   __PRESV_ENC_BLOCK_SIZE__,
   __TRY_DELTA__,
   __TRY_TIMES__,
-} from './alpha.js'
+} from './const.js'
 import { Steps } from './steps.js'
 import { PromBat, pathNormalized, tryTimes } from './utils.js'
 import { type IErrorRes, WorkerParent, newWorker } from './worker.js'

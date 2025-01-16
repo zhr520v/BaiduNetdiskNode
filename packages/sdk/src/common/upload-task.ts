@@ -22,16 +22,15 @@ import {
   type IUploadMainThreadData,
 } from '../workers/upload-main.js'
 import {
-  type PromType,
   __DOWNLOAD_THREADS__,
   __PRESV_ENC_BLOCK_SIZE__,
   __TRY_DELTA__,
   __TRY_TIMES__,
   __UPLOAD_THREADS__,
-} from './alpha.js'
+} from './const.js'
 import { Steps } from './steps.js'
 import { getUploadUrl } from './upload-url.js'
-import { PromBat, pathNormalized, pick, tryTimes } from './utils.js'
+import { PromBat, type PromType, pathNormalized, pick, tryTimes } from './utils.js'
 import { type IErrorRes, WorkerParent, newWorker } from './worker.js'
 
 const FS_STAT_ASYNC = util.promisify(fs.stat)

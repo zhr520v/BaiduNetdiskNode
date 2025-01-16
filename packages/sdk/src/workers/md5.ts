@@ -1,9 +1,9 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import { parentPort, workerData } from 'node:worker_threads'
-import { __PRESV_ENC_BLOCK_SIZE__ } from '../common//alpha.js'
 import { encrypt, md5, readFileSlice } from '../common//utils.js'
 import { type IErrorRes, WorkerChild } from '../common//worker.js'
+import { __PRESV_ENC_BLOCK_SIZE__ } from '../common/const.js'
 
 export interface IMd5Req {
   local: string

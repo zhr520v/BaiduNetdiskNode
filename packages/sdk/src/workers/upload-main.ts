@@ -1,5 +1,5 @@
 import { parentPort, workerData } from 'node:worker_threads'
-import { __TRY_DELTA__, __TRY_TIMES__, __UPLOAD_THREADS__ } from '../common/alpha.js'
+import { __TRY_DELTA__, __TRY_TIMES__, __UPLOAD_THREADS__ } from '../common/const.js'
 import { type IErrorRes, WorkerChild, WorkerParent, newWorker } from '../common/worker.js'
 import {
   type IUploadExecSliceReq,

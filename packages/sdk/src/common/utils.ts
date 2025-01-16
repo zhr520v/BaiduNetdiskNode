@@ -2,6 +2,8 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 
+export type PromType<T> = T extends Promise<infer A> ? A : never
+
 export function pick<T extends object, K extends keyof T>(inObj: T, inKeys: K[]) {
   const obj = inObj as { [key: string]: any }
   const keys = inKeys as string[]
