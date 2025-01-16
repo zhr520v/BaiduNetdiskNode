@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { MessagePort, Worker } from 'node:worker_threads'
-import { __ES__ } from './alpha'
 
 export interface IErrorRes {
   msg: string
@@ -11,14 +10,20 @@ export interface IErrorRes {
 export class WorkerParent {
   #entity: Worker
   #recvDataFuncs: Map<string, (inData: any) => void> = new Map()
+  #recvBinaryFunc: ((inData: Buffer) => void) | undefined
 
   constructor(inWorker: Worker) {
     this.#entity = inWorker
     this.#entity.on('message', this.#onMessage.bind(this))
   }
 
-  #onMessage(inData: { type: string; data: any }) {
-    this.#recvDataFuncs.get(inData.type)?.(inData.data)
+  #onMessage(inData: any) {
+    if (inData.type) {
+      const msg = inData as { type: string; data: any }
+      this.#recvDataFuncs.get(msg.type)?.(msg.data)
+    } else {
+      this.#recvBinaryFunc?.(Buffer.from(inData))
+    }
   }
 
   get entity() {
@@ -40,6 +45,14 @@ export class WorkerParent {
     this.#recvDataFuncs.set(inType, inFunc)
   }
 
+  sendBinary(inData: Buffer) {
+    this.#entity.postMessage(inData, [inData.buffer])
+  }
+
+  onRecvBinary(inFunc: (inData: Buffer) => void) {
+    this.#recvBinaryFunc = inFunc
+  }
+
   async terminate() {
     try {
       await this.#entity.terminate()
@@ -50,14 +63,20 @@ export class WorkerParent {
 export class WorkerChild {
   #parentPort: MessagePort | null
   #recvDataFuncs: Map<string, (inData: any) => void> = new Map()
+  #recvBinaryFunc: ((inData: Buffer) => void) | undefined
 
   constructor(inParentPort: MessagePort | null) {
     this.#parentPort = inParentPort
     this.#parentPort?.on('message', this.#onMessage.bind(this))
   }
 
-  #onMessage(inData: { type: string; data: any }) {
-    this.#recvDataFuncs.get(inData.type)?.(inData.data)
+  #onMessage(inData: any) {
+    if (inData.type) {
+      const msg = inData as { type: string; data: any }
+      this.#recvDataFuncs.get(msg.type)?.(msg.data)
+    } else {
+      this.#recvBinaryFunc?.(Buffer.from(inData))
+    }
   }
 
   sendData<T = void>(inType: string, inData?: T) {
@@ -70,17 +89,22 @@ export class WorkerChild {
   ) {
     this.#recvDataFuncs.set(inType, inFunc)
   }
+
+  sendBinary(inData: Buffer) {
+    this.#parentPort?.postMessage(inData, [inData.buffer])
+  }
+
+  onRecvBinary(inFunc: (inData: Buffer) => void) {
+    this.#recvBinaryFunc = inFunc
+  }
 }
 
-// @ts-ignore
 const __DIRNAME__ = path.dirname(fileURLToPath(import.meta.url))
 const __WORKER_CACHE__: Map<string, string> = new Map()
 const __WORKER_LOADER__ = path.resolve(__DIRNAME__, '../workers/_loader')
 
 export function newWorker<T>(inWorkerName: string, inWorkerData: T) {
-  const workerPath = __ES__
-    ? path.resolve(__DIRNAME__, `../workers/${inWorkerName}`)
-    : path.resolve(__dirname, `../workers/${inWorkerName}`)
+  const workerPath = path.resolve(__DIRNAME__, `../workers/${inWorkerName}`)
 
   if (!__WORKER_CACHE__.get(workerPath)) {
     __WORKER_CACHE__.set(workerPath, fs.existsSync(workerPath + '.ts') ? 'ts' : 'js')
