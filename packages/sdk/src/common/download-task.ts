@@ -1,17 +1,23 @@
 import { axios, httpFileInfo, httpFileList } from 'baidu-netdisk-api'
 import fs from 'node:fs'
 import path from 'node:path'
-import type { IDownloadReq, ISliceReq, ISliceRes, ISpeedRes } from '../workers/download'
+import { EDownloadSteps, EStepStatus } from '../types/enums.js'
+import {
+  type IDownloadMainDoneBytesRes,
+  type IDownloadMainDoneRes,
+  type IDownloadMainRunReq,
+  type IDownloadMainThreadData,
+} from '../workers/download-main.js'
+import { type IMD5FileDone, type IMD5FileThreadData } from '../workers/md5-file.js'
 import {
   __DOWNLOAD_THREADS__,
   __PRESV_ENC_BLOCK_SIZE__,
   __TRY_DELTA__,
   __TRY_TIMES__,
-} from './alpha'
-import { EStatus, Steps } from './steps'
-import { PromBat, pathNormalized, tryTimes } from './utils'
-import { WorkerParent, newWorker } from './worker'
-import type { IErrorRes } from './worker'
+} from './alpha.js'
+import { Steps } from './steps.js'
+import { PromBat, pathNormalized, tryTimes } from './utils.js'
+import { type IErrorRes, WorkerParent, newWorker } from './worker.js'
 
 export interface IDownloadFinish {
   local: string
@@ -21,6 +27,7 @@ export class DownloadTask {
   #access_token = ''
 
   #local = ''
+  #remote = ''
   #withPath = ''
   #withFsid = 0
   #dlink: string = ''
@@ -28,32 +35,30 @@ export class DownloadTask {
   #noSilent = false
   #tryTimes = __TRY_TIMES__
   #tryDelta = __TRY_DELTA__
+  #noVerify = false
+  #noVerifyOnDisk = false
 
   #oriSize = 0
   #comSize = 0
   #mtimeS = 0
-  #chunkSize = 4 * 1024 * 1024
+  #chunkMB = 4
   #keyBuf = Buffer.alloc(0)
   #ivBuf = Buffer.alloc(0)
+  #md5Middle = ''
 
   #totalSlice = 0
-  #restSlices: number[][] = []
-  #doneSlices: number[] = []
+  #splitSlice = 64 / this.#chunkMB
 
-  #wPool: { worker: WorkerParent; currSlice?: number[] | undefined }[] = []
-  #wPoolTryTimes = 1
+  #downloadWorker: WorkerParent | undefined
+  #downBytes = 0
 
-  #speedTimer: NodeJS.Timeout | null = null
-  #lastDate = Date.now()
-  #lastBytes = 0
-  #dwedBytes = 0
-  #downloadSpeed = 0
+  #checkMD5Worker: WorkerParent | undefined
 
   #steps: Steps
   #doneProm: PromBat<IDownloadFinish> | undefined
   #onDone: ((inData: IDownloadFinish) => void) | undefined
   #onError: (inError: Error) => void = () => {}
-  #onStatusChanged: (inNewStatus: EStatus, inError: Error | null) => void = () => {}
+  #onStatusChanged: (inNewStatus: EStepStatus, inError: Error | null) => void = () => {}
 
   constructor(inOpts: {
     access_token: string
@@ -70,9 +75,11 @@ export class DownloadTask {
     noSilent?: boolean
     tryTimes?: number
     tryDelta?: number
+    noVerify?: boolean
+    noVerifyOnDisk?: boolean
     onDone?: (inData: IDownloadFinish) => void
     onError?: (inError: Error) => void
-    onStatusChanged?: (inNewStatus: EStatus, inError: Error | null) => void
+    onStatusChanged?: (inNewStatus: EStepStatus, inError: Error | null) => void
   }) {
     this.#access_token = inOpts.access_token
     this.#local = inOpts.local
@@ -81,6 +88,8 @@ export class DownloadTask {
     this.#tryTimes = inOpts.tryTimes || this.#tryTimes
     this.#tryDelta = inOpts.tryDelta || this.#tryDelta
     this.#threads = inOpts.threads || this.#threads
+    this.#noVerify = inOpts.noVerify || this.#noVerify
+    this.#noVerifyOnDisk = inOpts.noVerifyOnDisk || this.#noVerifyOnDisk
     this.#onDone = inOpts.onDone || this.#onDone
     this.#onError = inOpts.onError || this.#onError
     this.#onStatusChanged = inOpts.onStatusChanged || this.#onStatusChanged
@@ -99,21 +108,41 @@ export class DownloadTask {
 
     this.#steps = new Steps({
       steps: [
-        { name: 'GET_FSID_WITH_PATH', exec: () => this.#__STEP__GetFsidWithPath__() },
-        { name: 'GET_DLINK_WITH_FSID', exec: () => this.#__STEP__GetDlinkWithFsid__() },
-        { name: 'CHECK_DOWNLOAD_INFO', exec: () => this.#__STEP__CheckDownloadInfo__() },
-        { name: 'GET_DECRYPT_INFO', exec: () => this.#__STEP__GetDecryptInfo__() },
-        { name: 'PREPARE_FOR_DOWNLOAD', exec: () => this.#__STEP__PrepareForDownload__() },
         {
-          name: 'DOWNLOAD_SLICES',
-          exec: () => this.#__STEP__DownloadSlices__(),
-          stop: () => this.#__STOP__DownloadSlices__(),
+          id: EDownloadSteps.GET_FSID_WITH_PATH,
+          exec: () => this.#__STEP__GetFsidWithPath__(),
         },
-        { name: 'SET_LOCAL_MTIME', exec: () => this.#__STEP__SetLocalMTime__() },
-        { name: 'DOWNLOAD_FINISH', exec: () => this.#__STEP__DownloadFinish__() },
+        {
+          id: EDownloadSteps.GET_DLINK_WITH_FSID,
+          exec: () => this.#__STEP__GetDlinkWithFsid__(),
+        },
+        {
+          id: EDownloadSteps.CHECK_DOWNLOAD_INFO,
+          exec: () => this.#__STEP__CheckDownloadInfo__(),
+        },
+        {
+          id: EDownloadSteps.GET_DECRYPT_INFO,
+          exec: () => this.#__STEP__GetDecryptInfo__(),
+        },
+        {
+          id: EDownloadSteps.PREPARE_FOR_DOWNLOAD,
+          exec: () => this.#__STEP__PrepareForDownload__(),
+        },
+        {
+          id: EDownloadSteps.DOWNLOAD_SLICES,
+          exec: () => this.#__STEP__DownloadSlices__(),
+          stop: (inForce?: boolean) => this.#__STOP__DownloadSlices__(inForce),
+        },
+        {
+          id: EDownloadSteps.CHECK_MD5_DISK,
+          exec: () => this.#__STEP__CheckMD5OnDisk__(),
+          stop: () => this.#__STOP__CheckMD5OnDisk__(),
+        },
+        { id: EDownloadSteps.SET_LOCAL_MTIME, exec: () => this.#__STEP__SetLocalMTime__() },
+        { id: EDownloadSteps.DOWNLOAD_FINISH, exec: () => this.#__STEP__DownloadFinish__() },
       ],
       onStatusChanged: inNewStatus => {
-        if (inNewStatus === EStatus.STOPPED && this.#steps.error && this.#noSilent) {
+        if (inNewStatus === EStepStatus.STOPPED && this.#steps.error && this.#noSilent) {
           this.#doneProm?.rej(this.#steps.error)
           this.#onError(this.#steps.error)
         }
@@ -124,6 +153,8 @@ export class DownloadTask {
   }
 
   async #__STEP__GetFsidWithPath__() {
+    // throw new Error('字典故意的错误')
+
     if (!this.#withPath) {
       return
     }
@@ -188,6 +219,7 @@ export class DownloadTask {
       throw new Error('No fileinfo got from server')
     }
 
+    this.#remote = file.path
     this.#oriSize = file.size
     this.#comSize = file.size
     this.#mtimeS = file.local_mtime
@@ -199,7 +231,7 @@ export class DownloadTask {
       throw new Error('No download link was provided')
     }
 
-    if (this.#keyBuf.length && this.#comSize < 48) {
+    if (this.#keyBuf.length && this.#comSize < __PRESV_ENC_BLOCK_SIZE__ + 16) {
       throw new Error('File size not fit decrypt length')
     }
   }
@@ -228,110 +260,112 @@ export class DownloadTask {
     const presvBuf = Buffer.from(data)
 
     this.#ivBuf = presvBuf.subarray(0, 16)
-    this.#chunkSize = Number(presvBuf.readBigUInt64BE(16))
-    this.#oriSize = Number(presvBuf.readBigUInt64BE(24))
+    this.#md5Middle = presvBuf.subarray(16, 16 + 16).toString()
+    this.#oriSize = Number(presvBuf.readBigUInt64BE(16 + 16))
+    this.#chunkMB = presvBuf.readUint32BE(16 + 16 + 8)
+    const sum = presvBuf.readUInt32BE(16 + 16 + 8 + 4)
+
+    if (sum !== presvBuf.subarray(0, 16 + 16 + 8 + 4).reduce((pre, cur) => pre + cur, 0)) {
+      throw new Error('decrypt verify failed')
+    }
   }
 
   async #__STEP__PrepareForDownload__() {
+    createDirectory(path.dirname(this.#local))
     fs.writeFileSync(this.#local, Buffer.alloc(0))
     fs.truncateSync(this.#local, this.#oriSize)
 
-    if (64 * 1024 * 1024 < this.#chunkSize || (64 * 1024 * 1024) % this.#chunkSize > 0) {
-      throw new Error('chunkSize not match')
+    if (this.#chunkMB > 64) {
+      throw new Error('chunkMB too large')
     }
 
-    if (this.#keyBuf.length) {
-      this.#totalSlice = Math.ceil((this.#comSize - __PRESV_ENC_BLOCK_SIZE__) / this.#chunkSize)
-    } else {
-      this.#totalSlice = Math.ceil(this.#comSize / this.#chunkSize)
-    }
+    this.#splitSlice = 64 / this.#chunkMB
 
-    this.#totalSlice = Math.max(this.#totalSlice, 1)
-    const packages = (64 * 1024 * 1024) / this.#chunkSize
-    const restSlices = Array(this.#totalSlice)
-      .fill(0)
-      .map((item, index) => index)
+    const pureComSize = this.#comSize - (this.#keyBuf.length ? __PRESV_ENC_BLOCK_SIZE__ : 0)
+    const rawSlices = Math.max(Math.ceil(pureComSize / (this.#chunkMB * 1024 * 1024)), 1)
 
-    while (restSlices.length > 0) {
-      const item: number[] = []
-
-      for (let i = 0; i < packages; i++) {
-        const no = restSlices.shift()
-
-        if (no !== void 0) {
-          item.push(no)
-        }
-      }
-
-      this.#restSlices.push(item)
-    }
+    this.#totalSlice = Math.ceil(rawSlices / this.#splitSlice)
   }
 
   async #__STEP__DownloadSlices__() {
-    this.#timerSpeed()
+    if (!this.#downloadWorker) {
+      const worker = newWorker<IDownloadMainThreadData>('download-main', {
+        access_token: this.#access_token,
+        local: this.#local,
+        chunkMB: this.#chunkMB,
+        shrinkComSize: this.#keyBuf.length
+          ? this.#comSize - __PRESV_ENC_BLOCK_SIZE__
+          : this.#comSize,
+        keyBuf: this.#keyBuf,
+        ivBuf: this.#ivBuf,
+        totalSlice: this.#totalSlice,
+        splitSlice: this.#splitSlice,
+        noVerify: this.#noVerify,
+        noVerifyOnDisk: this.#noVerifyOnDisk,
+      })
+
+      this.#downloadWorker = new WorkerParent(worker)
+    }
 
     await new Promise<void>((resolve, reject) => {
-      const threads = Math.min(this.#restSlices.length, this.#threads)
+      this.#downloadWorker?.onRecvData<IDownloadMainDoneBytesRes>(
+        'DOWNLOAD_MAIN_DONE_BYTES',
+        inData => {
+          this.#downBytes += inData.bytes
+        }
+      )
 
-      const onSpeed = (inBytes: number) => {
-        this.#lastBytes = this.#lastBytes + inBytes
-      }
+      this.#downloadWorker?.onRecvData<IErrorRes>('THREAD_ERROR', inError => {
+        reject(new Error(inError.msg))
+      })
 
-      const onDownloaded = (inThreadId: number, inSlice: number[], inBytes: number) => {
-        this.#doneSlices.push(...inSlice)
-        this.#dwedBytes = this.#dwedBytes + inBytes
+      this.#downloadWorker?.onRecvData<IDownloadMainDoneRes>('DOWNLOAD_MAIN_DONE', inData => {
+        if (!this.#noVerify && this.#noVerifyOnDisk && this.#keyBuf.length) {
+          if (this.#md5Middle !== inData.md5.substring(8, 24)) {
+            this.#__STOP__DownloadSlices__(true)
 
-        for (const item of this.#wPool) {
-          if (item.worker.threadId === inThreadId) {
-            item.currSlice = void 0
+            return reject(new Error('MD5 not match'))
           }
         }
 
-        if (this.#doneSlices.length === this.#totalSlice) {
-          return resolve()
-        }
+        resolve()
+      })
 
-        this.#dispatchSlices()
-      }
-
-      const onError = (inThreadId: number, inError: IErrorRes) => {
-        const tWorker = this.#wPool.find(item => item.worker.threadId === inThreadId)
-        this.#wPool = this.#wPool.filter(item => item.worker.threadId !== inThreadId)
-        tWorker?.worker.terminate()
-
-        if (tWorker?.currSlice !== void 0) {
-          this.#restSlices.unshift(tWorker.currSlice)
-        }
-
-        if (this.#wPool.length === 0) {
-          if (this.#wPoolTryTimes < this.#tryTimes) {
-            this.#newDownloadWorker({
-              onSpeed: onSpeed,
-              onDownloaded: onDownloaded,
-              onError: onError,
-            })
-
-            this.#wPoolTryTimes = this.#wPoolTryTimes + 1
-          } else {
-            return reject(new Error(inError.msg))
-          }
-        }
-
-        this.#dispatchSlices()
-      }
-
-      for (let i = 0; i < threads; i++) {
-        this.#newDownloadWorker({
-          onSpeed: onSpeed,
-          onDownloaded: onDownloaded,
-          onError: onError,
-        })
-      }
-
-      this.#dispatchSlices()
+      this.#downloadWorker?.sendData<IDownloadMainRunReq>('DOWNLOAD_MAIN_RUN', {
+        dlink: this.#dlink,
+        threads: this.#threads,
+        tryTimes: this.#tryTimes,
+        tryDelta: this.#tryDelta,
+      })
     })
 
-    await this.#__STOP__DownloadSlices__()
+    await this.#__STOP__DownloadSlices__(true)
+  }
+
+  async #__STEP__CheckMD5OnDisk__() {
+    if (this.#noVerify || this.#noVerifyOnDisk || !this.#keyBuf.length) {
+      return
+    }
+
+    const worker = newWorker<IMD5FileThreadData>('md5-file', {
+      local: this.#local,
+    })
+
+    this.#checkMD5Worker = new WorkerParent(worker)
+
+    await new Promise<void>((resolve, reject) => {
+      this.#downloadWorker?.onRecvData<IErrorRes>('THREAD_ERROR', inError => {
+        reject(new Error(inError.msg))
+      })
+
+      this.#checkMD5Worker?.onRecvData<IMD5FileDone>('MD5_FILE_DONE', inData => {
+        if (this.#md5Middle !== inData.md5full.substring(8, 24)) {
+          return reject(new Error('MD5 not match'))
+        }
+
+        resolve()
+      })
+    })
   }
 
   async #__STEP__SetLocalMTime__() {
@@ -343,22 +377,19 @@ export class DownloadTask {
     this.#onDone?.({ local: this.#local })
   }
 
-  async #__STOP__DownloadSlices__() {
-    for (const item of this.#wPool) {
-      await item.worker.terminate()
+  async #__STOP__DownloadSlices__(inForce?: boolean) {
+    this.#downloadWorker?.sendData('DOWNLOAD_MAIN_STOP')
 
-      if (item.currSlice !== void 0) {
-        this.#restSlices.unshift(item.currSlice)
-      }
+    if (inForce) {
+      await this.#downloadWorker?.terminate()
+      this.#downBytes = 0
+      this.#downloadWorker = void 0
     }
+  }
 
-    this.#wPool = []
-    this.#wPoolTryTimes = 1
-    this.#lastBytes = 0
-
-    if (this.#speedTimer) {
-      clearTimeout(this.#speedTimer)
-    }
+  async #__STOP__CheckMD5OnDisk__() {
+    await this.#checkMD5Worker?.terminate()
+    this.#checkMD5Worker = void 0
   }
 
   #formatEncrypt(inKey?: string) {
@@ -377,72 +408,6 @@ export class DownloadTask {
     this.#keyBuf = Buffer.from(inKey.padEnd(32, '0'))
   }
 
-  #newDownloadWorker(inOpts: {
-    onSpeed: (inBytes: number) => void
-    onDownloaded: (inThreadId: number, inSlice: number[], inBytes: number) => void
-    onError: (inThreadId: number, inError: IErrorRes) => void
-  }) {
-    const worker = newWorker<IDownloadReq>('download', {
-      access_token: this.#access_token,
-      shrinkComSize: this.#comSize - (this.#keyBuf.length ? __PRESV_ENC_BLOCK_SIZE__ : 0),
-      local: this.#local,
-      dlink: this.#dlink,
-      chunkSize: this.#chunkSize,
-      keyBuf: this.#keyBuf,
-      ivBuf: this.#ivBuf,
-      tryTimes: this.#tryTimes,
-      tryDelta: this.#tryDelta,
-    })
-
-    const fixedWorker = new WorkerParent(worker)
-
-    fixedWorker.onRecvData<ISpeedRes>('speed', inData => {
-      inOpts.onSpeed(inData.bytes)
-    })
-
-    fixedWorker.onRecvData<ISliceRes>('downloaded', inData => {
-      inOpts.onDownloaded(worker.threadId, inData.slice, inData.bytes)
-    })
-
-    fixedWorker.onRecvData<IErrorRes>('error', inError => {
-      inOpts.onError(worker.threadId, inError)
-    })
-
-    this.#wPool.push({
-      worker: fixedWorker,
-    })
-  }
-
-  #dispatchSlices() {
-    const tWorker = this.#wPool.find(item => item.currSlice === void 0)
-
-    if (tWorker) {
-      const nextSlice = this.#restSlices.shift()
-
-      if (nextSlice !== void 0) {
-        tWorker.worker.sendData<ISliceReq>('slice', {
-          slice: nextSlice,
-        })
-
-        tWorker.currSlice = nextSlice
-        this.#dispatchSlices()
-      }
-    }
-  }
-
-  #timerSpeed() {
-    const now = Date.now()
-
-    const bytes = this.#lastBytes
-    const duration = now - this.#lastDate
-    this.#lastBytes = 0
-    this.#lastDate = now
-
-    this.#downloadSpeed = Math.floor((bytes / duration) * 1000)
-
-    this.#speedTimer = setTimeout(() => this.#timerSpeed(), 3000)
-  }
-
   run() {
     if (this.#steps.error) {
       this.#doneProm = this.#onDone ? this.#doneProm : new PromBat<IDownloadFinish>()
@@ -455,6 +420,22 @@ export class DownloadTask {
     await this.#steps.stop()
   }
 
+  async terminate() {
+    await this.#steps.stop(true)
+
+    if (this.#steps.id > EDownloadSteps.PREPARE_FOR_DOWNLOAD) {
+      await fs.promises.rm(this.#local, { force: true }).catch()
+
+      return
+    }
+
+    if (this.#steps.id > EDownloadSteps.CHECK_MD5_DISK) {
+      await fs.promises.rm(this.#local, { force: true }).catch()
+
+      return
+    }
+  }
+
   get done() {
     return this.#doneProm?.prom
   }
@@ -462,7 +443,27 @@ export class DownloadTask {
   get info() {
     return {
       local: this.#local,
-      speed: this.#downloadSpeed,
+      remote: this.#remote,
+      oriSize: this.#oriSize,
+      comSize: this.#comSize - (this.#keyBuf.length ? __PRESV_ENC_BLOCK_SIZE__ : 0),
+      downBytes: this.#downBytes,
+      stepId: this.#steps.id,
+      stepError: this.#steps.error,
+      stepStatus: this.#steps.status,
     }
   }
+}
+
+function createDirectory(inPath: string) {
+  if (fs.existsSync(inPath)) {
+    return
+  }
+
+  const parentPath = path.dirname(inPath)
+
+  if (!fs.existsSync(parentPath)) {
+    createDirectory(parentPath)
+  }
+
+  fs.mkdirSync(inPath)
 }
