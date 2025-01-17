@@ -31,9 +31,10 @@ export const enum EUploadSteps {
   UPLOAD_ID = 3,
   UPLOAD_SLICES = 4,
   COMBINE = 5,
-  DOWNLOAD_INFO = 6,
-  VERIFY_DOWNLOAD = 7,
-  FINISH = 8,
+  MOVE = 6,
+  DOWNLOAD_INFO = 7,
+  VERIFY_DOWNLOAD = 8,
+  FINISH = 9,
 }
 
 export const enum EDownloadSteps {

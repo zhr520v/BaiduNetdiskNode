@@ -19,7 +19,7 @@ import {
 import { DownloadTask } from './common/download-task.js'
 import { fileManage } from './common/file-manage.js'
 import { UploadTask } from './common/upload-task.js'
-import { type PromType, pathNormalized, pick, tryTimes } from './common/utils.js'
+import { type PromType, pick, tryTimes } from './common/utils.js'
 import { EFileManageAsync, EFileManageOndup } from './types/enums.js'
 
 export class Netdisk {
@@ -296,6 +296,7 @@ export class Netdisk {
     } catch (err) {
       const tErr = err as IBaiduApiError
 
+      // 目录已存在
       if (inOpts.opts?.verifyExists && tErr.errno === -8) {
         const { list } = await this.getFileList({
           dir: path.dirname(inOpts.path),
@@ -471,7 +472,7 @@ export class Netdisk {
       | 'local'
       | 'apiOpts'
       | 'remote'
-      | 'rtype'
+      | 'noOverwrite'
       | 'threads'
       | 'noVerify'
       | 'downloadThreads'
@@ -479,10 +480,6 @@ export class Netdisk {
       | 'tryTimes'
     >
   ) {
-    if (!pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}/`)) {
-      throw new Error(`only support upload to specific folder ${this.#app_name} for now`)
-    }
-
     const task = new UploadTask({
       ...inOpts,
       app_name: this.#app_name,
@@ -513,7 +510,7 @@ export class Netdisk {
       | 'onError'
       | 'onStatusChanged'
       | 'remote'
-      | 'rtype'
+      | 'noOverwrite'
       | 'threads'
       | 'noVerify'
       | 'downloadThreads'
@@ -521,10 +518,6 @@ export class Netdisk {
       | 'tryTimes'
     >
   ) {
-    if (!pathNormalized(inOpts.remote).startsWith(`/apps/${this.#app_name}/`)) {
-      throw new Error(`only support upload to specific folder ${this.#app_name} for now`)
-    }
-
     return new UploadTask({
       ...inOpts,
       app_name: this.#app_name,

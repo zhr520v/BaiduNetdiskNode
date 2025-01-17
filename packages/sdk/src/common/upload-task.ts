@@ -8,7 +8,13 @@ import {
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import util from 'node:util'
-import { EFileManageAsync, EStepStatus, EUploadRtype, EUploadSteps } from '../types/enums.js'
+import {
+  EFileManageAsync,
+  EFileManageOndup,
+  EStepStatus,
+  EUploadRtype,
+  EUploadSteps,
+} from '../types/enums.js'
 import {
   type IDownloadMainDoneBytesRes,
   type IDownloadMainDoneRes,
@@ -24,10 +30,12 @@ import {
 import {
   __DOWNLOAD_THREADS__,
   __PRESV_ENC_BLOCK_SIZE__,
+  __REMOTE_TMP_FOLDER__,
   __TRY_DELTA__,
   __TRY_TIMES__,
   __UPLOAD_THREADS__,
 } from './const.js'
+import { fileManage } from './file-manage.js'
 import { Steps } from './steps.js'
 import { getUploadUrl } from './upload-url.js'
 import { PromBat, type PromType, pathNormalized, pick, tryTimes } from './utils.js'
@@ -45,7 +53,7 @@ export class UploadTask {
   #access_token = ''
   #local = ''
   #remote = ''
-  #rtype: EUploadRtype = EUploadRtype.FAIL
+  #noOverwrite = false
   #threads = __UPLOAD_THREADS__
   #noSilent = false
   #tryTimes = __TRY_TIMES__
@@ -69,6 +77,7 @@ export class UploadTask {
   #endSliceNo = 0
 
   #uploadId = ''
+  #remoteTmp = ''
 
   #uploadWorker: WorkerParent | undefined
   #upBytes = 0
@@ -93,7 +102,7 @@ export class UploadTask {
     access_token: string
     local: string
     remote: string
-    rtype?: EUploadRtype
+    noOverwrite?: boolean
     encrypt?: string
     threads?: number
     noSilent?: boolean
@@ -113,7 +122,7 @@ export class UploadTask {
     this.#access_token = inOpts.access_token
     this.#local = inOpts.local
     this.#remote = pathNormalized(inOpts.remote)
-    this.#rtype = inOpts.rtype || EUploadRtype.FAIL
+    this.#noOverwrite = inOpts.noOverwrite || this.#noOverwrite
     this.#threads = inOpts.threads || this.#threads
     this.#noSilent = inOpts.noSilent || this.#noSilent
     this.#tryTimes = inOpts.tryTimes || this.#tryTimes
@@ -131,7 +140,7 @@ export class UploadTask {
 
     this.#steps = new Steps({
       steps: [
-        { id: EUploadSteps.FILE_INFO, exec: () => this.#stopFileInfo() },
+        { id: EUploadSteps.FILE_INFO, exec: () => this.#stepFileInfo() },
         {
           id: EUploadSteps.LOCAL_MD5,
           exec: () => this.#stepLocalMd5(),
@@ -146,6 +155,10 @@ export class UploadTask {
         {
           id: EUploadSteps.COMBINE,
           exec: () => this.#stepCombine(),
+        },
+        {
+          id: EUploadSteps.MOVE,
+          exec: () => this.#stepMove(),
         },
         {
           id: EUploadSteps.DOWNLOAD_INFO,
@@ -178,11 +191,7 @@ export class UploadTask {
     })
   }
 
-  async #stopFileInfo() {
-    if (!this.#remote.startsWith(`/apps/${this.#app_name}/`)) {
-      // TODO: 允许上传至其他目录
-    }
-
+  async #stepFileInfo() {
     const stats = await FS_STAT_ASYNC(this.#local)
 
     this.#ctimeMs = Math.floor(stats.ctimeMs)
@@ -229,6 +238,9 @@ export class UploadTask {
       this.#md5Worker = fixedWorker
     })
 
+    const tmpName = `${this.#md5full.substring(0, 16)}${crypto.randomBytes(8).toString('hex').toUpperCase()}`
+    this.#remoteTmp = `/apps/${this.#app_name}/${__REMOTE_TMP_FOLDER__}/${tmpName}`
+
     await this.#stopLocalMd5()
   }
 
@@ -238,10 +250,10 @@ export class UploadTask {
         httpUploadId(
           { access_token: this.#access_token },
           {
-            path: this.#remote,
+            path: this.#remoteTmp,
             block_list: JSON.stringify(this.#md5s),
             size: this.#comSize,
-            rtype: this.#rtype,
+            rtype: this.#noOverwrite ? EUploadRtype.FAIL : EUploadRtype.OVERWRITE,
           }
         ),
       { times: this.#tryTimes, delta: this.#tryDelta }
@@ -260,7 +272,7 @@ export class UploadTask {
       const worker = newWorker<IUploadMainThreadData>('upload-main', {
         access_token: this.#access_token,
         local: this.#local,
-        remote: this.#remote,
+        remote: this.#remoteTmp,
         oriSize: this.#oriSize,
         chunkMB: this.#chunkMB,
         keyBuf: this.#keyBuf,
@@ -308,10 +320,10 @@ export class UploadTask {
           {
             ...this.#apiOpts,
             block_list: JSON.stringify(this.#md5s),
-            path: this.#remote,
+            path: this.#remoteTmp,
             size: `${this.#comSize}`,
             uploadid: this.#uploadId,
-            rtype: this.#rtype,
+            rtype: this.#noOverwrite ? EUploadRtype.FAIL : EUploadRtype.OVERWRITE,
             local_ctime: `${Math.floor(this.#ctimeMs / 1000)}`,
             local_mtime: `${Math.floor(this.#mtimeMs / 1000)}`,
           }
@@ -330,6 +342,24 @@ export class UploadTask {
       'path',
       'size',
     ])
+  }
+
+  async #stepMove() {
+    const data = await tryTimes(
+      () =>
+        fileManage({
+          access_token: this.#access_token,
+          opera: 'move',
+          list: [{ source: this.#remoteTmp, target: this.#remote }],
+          ondup: this.#noOverwrite ? EFileManageOndup.FAIL : EFileManageOndup.OVERWRITE,
+          async: EFileManageAsync.SYNC,
+        }),
+      { times: this.#tryTimes, delta: this.#tryDelta }
+    )
+
+    if (this.#finishData) {
+      this.#finishData.path = data.info[0].path
+    }
   }
 
   async #stepPreDownload() {
@@ -545,7 +575,7 @@ export class UploadTask {
   async terminate() {
     await this.#steps.stop(true)
 
-    if (this.#steps.id > EUploadSteps.VERIFY_DOWNLOAD) {
+    if (this.#steps.id > EUploadSteps.MOVE) {
       await httpDelete(
         {
           access_token: this.#access_token,
@@ -565,7 +595,7 @@ export class UploadTask {
           access_token: this.#access_token,
         },
         {
-          filelist: JSON.stringify([this.#remote]),
+          filelist: JSON.stringify([this.#remoteTmp]),
           async: EFileManageAsync.SYNC,
         }
       ).catch()

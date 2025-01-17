@@ -7,3 +7,4 @@ export const __UPLOAD_THREADS__ = 1
 export const __DOWNLOAD_THREADS__ = 1
 export const __TRY_TIMES__ = 3
 export const __TRY_DELTA__ = 3000
+export const __REMOTE_TMP_FOLDER__ = '_tmp_yKEQv8qebrKGpukB'
