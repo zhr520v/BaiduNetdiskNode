@@ -17,7 +17,7 @@ async function fetchUploadUrl(inOpts: {
   const target = data.servers.find(item => /^https/.test(item.server))
 
   if (!target) {
-    throw new Error('httpUploadUrl returns none https server address')
+    throw new Error('httpUploadUrl 没有返回有效的 https 上传地址')
   }
 
   return target.server

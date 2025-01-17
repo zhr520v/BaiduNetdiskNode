@@ -181,7 +181,7 @@ export class DownloadTask {
         found = true
 
         if (target.isdir) {
-          throw new Error('Download target is folder, not file')
+          throw new Error('下载对象不能是目录')
         }
 
         this.#withFsid = target.fs_id
@@ -191,7 +191,7 @@ export class DownloadTask {
       cursor = cursor + data.list.length
 
       if (!found && !may_has_more) {
-        throw new Error(`File not found ${this.#withPath}`)
+        throw new Error(`网盘中没有找到文件 ${this.#withPath}`)
       }
     } while (!found && may_has_more)
   }
@@ -214,7 +214,7 @@ export class DownloadTask {
     const file = data.list[0]
 
     if (!file) {
-      throw new Error('No fileinfo got from server')
+      throw new Error('服务器没有返回文件信息')
     }
 
     this.#remote = file.path
@@ -226,11 +226,11 @@ export class DownloadTask {
 
   async #stepDownloadInfo() {
     if (!this.#dlink) {
-      throw new Error('No download link was provided')
+      throw new Error('没有下载链接')
     }
 
     if (this.#keyBuf.length && this.#comSize < __PRESV_ENC_BLOCK_SIZE__ + 16) {
-      throw new Error('File size not fit decrypt length')
+      throw new Error('文件大小不符合解密条件')
     }
   }
 
@@ -264,7 +264,7 @@ export class DownloadTask {
     const sum = presvBuf.readUInt32BE(16 + 16 + 8 + 4)
 
     if (sum !== presvBuf.subarray(0, 16 + 16 + 8 + 4).reduce((pre, cur) => pre + cur, 0)) {
-      throw new Error('decrypt verify failed')
+      throw new Error('加密信息校验失败')
     }
   }
 
@@ -274,7 +274,7 @@ export class DownloadTask {
     fs.truncateSync(this.#local, this.#oriSize)
 
     if (this.#chunkMB > 64) {
-      throw new Error('chunkMB too large')
+      throw new Error('文件分块大小不能大于64MB')
     }
 
     this.#splitSlice = 64 / this.#chunkMB
@@ -322,7 +322,7 @@ export class DownloadTask {
           if (this.#md5Middle !== inData.md5.substring(8, 24)) {
             this.#stopDownloadSlices(true)
 
-            return reject(new Error('MD5 not match'))
+            return reject(new Error('下载文件MD5与加密信息记载不匹配'))
           }
         }
 
@@ -358,7 +358,7 @@ export class DownloadTask {
 
       this.#checkMD5Worker?.onRecvData<IMD5FileDone>('MD5_FILE_DONE', inData => {
         if (this.#md5Middle !== inData.md5full.substring(8, 24)) {
-          return reject(new Error('MD5 not match'))
+          return reject(new Error('下载文件MD5与加密信息记载不匹配'))
         }
 
         resolve()
@@ -398,11 +398,11 @@ export class DownloadTask {
     }
 
     if (inKey.length > 32) {
-      throw new Error(`encrypt key ${inKey} too long, should be within 32 characters`)
+      throw new Error(`密钥 ${inKey} 过长, 不能超过 32 个字符`)
     }
 
     if (/\s/.test(inKey)) {
-      throw new Error(`encrypt key ${inKey} should not contain whitespace`)
+      throw new Error(`密钥 ${inKey} 不能包含空格`)
     }
 
     this.#keyBuf = Buffer.from(inKey.padEnd(32, '0'))

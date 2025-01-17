@@ -184,7 +184,7 @@ export class UploadTask {
           const stats = await FS_STAT_ASYNC(this.#local)
 
           if (this.#mtimeMs !== Math.floor(stats.mtimeMs)) {
-            throw new Error(`FILE_CHANGED: ${this.#local}`)
+            throw new Error(`文件已被修改，请重新上传: ${this.#local}`)
           }
         }
       },
@@ -406,7 +406,7 @@ export class UploadTask {
     }
 
     if (!this.#finishData?.fs_id) {
-      throw new Error('No fs_id')
+      throw new Error('文件信息缺少fs_id')
     }
 
     const { data } = await tryTimes(
@@ -422,19 +422,19 @@ export class UploadTask {
     const file = data.list[0]
 
     if (!file) {
-      throw new Error('No fileinfo got from server')
+      throw new Error('文件信息获取失败')
     }
 
     if (this.#keyBuf.length && file.size < __PRESV_ENC_BLOCK_SIZE__ + 16) {
-      throw new Error('File size not fit decrypt length')
+      throw new Error('文件大小不符合解密条件')
     }
 
     if (file.size !== this.#comSize) {
-      throw new Error('size not match')
+      throw new Error('文件原始大小不匹配')
     }
 
     if (!file.dlink) {
-      throw new Error('No dlink got from server')
+      throw new Error('文件下载链接获取失败')
     }
 
     this.#dlink = file.dlink
@@ -468,23 +468,23 @@ export class UploadTask {
     const sum = presvBuf.readUInt32BE(16 + 16 + 8 + 4)
 
     if (this.#ivBuf.compare(ivBuf) !== 0) {
-      throw new Error('iv not match')
+      throw new Error('加密IV不匹配')
     }
 
     if (this.#md5full.substring(8, 24) !== md5Middle) {
-      throw new Error('md5 not match')
+      throw new Error('加密信息记载MD5不匹配')
     }
 
     if (this.#oriSize !== oriSize) {
-      throw new Error('oriSize not match')
+      throw new Error('加密信息记载原始大小不匹配')
     }
 
     if (this.#chunkMB !== chunkMB) {
-      throw new Error('chunkMB not match')
+      throw new Error('加密信息记载分块大小不匹配')
     }
 
     if (sum !== presvBuf.subarray(0, 16 + 16 + 8 + 4).reduce((pre, cur) => pre + cur, 0)) {
-      throw new Error('verifySum not match')
+      throw new Error('加密信息记载校验和不匹配')
     }
   }
 
@@ -535,7 +535,7 @@ export class UploadTask {
         if (this.#md5full !== inData.md5) {
           this.#stopVerifyDownload(true)
 
-          return reject(new Error('MD5 not match'))
+          return reject(new Error('下载文件MD5与上传文件MD5不匹配'))
         }
 
         resolve()
@@ -598,11 +598,11 @@ export class UploadTask {
     }
 
     if (inKey.length > 32) {
-      throw new Error(`encrypt key ${inKey} too long, should be within 32 characters`)
+      throw new Error(`密钥 ${inKey} 过长, 不能超过 32 个字符`)
     }
 
     if (/\s/.test(inKey)) {
-      throw new Error(`encrypt key ${inKey} should not contain whitespace`)
+      throw new Error(`密钥 ${inKey} 不能包含空格`)
     }
 
     this.#keyBuf = Buffer.from(inKey.padEnd(32, '0'))
@@ -717,7 +717,7 @@ function getChunkMBComSize(inSize: number, inUseEncrypt: boolean) {
       chunkMB = 64
     } else {
       throw new Error(
-        `file too large oversize ${inSize}. maximum size is ${2047 * (64 * 1024 * 1024 - 1) + (64 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1)}`
+        `文件大小 ${inSize} 超过限制. 最大支持 ${2047 * (64 * 1024 * 1024 - 1) + (64 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1)}`
       )
     }
   } else {
@@ -737,7 +737,7 @@ function getChunkMBComSize(inSize: number, inUseEncrypt: boolean) {
       // 64 * 1024 * 1024 * 2048 = 128GB
       chunkMB = 64
     } else {
-      throw new Error(`file too large oversize ${inSize}. maximum size is 137438953472`)
+      throw new Error(`文件大小 ${inSize} 超过限制. 最大支持 137438953472`)
     }
   }
 
