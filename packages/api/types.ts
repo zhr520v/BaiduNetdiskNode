@@ -43,5 +43,7 @@ export { type IUserQuotaQuery, type IUserQuotaRes } from './src/user-info/user-q
 
 export interface IBaiduApiError extends Error {
   errno: number
+  errmsg: string
   res_data: { [key: string]: any }
+  active?: boolean
 }

@@ -59,22 +59,54 @@ export async function request<T>(
     errMap: { [key: string]: string }
   }
 ) {
-  const res = await axios.request<T>(inAxiosConf)
-  const data = res.data as { errno?: number; errmsg?: string }
+  try {
+    const res = await axios.request<T>(inAxiosConf)
+    const data = res.data as { errno?: number; errmsg?: string }
 
-  if (typeof data === 'object' && data && data.errno) {
-    const errmsg =
-      data.errmsg ||
-      inRestConf.errMap[`${data.errno}`] ||
-      __ERR_MAP__[`${data.errno}`] ||
-      'none'
+    if (typeof data === 'object' && data && data.errno) {
+      const errmsg =
+        data.errmsg ||
+        inRestConf.errMap[`${data.errno}`] ||
+        __ERR_MAP__[`${data.errno}`] ||
+        'none'
 
-    const err = new Error(`errno: ${data.errno}, errmsg: ${errmsg}`) as IBaiduApiError
-    err.errno = data.errno
-    err.res_data = data
+      const customErr = new Error(`errno: ${data.errno}, errmsg: ${errmsg}`) as IBaiduApiError
+      customErr.errno = data.errno
+      customErr.errmsg = errmsg
+      customErr.res_data = data
+      customErr.active = true
 
-    throw err
+      throw customErr
+    }
+
+    return res
+  } catch (inError) {
+    const err = inError as IBaiduApiError & {
+      response?: { data: { errno: number; errmsg: string } }
+    }
+
+    if (err.active) {
+      throw inError
+    }
+
+    if (typeof err.response === 'object' && typeof err.response.data === 'object') {
+      const res_data = err.response.data
+      const errmsg =
+        res_data.errmsg ||
+        inRestConf.errMap[`${res_data.errno}`] ||
+        __ERR_MAP__[`${res_data.errno}`] ||
+        err.message ||
+        'none'
+
+      const newErr = new Error(`errno: ${res_data.errno}, errmsg: ${errmsg}`) as IBaiduApiError
+      newErr.errno = res_data.errno
+      newErr.errmsg = errmsg
+      newErr.res_data = res_data
+      newErr.active = true
+
+      throw newErr
+    }
+
+    throw inError
   }
-
-  return res
 }
