@@ -113,7 +113,13 @@ function terminate() {
 
   infoObject.wPool = []
   infoObject.wPoolTryTimes = 1
+
+  for (const item of infoObject.sliceCaches) {
+    infoObject.restSlices.unshift(item.sliceNo)
+  }
+
   infoObject.sliceCaches = []
+  infoObject.restSlices.sort()
 }
 
 function runSliceCacheQueue() {

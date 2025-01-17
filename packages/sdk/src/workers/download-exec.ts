@@ -50,7 +50,7 @@ worker.onRecvData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', async inData => 
     const start = startNo * tWorkerData.chunkMB * 1024 * 1024
     const end = Math.min(
       (endNo + 1) * tWorkerData.chunkMB * 1024 * 1024 - 1,
-      tWorkerData.shrinkComSize - 1
+      Math.max(tWorkerData.shrinkComSize - 1, 0)
     )
 
     const slices = tSlices.map(item => item)

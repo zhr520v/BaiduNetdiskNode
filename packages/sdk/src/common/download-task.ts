@@ -364,6 +364,8 @@ export class DownloadTask {
         resolve()
       })
     })
+
+    await this.#stopMd5OnDisk()
   }
 
   async #stepLocalMTime() {
