@@ -2,7 +2,7 @@ import { axios } from 'baidu-netdisk-api'
 import fs from 'node:fs'
 import { parentPort, workerData } from 'node:worker_threads'
 import { decrypt, tryTimes } from '../common/utils.js'
-import { type IErrorRes, WorkerChild } from '../common/worker.js'
+import { type IThreadError, WorkerChild } from '../common/worker.js'
 
 export interface IDownloadExecThreadData {
   access_token: string
@@ -153,6 +153,6 @@ worker.onRecvData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', async inData => 
     const fullBuf = Buffer.concat([sliceNoBuf, finalBuf])
     worker.sendBinary(fullBuf)
   } catch (inError) {
-    worker.sendData<IErrorRes>('THREAD_ERROR', { msg: (inError as Error).message })
+    worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inError as Error).message })
   }
 })

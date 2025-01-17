@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { parentPort, workerData } from 'node:worker_threads'
 import { __PRESV_ENC_BLOCK_SIZE__ } from '../common/const.js'
 import { encrypt, readFileSlice, tryTimes } from '../common/utils.js'
-import { type IErrorRes, WorkerChild } from '../common/worker.js'
+import { type IThreadError, WorkerChild } from '../common/worker.js'
 
 export interface IUploadExecThreadData {
   access_token: string
@@ -109,6 +109,6 @@ worker.onRecvData<IUploadExecSliceReq>('UPLOAD_EXEC_SLICE', async inData => {
       bytes: totalBytes,
     })
   } catch (error) {
-    worker.sendData<IErrorRes>('THREAD_ERROR', { msg: (error as Error).message })
+    worker.sendData<IThreadError>('THREAD_ERROR', { msg: (error as Error).message })
   }
 })

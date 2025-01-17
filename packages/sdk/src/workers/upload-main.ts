@@ -1,6 +1,6 @@
 import { parentPort, workerData } from 'node:worker_threads'
 import { __TRY_DELTA__, __TRY_TIMES__, __UPLOAD_THREADS__ } from '../common/const.js'
-import { type IErrorRes, WorkerChild, WorkerParent, newWorker } from '../common/worker.js'
+import { type IThreadError, WorkerChild, WorkerParent, newWorker } from '../common/worker.js'
 import {
   type IUploadExecSliceReq,
   type IUploadExecSliceRes,
@@ -75,7 +75,7 @@ function newUploadWorker() {
     onUploadExecUploaded(newExecWorker.threadId, inData.sliceNo, inData.bytes)
   })
 
-  fixedWorker.onRecvData<IErrorRes>('THREAD_ERROR', inError => {
+  fixedWorker.onRecvData<IThreadError>('THREAD_ERROR', inError => {
     onUploadExecError(newExecWorker.threadId, inError)
   })
 
@@ -101,8 +101,6 @@ function dispatchSlices() {
   const tWorker = infoObject.wPool.find(item => item.currSliceNo === void 0)
 
   if (tWorker) {
-    worker.sendData('canNextSlice')
-
     const nextSliceNo = infoObject.restSlices.shift()
 
     if (nextSliceNo !== void 0) {
@@ -138,7 +136,7 @@ function onUploadExecUploaded(inThreadId: number, inSliceNo: number, inBytes: nu
   dispatchSlices()
 }
 
-function onUploadExecError(inThreadId: number, inError: IErrorRes) {
+function onUploadExecError(inThreadId: number, inError: IThreadError) {
   const tWorker = infoObject.wPool.find(item => item.worker.threadId === inThreadId)
 
   infoObject.wPool = infoObject.wPool.filter(item => item.worker.threadId !== inThreadId)
@@ -153,7 +151,7 @@ function onUploadExecError(inThreadId: number, inError: IErrorRes) {
       newUploadWorker()
       infoObject.wPoolTryTimes = infoObject.wPoolTryTimes + 1
     } else {
-      worker.sendData<IErrorRes>('THREAD_ERROR', { msg: inError.msg })
+      worker.sendData<IThreadError>('THREAD_ERROR', { msg: inError.msg })
       terminate()
 
       return

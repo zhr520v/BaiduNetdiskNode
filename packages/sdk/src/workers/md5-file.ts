@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import { parentPort, workerData } from 'node:worker_threads'
-import { type IErrorRes, WorkerChild } from '../common/worker.js'
+import { type IThreadError, WorkerChild } from '../common/worker.js'
 
 export interface IMD5FileThreadData {
   local: string
@@ -28,8 +28,8 @@ try {
   })
 
   readStream.on('error', inError => {
-    worker.sendData<IErrorRes>('THREAD_ERROR', { msg: (inError as Error).message })
+    worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inError as Error).message })
   })
 } catch (inError) {
-  worker.sendData<IErrorRes>('THREAD_ERROR', { msg: (inError as Error).message })
+  worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inError as Error).message })
 }

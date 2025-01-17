@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
 import { parentPort, workerData } from 'node:worker_threads'
 import { __TRY_DELTA__, __TRY_TIMES__, __UPLOAD_THREADS__ } from '../common/const.js'
-import { type IErrorRes, WorkerChild, WorkerParent, newWorker } from '../common/worker.js'
+import { type IThreadError, WorkerChild, WorkerParent, newWorker } from '../common/worker.js'
 import { type IDownloadExecSliceReq, type IDownloadExecThreadData } from './download-exec.js'
 
 export interface IDownloadMainThreadData {
@@ -78,7 +78,7 @@ function newDownloadWorker() {
 
   const fixedWorker = new WorkerParent(newExecWorker)
 
-  fixedWorker.onRecvData<IErrorRes>('THREAD_ERROR', inError => {
+  fixedWorker.onRecvData<IThreadError>('THREAD_ERROR', inError => {
     onDownloadExecError(newExecWorker.threadId, inError)
   })
 
@@ -188,7 +188,7 @@ function onDownloadExecDownloaded(inSliceNo: number, inBytes: number) {
   }
 }
 
-function onDownloadExecError(inThreadId: number, inError: IErrorRes) {
+function onDownloadExecError(inThreadId: number, inError: IThreadError) {
   const tWorker = infoObject.wPool.find(item => item.worker.threadId === inThreadId)
   infoObject.wPool = infoObject.wPool.filter(item => item.worker.threadId !== inThreadId)
   tWorker?.worker.terminate()
@@ -203,7 +203,7 @@ function onDownloadExecError(inThreadId: number, inError: IErrorRes) {
 
       infoObject.wPoolTryTimes = infoObject.wPoolTryTimes + 1
     } else {
-      worker.sendData<IErrorRes>('THREAD_ERROR', { msg: inError.msg })
+      worker.sendData<IThreadError>('THREAD_ERROR', { msg: inError.msg })
       terminate()
 
       return

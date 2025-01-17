@@ -23,7 +23,7 @@ import {
   type IDownloadMainRunReq,
   type IDownloadMainThreadData,
 } from '../workers/download-main.js'
-import { type IMd5Req, type IMd5Res } from '../workers/md5.js'
+import { type IMd5DoneRes, type IMd5ThreadData } from '../workers/md5.js'
 import {
   type IUploadMainDoneBytesRes,
   type IUploadMainRunReq,
@@ -41,7 +41,7 @@ import { fileManage } from './file-manage.js'
 import { Steps } from './steps.js'
 import { getUploadUrl } from './upload-url.js'
 import { PromBat, type PromType, pathNormalized, pick, tryTimes } from './utils.js'
-import { type IErrorRes, WorkerParent, newWorker } from './worker.js'
+import { type IThreadError, WorkerParent, newWorker } from './worker.js'
 
 const FS_STAT_ASYNC = util.promisify(fs.stat)
 
@@ -221,7 +221,7 @@ export class UploadTask {
 
   async #stepLocalMd5() {
     await new Promise<void>((resolve, reject) => {
-      const worker = newWorker<IMd5Req>('md5', {
+      const worker = newWorker<IMd5ThreadData>('md5', {
         local: this.#local,
         oriSize: this.#oriSize,
         chunkMB: this.#chunkMB,
@@ -232,13 +232,13 @@ export class UploadTask {
 
       const fixedWorker = new WorkerParent(worker)
 
-      fixedWorker.onRecvData<IMd5Res>('md5', inData => {
+      fixedWorker.onRecvData<IMd5DoneRes>('MD5_DONE', inData => {
         this.#md5full = inData.md5full
         this.#md5s = inData.md5s
         resolve()
       })
 
-      fixedWorker.onRecvData<Error>('error', inError => {
+      fixedWorker.onRecvData<IThreadError>('THREAD_ERROR', inError => {
         this.#stopLocalMd5()
         reject(inError)
       })
@@ -302,7 +302,7 @@ export class UploadTask {
         }
       )
 
-      this.#uploadWorker?.onRecvData<IErrorRes>('THREAD_ERROR', inError => {
+      this.#uploadWorker?.onRecvData<IThreadError>('THREAD_ERROR', inError => {
         reject(new Error(inError.msg))
       })
 
@@ -527,7 +527,7 @@ export class UploadTask {
         }
       )
 
-      this.#downloadWorker?.onRecvData<IErrorRes>('THREAD_ERROR', inError => {
+      this.#downloadWorker?.onRecvData<IThreadError>('THREAD_ERROR', inError => {
         reject(new Error(inError.msg))
       })
 

@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { MessagePort, Worker } from 'node:worker_threads'
 
-export interface IErrorRes {
+export interface IThreadError {
   msg: string
 }
 

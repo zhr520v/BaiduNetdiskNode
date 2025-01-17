@@ -2,10 +2,10 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import { parentPort, workerData } from 'node:worker_threads'
 import { encrypt, md5, readFileSlice } from '../common//utils.js'
-import { type IErrorRes, WorkerChild } from '../common//worker.js'
+import { type IThreadError, WorkerChild } from '../common//worker.js'
 import { __PRESV_ENC_BLOCK_SIZE__ } from '../common/const.js'
 
-export interface IMd5Req {
+export interface IMd5ThreadData {
   local: string
   oriSize: number
   chunkMB: number
@@ -14,12 +14,12 @@ export interface IMd5Req {
   endSliceNo: number
 }
 
-export interface IMd5Res {
+export interface IMd5DoneRes {
   md5full: string
   md5s: string[]
 }
 
-const tWorkerData = workerData as IMd5Req
+const tWorkerData = workerData as IMd5ThreadData
 const worker = new WorkerChild(parentPort)
 
 async function exec() {
@@ -72,12 +72,12 @@ async function exec() {
       }
     }
 
-    worker.sendData<IMd5Res>('md5', {
+    worker.sendData<IMd5DoneRes>('MD5_DONE', {
       md5full: md5full,
       md5s: md5s,
     })
   } catch (error) {
-    worker.sendData<IErrorRes>('error', { msg: (error as Error).message })
+    worker.sendData<IThreadError>('THREAD_ERROR', { msg: (error as Error).message })
   }
 }
 

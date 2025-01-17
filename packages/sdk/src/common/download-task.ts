@@ -17,7 +17,7 @@ import {
 } from './const.js'
 import { Steps } from './steps.js'
 import { PromBat, pathNormalized, tryTimes } from './utils.js'
-import { type IErrorRes, WorkerParent, newWorker } from './worker.js'
+import { type IThreadError, WorkerParent, newWorker } from './worker.js'
 
 export interface IDownloadFinish {
   local: string
@@ -313,7 +313,7 @@ export class DownloadTask {
         }
       )
 
-      this.#downloadWorker?.onRecvData<IErrorRes>('THREAD_ERROR', inError => {
+      this.#downloadWorker?.onRecvData<IThreadError>('THREAD_ERROR', inError => {
         reject(new Error(inError.msg))
       })
 
@@ -352,7 +352,7 @@ export class DownloadTask {
     this.#checkMD5Worker = new WorkerParent(worker)
 
     await new Promise<void>((resolve, reject) => {
-      this.#downloadWorker?.onRecvData<IErrorRes>('THREAD_ERROR', inError => {
+      this.#downloadWorker?.onRecvData<IThreadError>('THREAD_ERROR', inError => {
         reject(new Error(inError.msg))
       })
 
