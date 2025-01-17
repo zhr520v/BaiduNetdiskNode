@@ -5,8 +5,10 @@ import {
   httpUploadFinish,
   httpUploadId,
 } from 'baidu-netdisk-api'
+import { type IBaiduApiError } from 'baidu-netdisk-api/types'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 import util from 'node:util'
 import {
   EFileManageAsync,
@@ -78,6 +80,8 @@ export class UploadTask {
 
   #uploadId = ''
   #remoteTmp = ''
+  #remoteDupNewPath = ''
+  #remoteDupNewPathUsed = false
 
   #uploadWorker: WorkerParent | undefined
   #upBytes = 0
@@ -169,6 +173,10 @@ export class UploadTask {
           exec: () => this.#stepVerifyDownload(),
           stop: (inForce?: boolean) => this.#stopVerifyDownload(inForce),
         },
+        {
+          id: EUploadSteps.REMOVE_DUP,
+          exec: () => this.#stepRemoveDup(),
+        },
         { id: EUploadSteps.FINISH, exec: () => this.#stepFinish() },
       ],
       onBeforeRun: async () => {
@@ -240,6 +248,7 @@ export class UploadTask {
 
     const tmpName = `${this.#md5full.substring(0, 16)}${crypto.randomBytes(8).toString('hex').toUpperCase()}`
     this.#remoteTmp = `/apps/${this.#app_name}/${__REMOTE_TMP_FOLDER__}/${tmpName}`
+    this.#remoteDupNewPath = `${this.#remote}.${crypto.randomBytes(8).toString('hex').toUpperCase()}`
 
     await this.#stopLocalMd5()
   }
@@ -346,14 +355,43 @@ export class UploadTask {
 
   async #stepMove() {
     const data = await tryTimes(
-      () =>
-        fileManage({
-          access_token: this.#access_token,
-          opera: 'move',
-          list: [{ source: this.#remoteTmp, target: this.#remote }],
-          ondup: this.#noOverwrite ? EFileManageOndup.FAIL : EFileManageOndup.OVERWRITE,
-          async: EFileManageAsync.SYNC,
-        }),
+      async () => {
+        try {
+          return await fileManage({
+            access_token: this.#access_token,
+            opera: 'move',
+            list: [
+              {
+                source: this.#remoteTmp,
+                target: this.#remote,
+                ondup: this.#noOverwrite ? EFileManageOndup.FAIL : EFileManageOndup.OVERWRITE,
+              },
+            ],
+            async: EFileManageAsync.SYNC,
+          })
+        } catch (inError) {
+          const err = inError as IBaiduApiError
+          const resData = err.res_data as { info?: { errno?: number }[] }
+
+          // 即使 ondup=overwrite 在 async=0 时也会返回 -8 错误文件已存在
+          if (resData.info?.[0]?.errno === -8) {
+            try {
+              await fileManage({
+                access_token: this.#access_token,
+                opera: 'rename',
+                list: [
+                  { source: this.#remote, newname: path.basename(this.#remoteDupNewPath) },
+                ],
+                async: EFileManageAsync.SYNC,
+              })
+
+              this.#remoteDupNewPathUsed = true
+            } catch {}
+          }
+
+          throw inError
+        }
+      },
       { times: this.#tryTimes, delta: this.#tryDelta }
     )
 
@@ -514,6 +552,17 @@ export class UploadTask {
     await this.#stopVerifyDownload(true)
   }
 
+  async #stepRemoveDup() {
+    if (this.#remoteDupNewPathUsed) {
+      await fileManage({
+        access_token: this.#access_token,
+        opera: 'delete',
+        list: [{ source: this.#remoteDupNewPath }],
+        async: EFileManageAsync.SYNC,
+      })
+    }
+  }
+
   async #stepFinish() {
     this.#doneProm?.res(this.#finishData!)
     this.#onDone?.(this.#finishData!)
@@ -585,6 +634,15 @@ export class UploadTask {
           async: EFileManageAsync.SYNC,
         }
       ).catch()
+
+      if (this.#remoteDupNewPathUsed) {
+        await fileManage({
+          access_token: this.#access_token,
+          opera: 'delete',
+          list: [{ source: this.#remoteDupNewPath, newname: path.basename(this.#remote) }],
+          async: EFileManageAsync.SYNC,
+        }).catch()
+      }
 
       return
     }

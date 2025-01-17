@@ -34,7 +34,8 @@ export const enum EUploadSteps {
   MOVE = 6,
   DOWNLOAD_INFO = 7,
   VERIFY_DOWNLOAD = 8,
-  FINISH = 9,
+  REMOVE_DUP = 9,
+  FINISH = 10,
 }
 
 export const enum EDownloadSteps {
