@@ -102,6 +102,7 @@ export async function request<T>(
       newErr.errno = res_data.errno
       newErr.errmsg = errmsg
       newErr.res_data = res_data
+      newErr.rawErr = inError as Error
       newErr.active = true
 
       throw newErr

@@ -20,6 +20,7 @@ export {
   type IFileManagerQuery,
   type IFileManagerRes,
 } from './src/file-manager/file-manager.js'
+export { type ITaskQueryQuery, type ITaskQueryRes } from './src/file-manager/task-query.js'
 export {
   type ICreateFolderBody,
   type ICreateFolderQuery,
@@ -45,5 +46,6 @@ export interface IBaiduApiError extends Error {
   errno: number
   errmsg: string
   res_data: { [key: string]: any }
+  rawErr?: Error
   active?: boolean
 }
