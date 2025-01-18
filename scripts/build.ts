@@ -28,7 +28,7 @@ for (const proj of projs) {
   if (fs.existsSync(`packages/${proj}/dist/package.json`)) {
     const json = fs.readFileSync(`packages/${proj}/dist/package.json`, 'utf8')
     const pkg = JSON.parse(json)
-    const deps = pkg.dependencies || []
+    const deps = (pkg.dependencies || {}) as Record<string, string>
 
     for (const dep in deps) {
       if (deps[dep].startsWith('workspace:')) {
@@ -38,6 +38,14 @@ for (const proj of projs) {
         const pkgpkg = JSON.parse(pkgjson)
         const pkgversion = pkgpkg.version
         deps[dep] = deps[dep].replace('workspace:', '').replace('*', pkgversion)
+      }
+    }
+
+    const devDeps = (pkg.devDependencies || {}) as Record<string, string>
+
+    for (const devDep in devDeps) {
+      if (devDeps[devDep].startsWith('workspace:')) {
+        delete devDeps[devDep]
       }
     }
 
