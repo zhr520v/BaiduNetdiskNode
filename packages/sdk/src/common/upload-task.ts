@@ -354,10 +354,10 @@ export class UploadTask {
   }
 
   async #stepMove() {
-    const data = await tryTimes(
+    await tryTimes(
       async () => {
         try {
-          return await fileManage({
+          await fileManage({
             access_token: this.#access_token,
             opera: 'move',
             list: [
@@ -396,7 +396,8 @@ export class UploadTask {
     )
 
     if (this.#finishData) {
-      this.#finishData.path = data.info[0].path
+      this.#finishData.name = this.#remote
+      this.#finishData.path = this.#remote
     }
   }
 
