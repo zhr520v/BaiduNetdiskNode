@@ -31,7 +31,6 @@
     "baidu-netdisk-api": "workspace:^*",
     "baidu-netdisk-sdk": "workspace:^*",
     "baidu-netdisk-srv": "workspace:^*",
-    "mitt": "^3.0.1",
     "tailwindcss": "^3.4.17",
     "vite": "^6.0.7",
     "vue": "^3.5.13",
