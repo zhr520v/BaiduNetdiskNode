@@ -1,27 +1,8 @@
-import jsonwebtoken from 'jsonwebtoken'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { config } from '../main/config.js'
 
 export type PromType<T> = T extends Promise<infer A> ? A : never
 
 export type ArrayItemType<T> = T extends (infer A)[] ? A : never
-
-const __ALGORITHM__ = 'HS256'
-const __ISSUER__ = 'keenghost'
-
-export function newToken() {
-  return jsonwebtoken.sign({ secret: nanoid(16) }, config.get('token_secret'), {
-    algorithm: __ALGORITHM__,
-    issuer: __ISSUER__,
-  })
-}
-
-export function verifyToken(inToken: string) {
-  return jsonwebtoken.verify(inToken, config.get('token_secret'), {
-    issuer: __ISSUER__,
-  })
-}
 
 export function toJSON<T = Record<string, any>>(inStr: string, inDefault?: T) {
   try {
@@ -29,10 +10,6 @@ export function toJSON<T = Record<string, any>>(inStr: string, inDefault?: T) {
   } catch {
     return inDefault || ({} as T)
   }
-}
-
-export function dirname(importMetaUrl: string) {
-  return path.dirname(fileURLToPath(importMetaUrl))
 }
 
 export function pathNormalized(inPath: string) {

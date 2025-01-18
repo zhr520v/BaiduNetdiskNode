@@ -5,7 +5,6 @@ import koaStatic from 'koa-static'
 import fs from 'node:fs'
 import http from 'node:http'
 import path from 'node:path'
-import { dirname } from './common/utils.js'
 import { config } from './main/config.js'
 import { reverify } from './main/reverify.js'
 import { initUser } from './main/vars.js'
@@ -24,9 +23,7 @@ app.use(router.routes())
 app.use(
   koaMount(
     '/assets',
-    koaStatic(path.join(dirname(import.meta.url), 'public/assets'), {
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    })
+    koaStatic(path.resolve('public/assets'), { maxAge: 30 * 24 * 60 * 60 * 1000 })
   )
 )
 app.use(async ctx => {

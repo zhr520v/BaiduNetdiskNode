@@ -1,5 +1,5 @@
 import { type Context, type Next } from 'koa'
-import { verifyToken } from '../common/utils.js'
+import { verifyToken } from '../common/token.js'
 
 export default async (ctx: Context, next: Next) => {
   const token = ctx.cookies.get('baidusync_token') || ''

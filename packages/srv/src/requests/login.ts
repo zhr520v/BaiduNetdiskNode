@@ -1,4 +1,4 @@
-import { newToken } from '../common/utils.js'
+import { newToken } from '../common/token.js'
 import { config } from '../main/config.js'
 import { type IContext, type IHttpLoginReq } from '../types/http.js'
 
