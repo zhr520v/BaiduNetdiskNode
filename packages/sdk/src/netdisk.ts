@@ -588,4 +588,8 @@ export class Netdisk {
       tryDelta: inOpts.tryDelta || this.#gTryDelta,
     })
   }
+
+  updateAccessToken(inToken: string) {
+    this.#access_token = inToken
+  }
 }
