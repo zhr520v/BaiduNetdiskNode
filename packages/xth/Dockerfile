@@ -14,7 +14,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/re
     npm install -g pnpm@^9 --registry=$NPM_REGISTRY && \
     pnpm install --registry=$NPM_REGISTRY && \
     pnpm build xth && \
-    mv /baidu-netdisk-node/packages/xtg/dist /baidu-netdisk-xth && \
+    mv /baidu-netdisk-node/packages/xth/dist /baidu-netdisk-xth && \
     cd /baidu-netdisk-xth && \
     rm -rf /baidu-netdisk-node && \
     pnpm store prune && \
