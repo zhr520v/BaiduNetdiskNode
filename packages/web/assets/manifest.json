@@ -1,0 +1,14 @@
+{
+  "name": "BaiduSync",
+  "display": "standalone",
+  "start_url": "/",
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "./logo-DfpaQqCX.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

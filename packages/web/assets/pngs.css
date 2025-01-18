@@ -1,0 +1,23 @@
+.png-exe {
+  background-image: url('@assets/pngs/exe.png');
+}
+
+.png-music {
+  background-image: url('@assets/pngs/music.png');
+}
+
+.png-picture {
+  background-image: url('@assets/pngs/picture.png');
+}
+
+.png-unknown {
+  background-image: url('@assets/pngs/unknown.png');
+}
+
+.png-video {
+  background-image: url('@assets/pngs/video.png');
+}
+
+.png-zip {
+  background-image: url('@assets/pngs/zip.png');
+}
