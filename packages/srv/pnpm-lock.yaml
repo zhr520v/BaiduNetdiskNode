@@ -14,9 +14,6 @@ importers:
       baidu-netdisk-sdk:
         specifier: workspace:^*
         version: link:../sdk
-      baidu-netdisk-xth:
-        specifier: workspace:^*
-        version: link:../xth
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
@@ -60,6 +57,9 @@ importers:
       '@types/node-schedule':
         specifier: ^2.1.7
         version: 2.1.7
+      baidu-netdisk-xth:
+        specifier: workspace:^*
+        version: link:../xth
 
 packages:
 
