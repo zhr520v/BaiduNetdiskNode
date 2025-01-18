@@ -32,8 +32,15 @@
             key="input_secret_key"
             v-model="remoteUrl"
             name="secret_key"
-            class="rounded-3 text-16 mb-24 w-full p-8 indent-4 outline-none"
+            class="rounded-3 text-16 mb-8 w-full p-8 indent-4 outline-none"
           />
+
+          <Button
+            size="small"
+            @click="remoteUrl = defaultRemoteUrl"
+          >
+            默认
+          </Button>
         </div>
 
         <div v-if="currStep === 1">
@@ -97,9 +104,11 @@ import { httpProxyAuth, httpProxyInfo } from '@src/common/api'
 import Button from '@src/ui-components/button.vue'
 import { ref, watch } from 'vue'
 
+const defaultRemoteUrl = 'https://baiduauth.keenghost.com'
+
 const steps = ['远程认证服务器信息', '远程认证服务器授权']
 const currStep = ref(0)
-const remoteUrl = ref('')
+const remoteUrl = ref(defaultRemoteUrl)
 const authCode = ref('')
 const remoteInfo = ref<{ appId: string; appKey: string; appName: string }>({
   appId: '',
