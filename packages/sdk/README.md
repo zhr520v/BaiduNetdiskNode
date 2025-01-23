@@ -4,6 +4,12 @@
 
 <p style="background: #F0F099; padding: 10px; border-left: 3px solid #B5B588; color: #FF0000;">本项目属于 PureESM, 只能使用 ES Import 导入.</p>
 
+## 安装
+
+```
+pnpm add baidu-netdisk-sdk
+```
+
 ## 使用方法
 
 ```typescript
