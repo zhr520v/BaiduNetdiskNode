@@ -5,7 +5,7 @@ try {
   fs.rmSync('dist', { recursive: true })
 } catch {}
 
-child_process.execSync('pnpm tsc --incremental false')
+child_process.execSync('pnpm tsc --incremental false', { stdio: 'inherit' })
 
 fs.mkdirSync('dist/runtime')
 
