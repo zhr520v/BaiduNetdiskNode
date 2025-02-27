@@ -1,6 +1,6 @@
 import { Netdisk } from 'baidu-netdisk-sdk'
 import { UserManager } from '../common/user-manager.js'
-import { type IUserConfig, config } from './config.js'
+import { config, type IUserConfig } from './config.js'
 
 export const __VARS__: {
   netdisks: Map<string, Netdisk>

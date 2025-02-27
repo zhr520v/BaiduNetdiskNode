@@ -1,4 +1,4 @@
-import { IUserConfig, config } from '../main/config.js'
+import { config, IUserConfig } from '../main/config.js'
 import { type IContext, type IHttpDelFolderReq } from '../types/http.js'
 
 export default async (ctx: IContext) => {

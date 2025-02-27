@@ -2,7 +2,7 @@ import { axios } from 'baidu-netdisk-api'
 import { Netdisk } from 'baidu-netdisk-sdk'
 import { type IRefreshRes } from 'baidu-netdisk-xth/types'
 import { scheduleJob } from 'node-schedule'
-import { type IUserConfig, config } from './config.js'
+import { config, type IUserConfig } from './config.js'
 import { __VARS__ } from './vars.js'
 
 class Reverify {

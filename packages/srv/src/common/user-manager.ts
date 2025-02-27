@@ -2,7 +2,7 @@ import { type IBaiduApiError } from 'baidu-netdisk-api/types'
 import { type Netdisk } from 'baidu-netdisk-sdk'
 import { config } from '../main/config.js'
 import { FolderManager, type IFolder } from './folder-manager.js'
-import { type PromType, nanoid, pathNormalized, pick } from './utils.js'
+import { nanoid, pathNormalized, pick, type PromType } from './utils.js'
 
 export type IFetchListItem = Pick<
   PromType<ReturnType<typeof Netdisk.prototype.getFileListRecursion>>['list'][number],

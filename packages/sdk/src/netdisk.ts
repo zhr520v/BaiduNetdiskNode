@@ -19,7 +19,7 @@ import {
 import { DownloadTask } from './common/download-task.js'
 import { fileManage } from './common/file-manage.js'
 import { UploadTask } from './common/upload-task.js'
-import { type PromType, pick, tryTimes } from './common/utils.js'
+import { pick, type PromType, tryTimes } from './common/utils.js'
 import { EFileManageAsync, EFileManageOndup } from './types/enums.js'
 
 export class Netdisk {

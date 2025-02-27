@@ -40,8 +40,8 @@ import {
 import { fileManage } from './file-manage.js'
 import { Steps } from './steps.js'
 import { getUploadUrl } from './upload-url.js'
-import { PromBat, type PromType, pathNormalized, pick, tryTimes } from './utils.js'
-import { type IThreadError, WorkerParent, newWorker } from './worker.js'
+import { pathNormalized, pick, PromBat, type PromType, tryTimes } from './utils.js'
+import { type IThreadError, newWorker, WorkerParent } from './worker.js'
 
 const FS_STAT_ASYNC = util.promisify(fs.stat)
 

@@ -16,8 +16,8 @@ import {
   __TRY_TIMES__,
 } from './const.js'
 import { Steps } from './steps.js'
-import { PromBat, pathNormalized, tryTimes } from './utils.js'
-import { type IThreadError, WorkerParent, newWorker } from './worker.js'
+import { pathNormalized, PromBat, tryTimes } from './utils.js'
+import { type IThreadError, newWorker, WorkerParent } from './worker.js'
 
 export interface IDownloadFinish {
   local: string

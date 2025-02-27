@@ -1,7 +1,7 @@
 import { httpUserInfo } from 'baidu-netdisk-api'
 import { Netdisk } from 'baidu-netdisk-sdk'
 import { nanoid } from '../common/utils.js'
-import { type IUserConfig, config } from '../main/config.js'
+import { config, type IUserConfig } from '../main/config.js'
 import { initUser } from '../main/vars.js'
 import { type IContext, type IHttpAddUserReq } from '../types/http.js'
 

@@ -1,5 +1,5 @@
 import { nanoid, pathNormalized } from '../common/utils.js'
-import { IUserConfig, config } from '../main/config.js'
+import { config, IUserConfig } from '../main/config.js'
 import { type IContext, type IHttpAddFolderReq } from '../types/http.js'
 
 export default async (ctx: IContext) => {

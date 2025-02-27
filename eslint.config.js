@@ -21,7 +21,7 @@ export default tsESLint.config(
     },
   },
   {
-    files: ['**/*.js', '**/*.cjs', '**/*.ts', '**/*.tsx', '**/*.vue'],
+    files: ['**/*.js', '**/*.ts', '**/*.vue'],
     rules: {
       eqeqeq: 'error',
       'newline-before-return': 'error',

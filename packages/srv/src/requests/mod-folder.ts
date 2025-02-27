@@ -1,5 +1,5 @@
 import { type IFolder } from '../common/folder-manager.js'
-import { type IUserConfig, config } from '../main/config.js'
+import { config, type IUserConfig } from '../main/config.js'
 import { type IContext, type IHttpModFolderReq } from '../types/http.js'
 
 export default async (ctx: IContext) => {

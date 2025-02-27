@@ -1,8 +1,8 @@
 import { type AxiosRequestConfig } from 'axios'
 import {
+  httpFileManager,
   type IFileManagerBody,
   type IFileManagerQuery,
-  httpFileManager,
 } from './file-manager.js'
 
 export function httpCopy(

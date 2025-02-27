@@ -1,7 +1,7 @@
 import { axios, httpUserInfo } from 'baidu-netdisk-api'
 import { type IAuthRes } from 'baidu-netdisk-xth/types'
 import { nanoid } from '../common/utils.js'
-import { type IUserConfig, config } from '../main/config.js'
+import { config, type IUserConfig } from '../main/config.js'
 import { initUser } from '../main/vars.js'
 import { type IContext, type IHttpProxyAuthReq } from '../types/http.js'
 
