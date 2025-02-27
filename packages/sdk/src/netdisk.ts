@@ -375,7 +375,7 @@ export class Netdisk {
         fileManage({
           access_token: this.#access_token,
           opera: 'move',
-          list: [pick(inOpts, ['source', 'target'])],
+          list: [pick(inOpts, ['source', 'target', 'ondup'])],
           ...pick(inOpts, ['ondup', 'async']),
         }),
       { times: this.#gTryTimes, delta: this.#gTryDelta }
