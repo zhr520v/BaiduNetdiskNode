@@ -129,7 +129,11 @@ export interface IHttpUsersReq {
 }
 
 export interface IHttpUsersRes {
-  users: (PromType<ReturnType<Netdisk['getUserInfo']>> & { id: string; app_name: string })[]
+  users: (PromType<ReturnType<Netdisk['getUserInfo']>> & {
+    id: string
+    app_name: string
+    expireAt: number
+  })[]
 }
 
 export interface IHttpProxyAuthReq {

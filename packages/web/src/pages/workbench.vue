@@ -47,6 +47,13 @@
                     </div>
                     <div>{{ (user.total / 1024 / 1024 / 1024).toFixed(2) }} GB</div>
                   </div>
+                  <div>
+                    登录有效期:
+                    {{ ((user.expireAt - Date.now()) / 1000 / 60 / 60).toFixed(1) }}小时
+                    <span class="text-red-600">
+                      {{ user.expireAt - Date.now() <= 0 ? '已过期' : '' }}
+                    </span>
+                  </div>
                   <div class="mt-8 flex items-center justify-end">
                     <Button
                       size="small"
@@ -150,9 +157,10 @@ import Progress from '@src/ui-components/progress.vue'
 import { type IHttpUsersRes } from 'baidu-netdisk-srv/types'
 import { onMounted, ref } from 'vue'
 
-const __USER_INIT__ = {
+const __USER_INIT__: IHttpUsersRes['users'][number] = {
   id: '',
   expire: true,
+  expireAt: 0,
   free: 0,
   total: 0,
   used: 0,
@@ -172,7 +180,7 @@ const folderDialogVisible = ref(false)
 
 onMounted(() => {
   watchHtml()
-  getUsers()
+  getUser()
 })
 
 function watchHtml() {
@@ -200,12 +208,13 @@ function watchHtml() {
   observer.observe(htmlElement, { attributes: true })
 }
 
-async function getUsers() {
+async function getUser() {
   try {
-    const users = (await httpUsers()).users
     const searchParams = new URLSearchParams(window.location.search)
     const searchParamsObject = Object.fromEntries(searchParams.entries())
-    user.value = users.find(item => item.id === searchParamsObject.id) || __USER_INIT__
+    const userId = searchParamsObject.id
+    const users = (await httpUsers({ id: userId })).users
+    user.value = users.find(item => item.id === userId) || __USER_INIT__
   } catch {}
 }
 

@@ -6,6 +6,17 @@ import { type IContext, type IHttpUsersReq, type IHttpUsersRes } from '../types/
 
 const __INFO_TIME__: Map<string, number> = new Map()
 const __INFO_CACHE__: Map<string, PromType<ReturnType<Netdisk['getUserInfo']>>> = new Map()
+const __INFO_USER_ERROR__: PromType<ReturnType<Netdisk['getUserInfo']>> = {
+  expire: false,
+  free: 0,
+  total: 0,
+  used: 0,
+  avatar_url: '',
+  baidu_name: '',
+  netdisk_name: '获取信息失败',
+  uk: 0,
+  vip_type: 0,
+}
 
 async function getUserInfo(inUserId: string) {
   const now = Date.now()
@@ -23,15 +34,19 @@ async function getUserInfo(inUserId: string) {
   const netdisk = __VARS__.netdisks.get(inUserId)
 
   if (!netdisk) {
-    throw new Error('找不到该用户的 Netdisk 实例')
+    return __INFO_USER_ERROR__
   }
 
-  const newCache = await netdisk.getUserInfo()
+  try {
+    const newCache = await netdisk.getUserInfo()
 
-  __INFO_CACHE__.set(inUserId, newCache)
-  __INFO_TIME__.set(inUserId, Date.now())
+    __INFO_CACHE__.set(inUserId, newCache)
+    __INFO_TIME__.set(inUserId, Date.now())
 
-  return newCache
+    return newCache
+  } catch {
+    return __INFO_USER_ERROR__
+  }
 }
 
 export default async (ctx: IContext<IHttpUsersRes>) => {
@@ -48,6 +63,7 @@ export default async (ctx: IContext<IHttpUsersRes>) => {
     returnUsers.push({
       id: user.id,
       app_name: user.app_name,
+      expireAt: user.expire,
       ...(await getUserInfo(user.id)),
     })
   } else {
@@ -57,6 +73,7 @@ export default async (ctx: IContext<IHttpUsersRes>) => {
       returnUsers.push({
         id: user.id,
         app_name: user.app_name,
+        expireAt: user.expire,
         ...(await getUserInfo(user.id)),
       })
     }
