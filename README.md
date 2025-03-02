@@ -119,7 +119,18 @@
 
 ## 预览
 
-<div align="center"><img src="docs/preview-3719D6D9.png" style="width: 80%;" alt=""></div>
+<div align="center"><img src="docs/preview-2539AE20.png" style="width: 80%;" alt=""></div>
+
+## 如何成为百度网盘开发者
+
+1. 前往 [https://pan.baidu.com/union/console/applist](https://pan.baidu.com/union/console/applist)
+2. 开发者认证:去认证，申请成为个人开发者 (可能不需要这一步也能创建应用)
+3. 创建应用，注意选择类型为软件
+4. 最后在应用信息里得到 AppName、AppID、AppKey、SecretKey
+
+<div align="center"><img src="docs/preview-6D298FBD.png" style="width: 80%;" alt=""></div>
+
+<div align="center"><img src="docs/preview-9651F1E7.png" style="width: 80%;" alt=""></div>
 
 ## 题外话
 
