@@ -686,39 +686,24 @@ function getChunkMBComSize(inSize: number, inUseEncrypt: boolean) {
   let chunkMB = 0
 
   if (inUseEncrypt) {
-    if (
-      inSize <=
-      2047 * (4 * 1024 * 1024 - 1) + (4 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1)
-    ) {
-      // 2047 * (04 * 1024 * 1024 - 1) + (04 * 1024 * 1024 - 44 - 1) <≈ 8GB
+    if (inSize <= 8589932544 - __PRESV_ENC_BLOCK_SIZE__) {
+      // 2047 * (04 * 1024 * 1024 - 1) + (04 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1) <≈ 8GB
       chunkMB = 4
-    } else if (
-      inSize <=
-      2047 * (8 * 1024 * 1024 - 1) + (8 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1)
-    ) {
-      // 2047 * (08 * 1024 * 1024 - 1) + (08 * 1024 * 1024 - 44 - 1) <≈ 16GB
+    } else if (inSize <= 17179867136 - __PRESV_ENC_BLOCK_SIZE__) {
+      // 2047 * (08 * 1024 * 1024 - 1) + (08 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1) <≈ 16GB
       chunkMB = 8
-    } else if (
-      inSize <=
-      2047 * (16 * 1024 * 1024 - 1) + (16 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1)
-    ) {
-      // 2047 * (16 * 1024 * 1024 - 1) + (16 * 1024 * 1024 - 44 - 1) <≈ 32GB
+    } else if (inSize <= 34359736320 - __PRESV_ENC_BLOCK_SIZE__) {
+      // 2047 * (16 * 1024 * 1024 - 1) + (16 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1) <≈ 32GB
       chunkMB = 16
-    } else if (
-      inSize <=
-      2047 * (32 * 1024 * 1024 - 1) + (32 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1)
-    ) {
-      // 2047 * (32 * 1024 * 1024 - 1) + (32 * 1024 * 1024 - 44 - 1) <≈ 64GB
+    } else if (inSize <= 68719474688 - __PRESV_ENC_BLOCK_SIZE__) {
+      // 2047 * (32 * 1024 * 1024 - 1) + (32 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1) <≈ 64GB
       chunkMB = 32
-    } else if (
-      inSize <=
-      2047 * (64 * 1024 * 1024 - 1) + (64 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1)
-    ) {
-      // 2047 * (64 * 1024 * 1024 - 1) + (64 * 1024 * 1024 - 44 - 1) <≈ 128GB
+    } else if (inSize <= 137438951424 - __PRESV_ENC_BLOCK_SIZE__) {
+      // 2047 * (64 * 1024 * 1024 - 1) + (64 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1) <≈ 128GB
       chunkMB = 64
     } else {
       throw new Error(
-        `文件大小 ${inSize} 超过限制. 最大支持 ${2047 * (64 * 1024 * 1024 - 1) + (64 * 1024 * 1024 - __PRESV_ENC_BLOCK_SIZE__ - 1)}`
+        `文件大小 ${inSize} 超过限制. 最大支持 ${137438951424 - __PRESV_ENC_BLOCK_SIZE__}`
       )
     }
   } else {
