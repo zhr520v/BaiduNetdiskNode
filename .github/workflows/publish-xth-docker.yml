@@ -1,10 +1,6 @@
 name: 发布 baidu-netdisk-auth 镜像
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'packages/xth/**'
   workflow_dispatch:
 
 jobs:
