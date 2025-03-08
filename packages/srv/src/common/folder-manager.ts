@@ -1,4 +1,6 @@
 import { __CONST__ } from 'baidu-netdisk-sdk'
+import fastglob from 'fast-glob'
+import micromatch from 'micromatch'
 import { type Job, scheduleJob } from 'node-schedule'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -35,6 +37,7 @@ export interface IFolder {
   direction: EDIRECTION
   conflict: ECONFLIC
   trigger: ITrigger
+  excludes: string[]
 }
 
 export class FolderManager {
@@ -46,6 +49,7 @@ export class FolderManager {
   #direction: EDIRECTION = EDIRECTION.UPLOAD
   #conflict: ECONFLIC = ECONFLIC.LOCAL
   #trigger: ITrigger = { way: ETRIGGERWAY.STARTSTOP, starts: [], stops: [] }
+  #excludes: string[] = []
   #scheduledJobs: Job[] = []
   #uploadQueue: { local: string; remote: string }[] = []
   #downloadQueue: { local: string; fsid: number }[] = []
@@ -69,6 +73,7 @@ export class FolderManager {
     this.#encrypt = inOpts.encrypt
     this.#direction = inOpts.direction
     this.#conflict = inOpts.conflict
+    this.#excludes = inOpts.excludes
 
     this.#changeTrigger(inOpts.trigger)
   }
@@ -108,7 +113,7 @@ export class FolderManager {
       const remoteList = await this.#userMgr.fetchList(this.#remote)
 
       if (this.#direction === EDIRECTION.UPLOAD) {
-        const localList = await glob(this.#local)
+        const localList = await glob(this.#local, this.#excludes)
 
         for (const item of localList) {
           const targetRemotePath = pathNormalized(
@@ -143,6 +148,12 @@ export class FolderManager {
             continue
           }
 
+          if (
+            isExcluded(pathNormalized(path.relative(this.#remote, item.path)), this.#excludes)
+          ) {
+            continue
+          }
+
           const targetLocalPath = pathNormalized(
             path.join(this.#local, path.relative(this.#remote, item.path))
           )
@@ -170,7 +181,7 @@ export class FolderManager {
         }
       } else if (this.#direction === EDIRECTION.SYNC) {
         const solvedConflict: string[] = []
-        const localList = await glob(this.#local)
+        const localList = await glob(this.#local, this.#excludes)
 
         for (const item of localList) {
           const targetRemotePath = pathNormalized(
@@ -213,6 +224,12 @@ export class FolderManager {
           }
 
           if (solvedConflict.includes(item.path)) {
+            continue
+          }
+
+          if (
+            isExcluded(pathNormalized(path.relative(this.#remote, item.path)), this.#excludes)
+          ) {
             continue
           }
 
@@ -331,6 +348,7 @@ export class FolderManager {
       direction: this.#direction,
       conflict: this.#conflict,
       trigger: this.#trigger,
+      excludes: this.#excludes,
     }
   }
 
@@ -361,27 +379,31 @@ export class FolderManager {
   }
 }
 
-async function glob(inPath: string) {
+async function glob(inPath: string, inExcludes: string[] = []) {
+  const dirs = await fastglob.glob('**/*', {
+    cwd: inPath,
+    dot: true,
+    ignore: inExcludes,
+  })
+
   const result: { path: string; mtime: number; size: number }[] = []
-  const dirs = await fs.promises.readdir(inPath)
 
   for (const dir of dirs) {
-    const fullPath = path.resolve(inPath, dir)
+    const fullPath = path.join(inPath, dir)
     const stats = await fs.promises.stat(fullPath)
 
-    if (stats.isDirectory()) {
-      const subResult = await glob(fullPath)
-      result.push(...subResult)
-    } else {
-      result.push({
-        path: pathNormalized(fullPath),
-        mtime: Math.floor(stats.mtimeMs / 1000),
-        size: stats.size,
-      })
-    }
+    result.push({
+      path: pathNormalized(fullPath),
+      mtime: Math.floor(stats.mtimeMs / 1000),
+      size: stats.size,
+    })
   }
 
   return result
+}
+
+function isExcluded(inPath: string, inExcludes: string[]) {
+  return inExcludes.length > 0 && micromatch.isMatch(inPath, inExcludes)
 }
 
 const __PRESV_ENC_BLOCK_SIZE__ = __CONST__.__PRESV_ENC_BLOCK_SIZE__

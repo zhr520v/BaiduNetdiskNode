@@ -41,6 +41,7 @@ export function initUserManager(inUser: IUserConfig, inNetdisk: Netdisk) {
       direction: folder.direction,
       conflict: folder.conflict,
       trigger: folder.trigger,
+      excludes: folder.excludes,
     })
   }
 }

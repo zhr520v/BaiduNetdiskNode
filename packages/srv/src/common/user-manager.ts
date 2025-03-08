@@ -72,6 +72,7 @@ export class UserManager {
       direction: inFolder.direction,
       conflict: inFolder.conflict,
       trigger: inFolder.trigger,
+      excludes: inFolder.excludes,
     })
 
     this.#folderMgrs.push(newFolderMgr)
@@ -407,6 +408,7 @@ export class UserManager {
         direction: info.direction,
         conflict: info.conflict,
         trigger: info.trigger,
+        excludes: info.excludes,
         checking: item.getChecking(),
         uploadQueue: item.getUploadQueue().length,
         downloadQueue: item.getDownloadQueue().length,

@@ -13,6 +13,7 @@ export default async (ctx: IContext) => {
     direction: reqBody.direction,
     conflict: reqBody.conflict,
     trigger: reqBody.trigger,
+    excludes: reqBody.excludes,
   }
 
   ctx.userMgr.addFolder(folderInfo)
