@@ -119,7 +119,7 @@
           </div>
         </div>
       </div>
-      <div class="flex items-baseline">
+      <div class="mb-8 flex items-baseline">
         <div class="mr-8 w-72 text-right">停止时间:</div>
         <div class="flex-1">
           <div
@@ -162,6 +162,38 @@
           </div>
         </div>
       </div>
+      <div class="flex items-baseline">
+        <div class="mr-8 flex w-72 items-center justify-end">
+          排除
+          <Tooltip type="question">
+            <div>
+              <div class="rounded-3 mb-8 bg-orange-100 px-6">
+                <div>F/** : 排除根目录 F</div>
+                <div>f.txt : 排除根目录 f.txt</div>
+                <div>**/F/** : 排除所有 F</div>
+                <div>**/f.txt : 排除所有 f.txt</div>
+              </div>
+              <div>· Glob格式 一行一条规则</div>
+              <div>· '根目录' 指同步文件夹</div>
+              <div class="mb-8">· 排除项不要以 '/' 开头</div>
+              <div>填写示例:</div>
+              <div class="rounded-3 bg-blue-100 px-6">
+                <div>ABCD/**</div>
+                <div>E.txt</div>
+                <div>**/FGHI/**</div>
+                <div>**/J.txt</div>
+              </div>
+            </div>
+          </Tooltip>
+          :
+        </div>
+        <div
+          ref="excludesDiv"
+          contenteditable="plaintext-only"
+          class="rounded-3 flex-1 whitespace-pre bg-gray-200 p-8 outline-none"
+          @input="onExcludesChange"
+        ></div>
+      </div>
 
       <ModalLocalFolder
         v-if="chooseLocalFolderDialogVisible"
@@ -181,6 +213,7 @@ import Input from '@src/ui-components/input.vue'
 import Modal from '@src/ui-components/modal.vue'
 import Select from '@src/ui-components/select.vue'
 import Tag from '@src/ui-components/tag.vue'
+import Tooltip from '@src/ui-components/tooltip.vue'
 import { type IHttpFolderRes } from 'baidu-netdisk-srv/types'
 import { onMounted, ref } from 'vue'
 
@@ -199,11 +232,20 @@ const encrypt = ref('')
 const direction = ref(1)
 const conflict = ref(1)
 const trigger = ref<IHttpFolderRes['trigger']>({ way: 1, starts: [], stops: [] })
+const excludes = ref<string[]>([])
+const excludesDiv = ref<HTMLDivElement | null>(null)
 const chooseLocalFolderDialogVisible = ref(false)
 const startHour = ref('00')
 const startMinute = ref('00')
 const stopHour = ref('00')
 const stopMinute = ref('00')
+
+function onExcludesChange(e: Event<HTMLDivElement>) {
+  excludes.value = e.target.innerText
+    .split('\n')
+    .filter(_ => _.trim())
+    .map(_ => _.trim())
+}
 
 onMounted(async () => {
   if (props.id) {
@@ -216,9 +258,14 @@ onMounted(async () => {
       direction.value = data.direction
       conflict.value = data.conflict
       trigger.value = data.trigger
+      excludes.value = data.excludes
     } catch {
     } finally {
     }
+  }
+
+  if (excludesDiv.value) {
+    excludesDiv.value.innerText = excludes.value.join('\n')
   }
 })
 
@@ -238,6 +285,7 @@ async function onOkThis() {
           direction: direction.value,
           conflict: conflict.value,
           trigger: trigger.value,
+          excludes: excludes.value,
         },
       })
     } else {
@@ -248,6 +296,7 @@ async function onOkThis() {
         direction: direction.value,
         conflict: conflict.value,
         trigger: trigger.value,
+        excludes: excludes.value,
       })
     }
 
