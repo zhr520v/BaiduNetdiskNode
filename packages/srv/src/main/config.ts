@@ -35,39 +35,57 @@ export interface IUserConfig {
   folders: IFolder[]
 }
 
+const defaultConfig: IProjConfig = {
+  username: '',
+  password: '',
+  token_secret: '',
+  port: 0,
+  tryTimes: 3,
+  tryDelta: 3000,
+  maxUploadTasks: 3,
+  maxDownloadTasks: 3,
+  maxFailedTasks: 3,
+  uploadThreads: 3,
+  downloadThreads: 3,
+  noVerifyUpload: false,
+  noVerifyDownload: false,
+  noVerifyDownloadOnDisk: false,
+  users: [],
+}
+
 const configPath = path.resolve('runtime/config.json')
 const configStr = fs.existsSync(configPath)
   ? fs.readFileSync(configPath, { encoding: 'utf-8' })
   : '{}'
+const rawConfig = toJSON<IProjConfig>(configStr)
+
+const userConfig = {
+  ...defaultConfig,
+  ...rawConfig,
+  users: (rawConfig.users || []).map(u => ({
+    ...u,
+    folders: (u.folders || []).map(f => ({
+      ...{
+        // 版本更新添加的属性
+        operation: 1,
+        excludes: [],
+      },
+      ...f,
+    })),
+  })),
+}
 
 class Config {
-  #defaultConf: IProjConfig = {
-    username: 'admin',
-    password: 'admin',
-    port: 7777,
-    token_secret: '',
-    tryTimes: 3,
-    tryDelta: 3000,
-    maxUploadTasks: 1,
-    maxDownloadTasks: 1,
-    maxFailedTasks: 1,
-    uploadThreads: 1,
-    downloadThreads: 1,
-    noVerifyUpload: false,
-    noVerifyDownload: false,
-    noVerifyDownloadOnDisk: false,
-    users: [],
-  }
+  #userConf: IProjConfig = userConfig
   #envConf: Partial<IProjConfig> = {
     username: process.env['WEB_USER'] || '',
     password: process.env['WEB_PASS'] || '',
     token_secret: process.env['TOKEN_SECRET'] || '',
     port: parseInt(process.env['WEB_PORT'] || '0', 10) || 0,
   }
-  #userConf: Partial<IProjConfig> = toJSON<IProjConfig>(configStr)
 
   constructor() {
-    if (!this.#userConf.token_secret && !this.#envConf.token_secret) {
+    if (!this.#envConf.token_secret && !this.#userConf.token_secret) {
       this.modify({ token_secret: nanoid(32) })
     }
   }
@@ -80,8 +98,12 @@ class Config {
     })
   }
 
-  get<K extends keyof IProjConfig>(inKey: K): IProjConfig[K] {
-    return this.#envConf[inKey] || this.#userConf[inKey] || this.#defaultConf[inKey]
+  get<K extends keyof IProjConfig>(inKey: K, inUserOnly?: boolean): IProjConfig[K] {
+    if (inUserOnly) {
+      return this.#userConf[inKey]
+    }
+
+    return this.#envConf[inKey] || this.#userConf[inKey]
   }
 }
 

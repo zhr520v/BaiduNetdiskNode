@@ -11,6 +11,7 @@ export default async (ctx: IContext) => {
     remote: pathNormalized(reqBody.remote),
     encrypt: reqBody.encrypt,
     direction: reqBody.direction,
+    operation: reqBody.operation,
     conflict: reqBody.conflict,
     trigger: reqBody.trigger,
     excludes: reqBody.excludes,

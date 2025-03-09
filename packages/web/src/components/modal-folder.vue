@@ -48,11 +48,23 @@
         </div>
       </div>
       <div class="mb-8 flex items-center">
-        <div class="mr-8 w-72 text-right">方向:</div>
+        <div class="mr-8 w-72 text-right">同步方向:</div>
         <Select
           v-model:value="direction"
           :options="directionOptions"
-          class="w-[160px]"
+          class="w-[200px]"
+          direction="L"
+        ></Select>
+      </div>
+      <div
+        v-if="direction === 1 || direction === 2"
+        class="mb-8 flex items-center"
+      >
+        <div class="mr-8 w-72 text-right">同步操作:</div>
+        <Select
+          v-model:value="operation"
+          :options="operationOptions"
+          class="w-[200px]"
           direction="L"
         ></Select>
       </div>
@@ -64,7 +76,7 @@
         <Select
           v-model:value="conflict"
           :options="conflictOptions"
-          class="w-[160px]"
+          class="w-[200px]"
           direction="L"
         ></Select>
       </div>
@@ -73,7 +85,7 @@
         <Select
           v-model:value="trigger.way"
           :options="triggerWayOptions"
-          class="w-[160px]"
+          class="w-[200px]"
           direction="L"
         ></Select>
       </div>
@@ -230,6 +242,7 @@ const local = ref('')
 const remote = ref(`/apps/${props.appName}/`)
 const encrypt = ref('')
 const direction = ref(1)
+const operation = ref(1)
 const conflict = ref(1)
 const trigger = ref<IHttpFolderRes['trigger']>({ way: 1, starts: [], stops: [] })
 const excludes = ref<string[]>([])
@@ -256,6 +269,7 @@ onMounted(async () => {
       remote.value = data.remote
       encrypt.value = data.encrypt
       direction.value = data.direction
+      operation.value = data.operation
       conflict.value = data.conflict
       trigger.value = data.trigger
       excludes.value = data.excludes
@@ -283,6 +297,7 @@ async function onOkThis() {
           remote: remote.value,
           encrypt: encrypt.value,
           direction: direction.value,
+          operation: operation.value,
           conflict: conflict.value,
           trigger: trigger.value,
           excludes: excludes.value,
@@ -294,6 +309,7 @@ async function onOkThis() {
         remote: remote.value,
         encrypt: encrypt.value,
         direction: direction.value,
+        operation: operation.value,
         conflict: conflict.value,
         trigger: trigger.value,
         excludes: excludes.value,
@@ -352,8 +368,18 @@ const directionOptions = [
     value: 2,
   },
   {
-    label: '同步',
+    label: '双向混合',
     value: 3,
+  },
+]
+const operationOptions = [
+  {
+    label: '新增 | 修改',
+    value: 1,
+  },
+  {
+    label: '新增 | 修改 | 删除',
+    value: 2,
   },
 ]
 const conflictOptions = [

@@ -3,19 +3,19 @@ import { type IContext, type IHttpConfigRes } from '../types/http.js'
 
 export default async (ctx: IContext<IHttpConfigRes>) => {
   ctx.body = {
-    tryTimes: config.get('tryTimes'),
-    tryDelta: config.get('tryDelta'),
-    maxUploadTasks: config.get('maxUploadTasks'),
-    maxDownloadTasks: config.get('maxDownloadTasks'),
-    maxFailedTasks: config.get('maxFailedTasks'),
-    uploadThreads: config.get('uploadThreads'),
-    downloadThreads: config.get('downloadThreads'),
-    noVerifyUpload: config.get('noVerifyUpload'),
-    noVerifyDownload: config.get('noVerifyDownload'),
-    noVerifyDownloadOnDisk: config.get('noVerifyDownloadOnDisk'),
-    username: config.get('username'),
-    password: config.get('password'),
-    port: config.get('port'),
-    token_secret: config.get('token_secret'),
+    tryTimes: config.get('tryTimes', true),
+    tryDelta: config.get('tryDelta', true),
+    maxUploadTasks: config.get('maxUploadTasks', true),
+    maxDownloadTasks: config.get('maxDownloadTasks', true),
+    maxFailedTasks: config.get('maxFailedTasks', true),
+    uploadThreads: config.get('uploadThreads', true),
+    downloadThreads: config.get('downloadThreads', true),
+    noVerifyUpload: config.get('noVerifyUpload', true),
+    noVerifyDownload: config.get('noVerifyDownload', true),
+    noVerifyDownloadOnDisk: config.get('noVerifyDownloadOnDisk', true),
+    username: config.get('username', true),
+    password: config.get('password', true),
+    port: config.get('port', true),
+    token_secret: config.get('token_secret', true),
   }
 }

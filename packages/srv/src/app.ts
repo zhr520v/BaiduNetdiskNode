@@ -33,6 +33,6 @@ app.use(async ctx => {
 
 const httpServer = http.createServer(app.callback())
 
-httpServer.listen(config.get('port'), () => {
-  console.log('http listening on port', config.get('port'))
+httpServer.listen(config.get('port') || 7777, () => {
+  console.log('http listening on port', config.get('port') || 7777)
 })

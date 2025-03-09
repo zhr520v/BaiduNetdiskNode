@@ -39,6 +39,7 @@ export function initUserManager(inUser: IUserConfig, inNetdisk: Netdisk) {
       remote: folder.remote,
       encrypt: folder.encrypt,
       direction: folder.direction,
+      operation: folder.operation,
       conflict: folder.conflict,
       trigger: folder.trigger,
       excludes: folder.excludes,

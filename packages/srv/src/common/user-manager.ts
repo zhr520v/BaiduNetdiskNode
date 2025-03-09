@@ -11,7 +11,7 @@ export type IFetchListItem = Pick<
 
 export type IFetchListQueueItem = {
   remote: string
-  resolve: (inList: IFetchListItem) => void
+  resolve: (inFetchResult: { folderList: IFetchListItem[]; fileList: IFetchListItem[] }) => void
   reject: () => void
 }
 
@@ -39,7 +39,10 @@ export class UserManager {
   #fetchListTimer: NodeJS.Timeout | undefined = void 0
   #fetchListQueue: {
     remote: string
-    resolve: (inList: IFetchListItem[]) => void
+    resolve: (inFetchResult: {
+      folderList: IFetchListItem[]
+      fileList: IFetchListItem[]
+    }) => void
     reject: (inReason?: any) => void
   }[] = []
   #fetchListProcessing = false
@@ -70,6 +73,7 @@ export class UserManager {
       remote: remote,
       encrypt: inFolder.encrypt,
       direction: inFolder.direction,
+      operation: inFolder.operation,
       conflict: inFolder.conflict,
       trigger: inFolder.trigger,
       excludes: inFolder.excludes,
@@ -190,15 +194,17 @@ export class UserManager {
   }
 
   fetchList(inRemote: string) {
-    return new Promise<IFetchListItem[]>((resolve, reject) => {
-      this.#fetchListQueue.push({
-        remote: inRemote,
-        resolve: resolve,
-        reject: reject,
-      })
+    return new Promise<{ folderList: IFetchListItem[]; fileList: IFetchListItem[] }>(
+      (resolve, reject) => {
+        this.#fetchListQueue.push({
+          remote: inRemote,
+          resolve: resolve,
+          reject: reject,
+        })
 
-      this.doFetchList()
-    })
+        this.doFetchList()
+      }
+    )
   }
 
   async doFetchList() {
@@ -218,10 +224,8 @@ export class UserManager {
 
     this.#fetchListProcessing = true
 
-    const fullList: Pick<
-      PromType<ReturnType<typeof Netdisk.prototype.getFileListRecursion>>['list'][number],
-      'fs_id' | 'local_mtime' | 'path' | 'size'
-    >[] = []
+    const folderList: IFetchListItem[] = []
+    const fileList: IFetchListItem[] = []
     let outCursor = 0
     let outHasMore = false
 
@@ -237,10 +241,11 @@ export class UserManager {
 
         for (const item of list) {
           if (item.isdir) {
+            folderList.push({ fs_id: 0, local_mtime: 0, path: item.path, size: 0 })
             continue
           }
 
-          fullList.push(pick(item, ['fs_id', 'local_mtime', 'path', 'size']))
+          fileList.push(pick(item, ['fs_id', 'local_mtime', 'path', 'size']))
         }
 
         outCursor = cursor
@@ -252,12 +257,12 @@ export class UserManager {
         }
       } while (outHasMore)
 
-      next.resolve(fullList)
+      next.resolve({ folderList, fileList })
     } catch (inError) {
       try {
         // 31066 表示路径不存在
         if ((inError as IBaiduApiError).errno === 31066) {
-          next.resolve([])
+          next.resolve({ folderList: [], fileList: [] })
         } else {
           next.reject(inError)
         }
@@ -406,6 +411,7 @@ export class UserManager {
         remote: info.remote,
         encrypt: info.encrypt,
         direction: info.direction,
+        operation: info.operation,
         conflict: info.conflict,
         trigger: info.trigger,
         excludes: info.excludes,
@@ -464,5 +470,9 @@ export class UserManager {
     for (const task of this.#downloadTasks) {
       await task.entity.terminate()
     }
+  }
+
+  get netdisk() {
+    return this.#netdisk
   }
 }
