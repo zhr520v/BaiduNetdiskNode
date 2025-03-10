@@ -41,7 +41,10 @@
         </div>
 
         <div class="p-8 text-gray-700">
-          <div v-if="config.isMobile">
+          <div
+            v-if="config.isMobile"
+            class="mb-8"
+          >
             <div class="flex items-center">
               <div class="flex flex-col items-center justify-start">
                 <i
@@ -107,57 +110,30 @@
             </div>
           </div>
 
-          <div class="">
-            <div class="text-gray-700">
-              <div class="mb-4">
-                <span class="mr-8 py-3">触发方式:</span>
-                <span>{{ getTriggerWayText(folder.trigger.way) }}</span>
+          <div :class="config.isMobile ? '' : 'flex items-center gap-16'">
+            <div
+              class="flex items-center gap-16 text-gray-700"
+              :class="config.isMobile ? 'mb-8' : ''"
+            >
+              <div class="w-[156px]">
+                下次启动:
+                <span class="text-yellow-700">{{ getNextTime(folder.trigger.starts) }}</span>
               </div>
-              <div class="mb-4 flex items-baseline">
-                <div class="mr-8 py-3">启动时间:</div>
-                <div
-                  v-if="folder.trigger.starts.length > 0"
-                  class="flex flex-1 gap-8 overflow-y-auto"
-                >
-                  <Tag
-                    v-for="start in folder.trigger.starts"
-                    :key="start"
-                  >
-                    {{ start }}
-                  </Tag>
-                </div>
-
-                <span v-else>无</span>
-              </div>
-              <div class="mb-4 flex items-baseline">
-                <div class="mr-8 py-3">停止时间:</div>
-                <div
-                  v-if="folder.trigger.stops.length > 0"
-                  class="flex flex-1 gap-8 overflow-y-auto"
-                >
-                  <Tag
-                    v-for="stop in folder.trigger.stops"
-                    :key="stop"
-                    type="error"
-                    :deleted="folder.trigger.way !== 1"
-                  >
-                    {{ stop }}
-                  </Tag>
-                </div>
-
-                <span v-else>无</span>
+              <div class="w-[156px]">
+                下次停止:
+                <span class="text-yellow-700">{{ getNextTime(folder.trigger.stops) }}</span>
               </div>
             </div>
-          </div>
-          <div class="flex items-center">
-            <div class="flex flex-1 items-center gap-8">
-              <div>
-                等待上传:
-                <span class="text-orange-600">{{ folder.uploadQueue }}</span>
-              </div>
-              <div>
-                等待下载:
-                <span class="text-blue-600">{{ folder.downloadQueue }}</span>
+            <div class="flex items-center">
+              <div class="flex flex-1 items-center gap-16">
+                <div class="w-[156px]">
+                  等待上传:
+                  <span class="text-orange-600">{{ folder.uploadQueue }}</span>
+                </div>
+                <div class="w-[156px]">
+                  等待下载:
+                  <span class="text-blue-600">{{ folder.downloadQueue }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -209,8 +185,8 @@ import { httpDelFolder, httpFoldersInfo, httpManualCheck } from '@src/common/api
 import { config } from '@src/common/config'
 import ModalFolder from '@src/components/modal-folder.vue'
 import WidgetTask from '@src/components/widget-task.vue'
+import Dialog from '@src/ui-components/dialog'
 import IconButton from '@src/ui-components/icon-button.vue'
-import Tag from '@src/ui-components/tag.vue'
 import { type IHttpFoldersInfoRes } from 'baidu-netdisk-srv/types'
 import { onMounted, ref } from 'vue'
 
@@ -235,6 +211,10 @@ async function getFoldersInfo() {
 }
 
 async function onDeleteClick(inFolderId: string) {
+  if (!(await Dialog.confirm({ title: '删除同步目录', okText: '删除', okType: 'error' }))) {
+    return
+  }
+
   try {
     await httpDelFolder({
       id: inFolderId,
@@ -242,19 +222,39 @@ async function onDeleteClick(inFolderId: string) {
   } catch {}
 }
 
-function getTriggerWayText(inWay: number) {
-  if (inWay === 1) {
-    return '定时启停'
-  }
-
-  if (inWay === 2) {
-    return '定时检查'
-  }
-
-  return ''
-}
-
 async function manualCheck(inId: string) {
   httpManualCheck({ id: inId }).catch()
+}
+
+function getNextTime(inTimes: string[]) {
+  if (inTimes.length === 0) {
+    return '无 (手动)'
+  }
+
+  const sorted = inTimes.map(_ => _).sort()
+
+  const hour = new Date().getHours()
+  const minute = new Date().getMinutes()
+
+  const i = sorted.findIndex(v => {
+    const h = parseInt(v.split(':')[0], 10)
+    const m = parseInt(v.split(':')[1], 10)
+
+    if (h < hour) {
+      return false
+    }
+
+    if (h === hour) {
+      return m > minute
+    }
+
+    return true
+  })
+
+  if (i !== -1) {
+    return `今天${sorted[i]}`
+  }
+
+  return `明天${sorted[0]}`
 }
 </script>

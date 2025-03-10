@@ -25,15 +25,8 @@
 </template>
 
 <script setup lang="ts">
+import { type IButtonType } from '@src/ui-components/types'
 import { type CSSProperties, ref } from 'vue'
-
-export type IButtonType =
-  | 'default'
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'error'
-  | 'transparent'
 
 export type IButtonSize =
   | 'default'

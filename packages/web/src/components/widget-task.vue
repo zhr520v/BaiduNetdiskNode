@@ -75,6 +75,7 @@
 <script setup lang="ts">
 import { httpActTask } from '@src/common/api'
 import { __FILEICONS__, getDownloadStepName, getUploadStepName } from '@src/common/const'
+import Dialog from '@src/ui-components/dialog'
 import IconButton from '@src/ui-components/icon-button.vue'
 import Progress from '@src/ui-components/progress.vue'
 import { EDownloadSteps, EStepStatus, EUploadSteps } from 'baidu-netdisk-sdk/types'
@@ -152,6 +153,10 @@ async function onPauseClick() {
 }
 
 async function onDeleteClick() {
+  if (!(await Dialog.confirm({ title: '删除任务', okText: '删除', okType: 'error' }))) {
+    return
+  }
+
   try {
     await httpActTask({
       id: props.id,

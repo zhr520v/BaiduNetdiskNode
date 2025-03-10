@@ -67,7 +67,8 @@
 </template>
 
 <script setup lang="ts">
-import Button, { IButtonType } from '@src/ui-components/button.vue'
+import Button from '@src/ui-components/button.vue'
+import { IButtonType } from '@src/ui-components/types'
 import { type CSSProperties, ref } from 'vue'
 
 interface IProps {

@@ -151,6 +151,7 @@ import ModalAbout from '@src/components/modal-about.vue'
 import ModalFolder from '@src/components/modal-folder.vue'
 import ModalModConfig from '@src/components/modal-mod-config.vue'
 import Button from '@src/ui-components/button.vue'
+import Dialog from '@src/ui-components/dialog'
 import IconButton from '@src/ui-components/icon-button.vue'
 import Popover from '@src/ui-components/popover.vue'
 import Progress from '@src/ui-components/progress.vue'
@@ -223,6 +224,10 @@ function onManageUserClick() {
 }
 
 async function logout() {
+  if (!(await Dialog.confirm({ title: '退出登录', okText: '登出' }))) {
+    return
+  }
+
   try {
     await httpLogout()
     location.href = '/login'
@@ -230,6 +235,17 @@ async function logout() {
 }
 
 async function removeBaiduUser() {
+  if (
+    !(await Dialog.confirm({
+      title: '移除百度用户',
+      content: user.value.netdisk_name,
+      okText: '移除',
+      okType: 'error',
+    }))
+  ) {
+    return
+  }
+
   try {
     await httpDelUser({ id: user.value.id })
 

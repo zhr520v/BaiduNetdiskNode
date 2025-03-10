@@ -8,7 +8,7 @@
   >
     <div class="flex-1 overflow-y-auto">
       <div class="mb-8 flex items-center">
-        <div class="mr-8 w-72 text-right">本地:</div>
+        <div class="mr-8 w-72 text-right">本地</div>
 
         <div class="flex-1">
           <Input
@@ -27,7 +27,7 @@
       </div>
 
       <div class="mb-8 flex items-center">
-        <div class="mr-8 w-72 text-right">网盘:</div>
+        <div class="mr-8 w-72 text-right">网盘</div>
         <div class="flex-1">
           <Input
             v-model:value="remote"
@@ -38,7 +38,7 @@
       </div>
 
       <div class="mb-8 flex items-center">
-        <div class="mr-8 w-72 text-right">加密:</div>
+        <div class="mr-8 w-72 text-right">加密</div>
         <div class="flex-1">
           <Input
             v-model:value="encrypt"
@@ -48,7 +48,7 @@
         </div>
       </div>
       <div class="mb-8 flex items-center">
-        <div class="mr-8 w-72 text-right">同步方向:</div>
+        <div class="mr-8 w-72 text-right">同步方向</div>
         <Select
           v-model:value="direction"
           :options="directionOptions"
@@ -60,7 +60,7 @@
         v-if="direction === 1 || direction === 2"
         class="mb-8 flex items-center"
       >
-        <div class="mr-8 w-72 text-right">同步操作:</div>
+        <div class="mr-8 w-72 text-right">同步操作</div>
         <Select
           v-model:value="operation"
           :options="operationOptions"
@@ -72,7 +72,7 @@
         v-if="direction === 3"
         class="mb-8 flex items-center"
       >
-        <div class="mr-8 w-72 text-right">冲突时:</div>
+        <div class="mr-8 w-72 text-right">冲突时</div>
         <Select
           v-model:value="conflict"
           :options="conflictOptions"
@@ -81,7 +81,7 @@
         ></Select>
       </div>
       <div class="mb-8 flex items-center">
-        <div class="mr-8 w-72 text-right">触发方式:</div>
+        <div class="mr-8 w-72 text-right">触发方式</div>
         <Select
           v-model:value="trigger.way"
           :options="triggerWayOptions"
@@ -90,7 +90,7 @@
         ></Select>
       </div>
       <div class="mb-8 flex items-baseline">
-        <div class="mr-8 w-72 text-right">启动时间:</div>
+        <div class="mr-8 w-72 text-right">启动时间</div>
         <div class="flex-1">
           <div
             v-if="trigger.starts.length > 0"
@@ -132,7 +132,7 @@
         </div>
       </div>
       <div class="mb-8 flex items-baseline">
-        <div class="mr-8 w-72 text-right">停止时间:</div>
+        <div class="mr-8 w-72 text-right">停止时间</div>
         <div class="flex-1">
           <div
             v-if="trigger.stops.length > 0"
@@ -197,7 +197,6 @@
               </div>
             </div>
           </Tooltip>
-          :
         </div>
         <div
           ref="excludesDiv"
@@ -253,8 +252,8 @@ const startMinute = ref('00')
 const stopHour = ref('00')
 const stopMinute = ref('00')
 
-function onExcludesChange(e: Event<HTMLDivElement>) {
-  excludes.value = e.target.innerText
+function onExcludesChange(e: Event) {
+  excludes.value = (e.target as HTMLDivElement).innerText
     .split('\n')
     .filter(_ => _.trim())
     .map(_ => _.trim())
