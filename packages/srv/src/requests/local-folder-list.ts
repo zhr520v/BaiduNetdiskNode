@@ -1,5 +1,6 @@
 import { readdir, stat } from 'node:fs/promises'
 import path from 'node:path'
+import { errorLog } from '../common/log.js'
 import {
   type IContext,
   type IHttpLocalFolderListReq,
@@ -19,7 +20,9 @@ export default async (ctx: IContext<IHttpLocalFolderListRes>) => {
       if (stats.isDirectory()) {
         folders.push(dir)
       }
-    } catch {}
+    } catch (inErr) {
+      errorLog(`读取本地文件夹列表失败: ${(inErr as Error).message}`)
+    }
   }
 
   ctx.body = {

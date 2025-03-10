@@ -2,6 +2,7 @@ import { axios } from 'baidu-netdisk-api'
 import { Netdisk } from 'baidu-netdisk-sdk'
 import { type IRefreshRes } from 'baidu-netdisk-xth/types'
 import { scheduleJob } from 'node-schedule'
+import { errorLog } from '../common/log.js'
 import { config, type IUserConfig } from './config.js'
 import { __VARS__ } from './vars.js'
 
@@ -78,7 +79,9 @@ class Reverify {
           config.modify({ users: newUsers })
           __VARS__.netdisks.get(user.id)?.updateAccessToken(data.access_token)
         }
-      } catch {}
+      } catch (inErr) {
+        errorLog(`更新用户AccessToken失败: ${(inErr as Error).message}`)
+      }
     }
 
     this.#processing = false

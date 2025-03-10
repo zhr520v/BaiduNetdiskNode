@@ -2,6 +2,7 @@ import { type IBaiduApiError } from 'baidu-netdisk-api/types'
 import { type Netdisk } from 'baidu-netdisk-sdk'
 import { config } from '../main/config.js'
 import { FolderManager, type IFolder } from './folder-manager.js'
+import { errorLog } from './log.js'
 import { nanoid, pathNormalized, pick, type PromType } from './utils.js'
 
 export type IFetchListItem = Pick<
@@ -314,7 +315,8 @@ export class UserManager {
           this.#uploadTasks = this.#uploadTasks.filter(item => item.taskId !== taskId)
           this.runUploadQueue()
         },
-        onError: () => {
+        onError: inErr => {
+          errorLog(`上传任务失败: ${next.local} -> ${next.remote}, ${inErr.message}`)
           this.runUploadQueue()
         },
       })
@@ -372,7 +374,8 @@ export class UserManager {
           this.#downloadTasks = this.#downloadTasks.filter(item => item.taskId !== taskId)
           this.runDownloadQueue()
         },
-        onError: () => {
+        onError: inErr => {
+          errorLog(`下载任务失败: ${next.fsid} -> ${next.local}, ${inErr.message}`)
           this.runDownloadQueue()
         },
       })

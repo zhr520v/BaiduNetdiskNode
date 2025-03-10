@@ -5,6 +5,7 @@ import koaStatic from 'koa-static'
 import fs from 'node:fs'
 import http from 'node:http'
 import path from 'node:path'
+import { infoLog } from './common/log.js'
 import { config } from './main/config.js'
 import { reverify } from './main/reverify.js'
 import { initUser } from './main/vars.js'
@@ -34,5 +35,5 @@ app.use(async ctx => {
 const httpServer = http.createServer(app.callback())
 
 httpServer.listen(config.get('port') || 7777, () => {
-  console.log('http listening on port', config.get('port') || 7777)
+  infoLog(`http listening on port ${config.get('port') || 7777}`)
 })

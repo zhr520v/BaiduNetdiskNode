@@ -4,6 +4,7 @@ import micromatch from 'micromatch'
 import { type Job, scheduleJob } from 'node-schedule'
 import fs from 'node:fs'
 import path from 'node:path'
+import { errorLog } from './log.js'
 import { type IFetchListItem, type UserManager } from './user-manager.js'
 import { pathNormalized } from './utils.js'
 
@@ -298,7 +299,8 @@ export class FolderManager {
       this.#runCreateRemoteQueue()
       this.#userMgr.runUploadQueue()
       this.#userMgr.runDownloadQueue()
-    } catch {
+    } catch (inErr) {
+      errorLog(`检查任务启动失败: ${(inErr as Error).message}`)
     } finally {
       this.#processing = false
     }
@@ -387,7 +389,8 @@ export class FolderManager {
 
     try {
       await fs.promises.mkdir(next, { recursive: true })
-    } catch {
+    } catch (inErr) {
+      errorLog(`新建本地文件夹失败: ${(inErr as Error).message}`)
     } finally {
       this.#createLocalProcessing = false
     }
@@ -410,7 +413,8 @@ export class FolderManager {
 
     try {
       await fs.promises.rm(next, { recursive: true, force: true })
-    } catch {
+    } catch (inErr) {
+      errorLog(`删除本地文件(夹)失败: ${(inErr as Error).message}`)
     } finally {
       this.#deleteLocalProcessing = false
     }
@@ -438,7 +442,8 @@ export class FolderManager {
           rtype: EUploadRtype.FAIL,
         },
       })
-    } catch {
+    } catch (inErr) {
+      errorLog(`新建云端文件夹失败: ${(inErr as Error).message}`)
     } finally {
       this.#createRemoteProcessing = false
     }
@@ -465,7 +470,8 @@ export class FolderManager {
         list: nexts.map(i => ({ source: i })),
         async: EFileManageAsync.SYNC,
       })
-    } catch {
+    } catch (inErr) {
+      errorLog(`删除云端文件(夹)失败: ${(inErr as Error).message}`)
     } finally {
       this.#deleteRemoteProcessing = false
     }

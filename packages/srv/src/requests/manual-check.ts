@@ -5,5 +5,5 @@ export default async (ctx: IContext) => {
 
   const folderMgr = ctx.userMgr.getFolder(reqBody.id)
 
-  folderMgr.runSync().catch()
+  folderMgr.runSync()
 }
