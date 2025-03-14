@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
 import { httpUsers } from '@src/common/api'
+import Message from '@src/ui-components/message'
 import { type IHttpUsersRes } from 'baidu-netdisk-srv/types'
 import { onMounted, ref } from 'vue'
 
@@ -47,7 +48,9 @@ onMounted(() => {
 async function getUsers() {
   try {
     users.value = (await httpUsers()).users
-  } catch {}
+  } catch (inErr) {
+    Message.error(`获取用户列表失败: ${(inErr as Error).message}`)
+  }
 }
 
 function handleClick(inId: string) {

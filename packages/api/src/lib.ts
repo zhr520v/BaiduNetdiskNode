@@ -1,4 +1,5 @@
 export { default as axios } from 'axios'
+export { request, requestErrorFormat } from './common/request.js'
 export { httpCode2Token } from './auth/code-2-token.js'
 export { httpRefreshToken } from './auth/refresh-token.js'
 export { httpFileInfo } from './file-info/file-info.js'

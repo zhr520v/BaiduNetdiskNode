@@ -33,18 +33,21 @@ async function request<T, D = any>(inReqConfig: AxiosRequestConfig<D>) {
       ...inReqConfig,
       params: Object.assign({}, inReqConfig.params, searchParamsObject),
     })
-  } catch (inError) {
-    const err = inError as AxiosError
+  } catch (inErr) {
+    const e = inErr as AxiosError<{ message?: string }>
 
-    if (/\/api\//.test(err.request.responseURL)) {
-      if (err.response?.status === 401) {
+    if (/\/api\//.test(e.request.responseURL)) {
+      if (e.response?.status === 401) {
         if (location.pathname !== '/login') {
           location.href = '/login'
         }
       }
     }
 
-    throw inError
+    const message = e.response?.data?.message || e.message || '未知错误'
+    e.message = message
+
+    throw e
   }
 }
 

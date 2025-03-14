@@ -221,6 +221,7 @@ import { config } from '@src/common/config'
 import ModalLocalFolder from '@src/components/modal-local-folder.vue'
 import IconButton from '@src/ui-components/icon-button.vue'
 import Input from '@src/ui-components/input.vue'
+import Message from '@src/ui-components/message'
 import Modal from '@src/ui-components/modal.vue'
 import Select from '@src/ui-components/select.vue'
 import Tag from '@src/ui-components/tag.vue'
@@ -272,8 +273,8 @@ onMounted(async () => {
       conflict.value = data.conflict
       trigger.value = data.trigger
       excludes.value = data.excludes
-    } catch {
-    } finally {
+    } catch (inErr) {
+      Message.error(`获取信息失败: ${(inErr as Error).message}`)
     }
   }
 
@@ -315,8 +316,11 @@ async function onOkThis() {
       })
     }
 
+    Message.success(`${props.id ? '修改' : '添加'}文件夹成功`)
     props.onOk?.()
-  } catch {}
+  } catch (inErr) {
+    Message.error(`${props.id ? '修改' : '添加'}文件夹失败: ${(inErr as Error).message}`)
+  }
 }
 
 function onChooseLocalFolderDialogOk(inPath: string) {

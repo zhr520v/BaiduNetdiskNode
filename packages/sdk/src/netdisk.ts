@@ -297,7 +297,7 @@ export class Netdisk {
       const tErr = err as IBaiduApiError
 
       // 目录已存在
-      if (inOpts.opts?.verifyExists && tErr.errno === -8) {
+      if (inOpts.opts?.verifyExists && tErr.baidu?.errno === -8) {
         const { list } = await this.getFileList({
           dir: path.dirname(inOpts.path),
           opts: {

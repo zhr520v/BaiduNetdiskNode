@@ -46,6 +46,7 @@
 import { httpLocalFolderList } from '@src/common/api'
 import { config } from '@src/common/config'
 import IconButton from '@src/ui-components/icon-button.vue'
+import Message from '@src/ui-components/message'
 import Modal from '@src/ui-components/modal.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -73,7 +74,9 @@ onMounted(() => {
 async function getLocalFolderList() {
   try {
     folders.value = (await httpLocalFolderList({ path: formattedPath.value })).folders
-  } catch {}
+  } catch (inErr) {
+    Message.error(`获取磁盘列表失败: ${(inErr as Error).message}`)
+  }
 }
 
 function upLevel() {

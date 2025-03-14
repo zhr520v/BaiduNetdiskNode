@@ -185,6 +185,9 @@
           />
         </div>
       </div>
+      <div class="mt-8">
+        <div class="text-12px text-gray-500">部分设置需要重启服务后生效</div>
+      </div>
     </div>
   </Modal>
 </template>
@@ -194,6 +197,7 @@ import { httpConfig, httpModConfig } from '@src/common/api'
 import { config } from '@src/common/config'
 import InputNumber from '@src/ui-components/input-number.vue'
 import Input from '@src/ui-components/input.vue'
+import Message from '@src/ui-components/message'
 import Modal from '@src/ui-components/modal.vue'
 import Select from '@src/ui-components/select.vue'
 import Tooltip from '@src/ui-components/tooltip.vue'
@@ -227,15 +231,19 @@ const globalConfig = ref<IHttpConfigRes>({
 onMounted(async () => {
   try {
     globalConfig.value = await httpConfig()
-  } catch {}
+  } catch (inErr) {
+    Message.error(`获取配置失败: ${(inErr as Error).message}`)
+  }
 })
 
 async function onOkThis() {
   try {
     await httpModConfig(globalConfig.value)
-
+    Message.success('修改配置成功')
     props.onOk?.()
-  } catch {}
+  } catch (inErr) {
+    Message.error(`修改配置失败: ${(inErr as Error).message}`)
+  }
 }
 
 const one2threeOptions = Array(3)

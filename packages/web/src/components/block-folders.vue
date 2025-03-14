@@ -187,6 +187,7 @@ import ModalFolder from '@src/components/modal-folder.vue'
 import WidgetTask from '@src/components/widget-task.vue'
 import Dialog from '@src/ui-components/dialog'
 import IconButton from '@src/ui-components/icon-button.vue'
+import Message from '@src/ui-components/message'
 import { type IHttpFoldersInfoRes } from 'baidu-netdisk-srv/types'
 import { onMounted, ref } from 'vue'
 
@@ -200,14 +201,17 @@ const modFolderId = ref('')
 
 onMounted(() => {
   getFoldersInfo()
-  setInterval(getFoldersInfo, 3000)
 })
 
 async function getFoldersInfo() {
   try {
     const realTimeInfo = await httpFoldersInfo()
     folders.value = realTimeInfo.folders
-  } catch {}
+  } catch (inErr) {
+    Message.error(`获取目录失败: ${(inErr as Error).message}`)
+  }
+
+  setTimeout(() => getFoldersInfo(), 3000)
 }
 
 async function onDeleteClick(inFolderId: string) {
@@ -216,14 +220,20 @@ async function onDeleteClick(inFolderId: string) {
   }
 
   try {
-    await httpDelFolder({
-      id: inFolderId,
-    })
-  } catch {}
+    await httpDelFolder({ id: inFolderId })
+    Message.success('删除成功')
+  } catch (inErr) {
+    Message.error(`删除失败: ${(inErr as Error).message}`)
+  }
 }
 
 async function manualCheck(inId: string) {
-  httpManualCheck({ id: inId }).catch()
+  try {
+    await httpManualCheck({ id: inId })
+    Message.success('手动检查成功')
+  } catch (inErr) {
+    Message.error(`手动检查失败: ${(inErr as Error).message}`)
+  }
 }
 
 function getNextTime(inTimes: string[]) {

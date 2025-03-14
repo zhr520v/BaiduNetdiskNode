@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestConfig } from 'axios'
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import { type IBaiduApiError } from '../../types.js'
 
 const __ERR_MAP__: { [key: string]: string } = {
@@ -53,10 +53,42 @@ const __ERR_MAP__: { [key: string]: string } = {
   '50002': '播单id不存在',
 }
 
+export function requestErrorFormat(inErr: any, inErrMap?: Record<string, string>) {
+  const e = inErr as IBaiduApiError &
+    AxiosError<{
+      error?: string
+      error_description?: string
+      errno?: number
+      errmsg?: string
+    }>
+
+  if (e.baidu) {
+    return e
+  }
+
+  const data = e.response?.data
+
+  if (typeof data === 'object') {
+    const message =
+      data.error_description ||
+      data.error ||
+      data.errmsg ||
+      inErrMap?.[`${data.errno}`] ||
+      __ERR_MAP__[`${data.errno}`] ||
+      e.message ||
+      '未知错误'
+
+    e.message = message
+    e.baidu = data
+  }
+
+  return e
+}
+
 export async function request<T>(
   inAxiosConf: AxiosRequestConfig,
-  inRestConf: {
-    errMap: { [key: string]: string }
+  inRestConf?: {
+    errMap: Record<string, string>
   }
 ) {
   try {
@@ -64,50 +96,20 @@ export async function request<T>(
     const data = res.data as { errno?: number; errmsg?: string }
 
     if (typeof data === 'object' && data && data.errno) {
-      const errmsg =
+      const message =
         data.errmsg ||
-        inRestConf.errMap[`${data.errno}`] ||
+        inRestConf?.errMap[`${data.errno}`] ||
         __ERR_MAP__[`${data.errno}`] ||
-        'none'
+        '未知错误'
 
-      const customErr = new Error(`errno: ${data.errno}, errmsg: ${errmsg}`) as IBaiduApiError
-      customErr.errno = data.errno
-      customErr.errmsg = errmsg
-      customErr.res_data = data
-      customErr.active = true
-
-      throw customErr
-    }
-
-    return res
-  } catch (inError) {
-    const err = inError as IBaiduApiError & {
-      response?: { data: { errno: number; errmsg: string } }
-    }
-
-    if (err.active) {
-      throw inError
-    }
-
-    if (typeof err.response === 'object' && typeof err.response.data === 'object') {
-      const res_data = err.response.data
-      const errmsg =
-        res_data.errmsg ||
-        inRestConf.errMap[`${res_data.errno}`] ||
-        __ERR_MAP__[`${res_data.errno}`] ||
-        err.message ||
-        'none'
-
-      const newErr = new Error(`errno: ${res_data.errno}, errmsg: ${errmsg}`) as IBaiduApiError
-      newErr.errno = res_data.errno
-      newErr.errmsg = errmsg
-      newErr.res_data = res_data
-      newErr.rawErr = inError as Error
-      newErr.active = true
+      const newErr = new Error(message) as IBaiduApiError
+      newErr.baidu = data
 
       throw newErr
     }
 
-    throw inError
+    return res
+  } catch (inErr) {
+    throw requestErrorFormat(inErr, inRestConf?.errMap)
   }
 }

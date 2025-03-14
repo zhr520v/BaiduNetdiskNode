@@ -1,5 +1,6 @@
-import { axios } from 'baidu-netdisk-api'
+import { axios, requestErrorFormat } from 'baidu-netdisk-api'
 import fs from 'node:fs'
+import { type Readable } from 'node:stream'
 import { parentPort, workerData } from 'node:worker_threads'
 import { decrypt, tryTimes } from '../common/utils.js'
 import { type IThreadError, WorkerChild } from '../common/worker.js'
@@ -59,7 +60,7 @@ worker.onRecvData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', async inData => 
 
     await tryTimes(
       async () => {
-        const { data } = await axios.get(tWorkerData.dlink, {
+        const { data } = await axios.get<Readable>(tWorkerData.dlink, {
           params: {
             access_token: tWorkerData.access_token,
           },
@@ -138,7 +139,7 @@ worker.onRecvData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', async inData => 
           })
 
           data.on('error', (inError: Error) => {
-            reject(inError)
+            reject(requestErrorFormat(inError))
           })
         })
       },

@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
 import { httpLogin } from '@src/common/api'
+import Message from '@src/ui-components/message'
 import { ref } from 'vue'
 
 const loading = ref(false)
@@ -61,7 +62,8 @@ const onLoginClick = async () => {
       password: password.value,
     })
     location.href = '/'
-  } catch {
+  } catch (inErr) {
+    Message.error(`登录失败: ${(inErr as Error).message}`)
   } finally {
     loading.value = false
   }

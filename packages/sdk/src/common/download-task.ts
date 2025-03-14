@@ -1,4 +1,4 @@
-import { axios, httpFileInfo, httpFileList } from 'baidu-netdisk-api'
+import { httpFileInfo, httpFileList, request } from 'baidu-netdisk-api'
 import fs from 'node:fs'
 import path from 'node:path'
 import { EDownloadSteps, EStepStatus } from '../types/enums.js'
@@ -241,7 +241,9 @@ export class DownloadTask {
 
     const { data } = await tryTimes(
       () =>
-        axios.get<ArrayBuffer>(this.#dlink, {
+        request<ArrayBuffer>({
+          url: this.#dlink,
+          method: 'GET',
           params: {
             access_token: this.#access_token,
           },

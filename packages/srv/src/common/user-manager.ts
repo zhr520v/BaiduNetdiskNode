@@ -262,7 +262,7 @@ export class UserManager {
     } catch (inError) {
       try {
         // 31066 表示路径不存在
-        if ((inError as IBaiduApiError).errno === 31066) {
+        if ((inError as IBaiduApiError).baidu?.errno === 31066) {
           next.resolve({ folderList: [], fileList: [] })
         } else {
           next.reject(inError)

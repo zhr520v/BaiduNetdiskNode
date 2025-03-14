@@ -77,6 +77,7 @@ import { httpActTask } from '@src/common/api'
 import { __FILEICONS__, getDownloadStepName, getUploadStepName } from '@src/common/const'
 import Dialog from '@src/ui-components/dialog'
 import IconButton from '@src/ui-components/icon-button.vue'
+import Message from '@src/ui-components/message'
 import Progress from '@src/ui-components/progress.vue'
 import { EDownloadSteps, EStepStatus, EUploadSteps } from 'baidu-netdisk-sdk/types'
 import { type IHttpFoldersInfoItem } from 'baidu-netdisk-srv/types'
@@ -139,7 +140,10 @@ async function onPlayClick() {
       type: props.type,
       action: 'play',
     })
-  } catch {}
+    Message.success('启动任务成功')
+  } catch (inErr) {
+    Message.error(`启动任务失败: ${(inErr as Error).message}`)
+  }
 }
 
 async function onPauseClick() {
@@ -149,7 +153,10 @@ async function onPauseClick() {
       type: props.type,
       action: 'pause',
     })
-  } catch {}
+    Message.success('暂停任务成功')
+  } catch (inErr) {
+    Message.error(`暂停任务失败: ${(inErr as Error).message}`)
+  }
 }
 
 async function onDeleteClick() {
@@ -163,7 +170,10 @@ async function onDeleteClick() {
       type: props.type,
       action: 'del',
     })
-  } catch {}
+    Message.success('删除任务成功')
+  } catch (inErr) {
+    Message.error(`删除任务失败: ${(inErr as Error).message}`)
+  }
 }
 
 const filename = computed(() => {

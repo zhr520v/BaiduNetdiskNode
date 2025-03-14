@@ -109,6 +109,7 @@
 import { httpAddUser } from '@src/common/api'
 import Button from '@src/ui-components/button.vue'
 import IconButton from '@src/ui-components/icon-button.vue'
+import Message from '@src/ui-components/message'
 import { onMounted, ref } from 'vue'
 
 const more = ref(false)
@@ -155,7 +156,9 @@ async function handleNext() {
 
       location.href = '/pick-user'
     }
-  } catch {}
+  } catch (inErr) {
+    Message.error(`添加用户失败: ${(inErr as Error).message}`)
+  }
 }
 
 function getCodeUrl() {
@@ -174,6 +177,8 @@ function onCloseClick() {
 }
 
 function handleNotDeveloper() {
-  location.href = '/init-thirdparty'
+  const searchParams = new URLSearchParams(window.location.search)
+  const query = searchParams.toString() ? '?' + searchParams.toString() : ''
+  location.href = `/init-thirdparty${query}`
 }
 </script>

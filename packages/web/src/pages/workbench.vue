@@ -153,6 +153,7 @@ import ModalModConfig from '@src/components/modal-mod-config.vue'
 import Button from '@src/ui-components/button.vue'
 import Dialog from '@src/ui-components/dialog'
 import IconButton from '@src/ui-components/icon-button.vue'
+import Message from '@src/ui-components/message'
 import Popover from '@src/ui-components/popover.vue'
 import Progress from '@src/ui-components/progress.vue'
 import { type IHttpUsersRes } from 'baidu-netdisk-srv/types'
@@ -216,7 +217,9 @@ async function getUser() {
     const userId = searchParamsObject.id
     const users = (await httpUsers({ id: userId })).users
     user.value = users.find(item => item.id === userId) || __USER_INIT__
-  } catch {}
+  } catch (inErr) {
+    Message.error(`获取用户失败: ${(inErr as Error).message}`)
+  }
 }
 
 function onManageUserClick() {
@@ -231,7 +234,9 @@ async function logout() {
   try {
     await httpLogout()
     location.href = '/login'
-  } catch {}
+  } catch (inErr) {
+    Message.error(`登出失败: ${(inErr as Error).message}`)
+  }
 }
 
 async function removeBaiduUser() {
@@ -250,6 +255,8 @@ async function removeBaiduUser() {
     await httpDelUser({ id: user.value.id })
 
     location.href = '/pick-user'
-  } catch {}
+  } catch (inErr) {
+    Message.error(`移除用户失败: ${(inErr as Error).message}`)
+  }
 }
 </script>

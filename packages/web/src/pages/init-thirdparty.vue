@@ -96,13 +96,22 @@
         <div class="loader h-40 w-40 border-[3px] border-[#66AA66]"></div>
       </div>
     </div>
+
+    <IconButton
+      v-if="more"
+      icon-class="icon-close"
+      class="fixed right-16 top-16"
+      @click="onCloseClick"
+    ></IconButton>
   </div>
 </template>
 
 <script setup lang="ts">
 import { httpProxyAuth, httpProxyInfo } from '@src/common/api'
 import Button from '@src/ui-components/button.vue'
-import { ref, watch } from 'vue'
+import IconButton from '@src/ui-components/icon-button.vue'
+import Message from '@src/ui-components/message'
+import { onMounted, ref, watch } from 'vue'
 
 const defaultRemoteUrl = 'https://baiduauth.keenghost.com'
 
@@ -116,6 +125,13 @@ const remoteInfo = ref<{ appId: string; appKey: string; appName: string }>({
   appName: '',
 })
 const loading = ref(false)
+const more = ref(false)
+
+onMounted(() => {
+  const searchParams = new URLSearchParams(window.location.search)
+  const searchParamsObject = Object.fromEntries(searchParams.entries())
+  more.value = !!searchParamsObject.more
+})
 
 watch(currStep, async () => {
   if (currStep.value === 1) {
@@ -129,7 +145,10 @@ watch(currStep, async () => {
       remoteInfo.value.appId = info.appId
       remoteInfo.value.appKey = info.appKey
       remoteInfo.value.appName = info.appName
-    } catch {
+
+      Message.success('获取远程信息成功')
+    } catch (inErr) {
+      Message.error(`获取远程信息失败: ${(inErr as Error).message}`)
     } finally {
       loading.value = false
     }
@@ -166,7 +185,8 @@ async function handleNext() {
       })
 
       location.href = '/pick-user'
-    } catch {
+    } catch (inErr) {
+      Message.error(`远程认证失败: ${(inErr as Error).message}`)
     } finally {
       loading.value = false
     }
@@ -174,7 +194,9 @@ async function handleNext() {
 }
 
 function handleBackToDeveloper() {
-  location.href = '/init-custom?more=1'
+  const searchParams = new URLSearchParams(window.location.search)
+  const query = searchParams.toString() ? '?' + searchParams.toString() : ''
+  location.href = `/init-custom${query}`
 }
 
 function getCodeUrl() {
@@ -186,5 +208,9 @@ function getCodeUrl() {
       'scope=basic,netdisk&' +
       `device_id=${remoteInfo.value.appId}`
   )
+}
+
+function onCloseClick() {
+  location.href = '/pick-user'
 }
 </script>

@@ -1,3 +1,5 @@
+export type * as AxiosTypes from 'axios'
+
 export { type ICode2TokenQuery, type ICode2TokenRes } from './src/auth/code-2-token.js'
 export { type IRefreshTokenQuery, type IRefreshTokenRes } from './src/auth/refresh-token.js'
 export {
@@ -43,9 +45,10 @@ export { type IUserInfoQuery, type IUserInfoRes } from './src/user-info/user-inf
 export { type IUserQuotaQuery, type IUserQuotaRes } from './src/user-info/user-quota.js'
 
 export interface IBaiduApiError extends Error {
-  errno: number
-  errmsg: string
-  res_data: { [key: string]: any }
-  rawErr?: Error
-  active?: boolean
+  baidu?: {
+    error?: string
+    error_description?: string
+    errno?: number
+    errmsg?: string
+  } & Record<string, any>
 }

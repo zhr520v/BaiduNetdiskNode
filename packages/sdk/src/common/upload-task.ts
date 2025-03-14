@@ -1,9 +1,9 @@
 import {
-  axios,
   httpDelete,
   httpFileInfo,
   httpUploadFinish,
   httpUploadId,
+  request,
 } from 'baidu-netdisk-api'
 import { type IBaiduApiError } from 'baidu-netdisk-api/types'
 import crypto from 'node:crypto'
@@ -371,7 +371,7 @@ export class UploadTask {
           })
         } catch (inError) {
           const err = inError as IBaiduApiError
-          const resData = err.res_data as { info?: { errno?: number }[] }
+          const resData = err.baidu as { info?: { errno?: number }[] }
 
           // 即使 ondup=overwrite 在 async=0 时也会返回 -8 错误文件已存在
           if (resData.info?.[0]?.errno === -8) {
@@ -446,7 +446,9 @@ export class UploadTask {
 
     const { data: presvData } = await tryTimes(
       () =>
-        axios.get<ArrayBuffer>(this.#dlink, {
+        request<ArrayBuffer>({
+          url: this.#dlink,
+          method: 'GET',
           params: {
             access_token: this.#access_token,
           },
