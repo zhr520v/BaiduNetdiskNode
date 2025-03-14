@@ -102,8 +102,8 @@ worker.onRecvData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', async inData => 
                 tempBuf = tempBuf.subarray(tWorkerData.chunkMB * 1024 * 1024)
                 decoBuf = Buffer.concat([decoBuf, decoSectBuf])
               }
-            } catch (inError) {
-              reject(inError)
+            } catch (inErr) {
+              reject(inErr)
             }
           })
 
@@ -133,8 +133,8 @@ worker.onRecvData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', async inData => 
               finalBuf = decoBuf
 
               resolve()
-            } catch (inError) {
-              reject(inError)
+            } catch (inErr) {
+              reject(inErr)
             }
           })
 
@@ -153,7 +153,7 @@ worker.onRecvData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', async inData => 
     sliceNoBuf.writeUInt32BE(inData.sliceNo, 0)
     const fullBuf = Buffer.concat([sliceNoBuf, finalBuf])
     worker.sendBinary(fullBuf)
-  } catch (inError) {
-    worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inError as Error).message })
+  } catch (inErr) {
+    worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inErr as Error).message })
   }
 })

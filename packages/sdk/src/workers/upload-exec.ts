@@ -108,7 +108,7 @@ worker.onRecvData<IUploadExecSliceReq>('UPLOAD_EXEC_SLICE', async inData => {
       sliceNo: inData.sliceNo,
       bytes: totalBytes,
     })
-  } catch (error) {
-    worker.sendData<IThreadError>('THREAD_ERROR', { msg: (error as Error).message })
+  } catch (inErr) {
+    worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inErr as Error).message })
   }
 })

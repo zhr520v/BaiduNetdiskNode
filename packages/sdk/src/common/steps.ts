@@ -64,8 +64,8 @@ export class Steps {
       }
 
       this.#setStatus(EStepStatus.FINISHED)
-    } catch (inError) {
-      this.#error = inError as Error
+    } catch (inErr) {
+      this.#error = inErr as Error
       this.#setStatus(EStepStatus.STOPPED)
     }
   }
@@ -78,8 +78,8 @@ export class Steps {
     try {
       await this.#step.stop(inForce)
       this.#step.rej(null)
-    } catch (inError) {
-      this.#step.rej(inError)
+    } catch (inErr) {
+      this.#step.rej(inErr)
     }
   }
 

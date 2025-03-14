@@ -76,9 +76,9 @@ export async function runTest() {
     }
 
     console.log('  ' + pico.bgGreen(' PASS ') + '\n')
-  } catch (err) {
+  } catch (inErr) {
     console.log(pico.red('    \u2717 ') + curItName + '\n')
-    console.log(pico.yellow((err as Error).message) + '\n')
+    console.log(pico.yellow((inErr as Error).message) + '\n')
     console.log('  ' + pico.bgRed(' FAIL ') + '\n')
 
     process.exit(0)

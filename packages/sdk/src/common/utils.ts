@@ -88,18 +88,18 @@ export async function tryTimes<R>(
 ) {
   const times = inOpts?.times || 1
   const delta = inOpts?.delta || 3000
-  let error: Error = new Error()
+  let err: Error = new Error()
 
   for (let i = 0; i < times; i++) {
     try {
       return await inFunc()
-    } catch (inError) {
-      error = inError as Error
+    } catch (inErr) {
+      err = inErr as Error
       await new Promise(resolve => setTimeout(resolve, delta))
     }
   }
 
-  throw error
+  throw err
 }
 
 export function readFileSlice(inFd: number, inChunkSize: number, inSliceNo: number) {

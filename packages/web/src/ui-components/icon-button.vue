@@ -42,8 +42,8 @@ async function onClickThis(e: MouseEvent) {
     }
 
     await props.onClick?.(e)
-  } catch (e) {
-    throw e
+  } catch (inErr) {
+    throw inErr
   } finally {
     if (props.useLoading) {
       loading.value = false

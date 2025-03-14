@@ -30,6 +30,6 @@ try {
   readStream.on('error', inError => {
     worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inError as Error).message })
   })
-} catch (inError) {
-  worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inError as Error).message })
+} catch (inErr) {
+  worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inErr as Error).message })
 }

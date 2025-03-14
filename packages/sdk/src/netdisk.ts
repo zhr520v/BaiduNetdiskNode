@@ -293,11 +293,11 @@ export class Netdisk {
       )
 
       return pick(data, ['category', 'ctime', 'fs_id', 'isdir', 'mtime', 'path'])
-    } catch (err) {
-      const tErr = err as IBaiduApiError
+    } catch (inErr) {
+      const e = inErr as IBaiduApiError
 
       // 目录已存在
-      if (inOpts.opts?.verifyExists && tErr.baidu?.errno === -8) {
+      if (inOpts.opts?.verifyExists && e.baidu?.errno === -8) {
         const { list } = await this.getFileList({
           dir: path.dirname(inOpts.path),
           opts: {
@@ -322,7 +322,7 @@ export class Netdisk {
         }
       }
 
-      throw err
+      throw e
     }
   }
 
@@ -494,9 +494,9 @@ export class Netdisk {
 
     try {
       return await task.done
-    } catch (inError) {
+    } catch (inErr) {
       task.terminate()
-      throw inError
+      throw inErr
     }
   }
 
@@ -556,9 +556,9 @@ export class Netdisk {
 
     try {
       return await task.done
-    } catch (inError) {
+    } catch (inErr) {
       task.terminate()
-      throw inError
+      throw inErr
     }
   }
 

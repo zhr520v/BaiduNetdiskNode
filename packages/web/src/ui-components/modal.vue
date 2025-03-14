@@ -101,8 +101,8 @@ async function onOkThis() {
     }
 
     await props.onOk?.()
-  } catch (e) {
-    throw e
+  } catch (inErr) {
+    throw inErr
   } finally {
     if (props.useLoading) {
       loadingThis.value = false

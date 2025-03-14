@@ -369,9 +369,9 @@ export class UploadTask {
             ],
             async: EFileManageAsync.SYNC,
           })
-        } catch (inError) {
-          const err = inError as IBaiduApiError
-          const resData = err.baidu as { info?: { errno?: number }[] }
+        } catch (inErr) {
+          const e = inErr as IBaiduApiError
+          const resData = e.baidu as { info?: { errno?: number }[] }
 
           // 即使 ondup=overwrite 在 async=0 时也会返回 -8 错误文件已存在
           if (resData.info?.[0]?.errno === -8) {
@@ -389,7 +389,7 @@ export class UploadTask {
             } catch {}
           }
 
-          throw inError
+          throw e
         }
       },
       { times: this.#tryTimes, delta: this.#tryDelta }

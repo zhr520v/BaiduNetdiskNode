@@ -259,16 +259,16 @@ export class UserManager {
       } while (outHasMore)
 
       next.resolve({ folderList, fileList })
-    } catch (inError) {
+    } catch (inErr) {
       try {
         // 31066 表示路径不存在
-        if ((inError as IBaiduApiError).baidu?.errno === 31066) {
+        if ((inErr as IBaiduApiError).baidu?.errno === 31066) {
           next.resolve({ folderList: [], fileList: [] })
         } else {
-          next.reject(inError)
+          next.reject(inErr)
         }
       } catch {
-        next.reject(inError)
+        next.reject(inErr)
       }
     } finally {
       this.#fetchListTimer = setTimeout(() => {
