@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flow-bg fixed bottom-0 left-0 right-0 top-0 flex flex-wrap items-center justify-center"
+    class="flow-bg absolute bottom-0 left-0 right-0 top-0 flex flex-wrap items-center justify-center"
   >
     <div class="flex flex-1 flex-wrap items-center justify-center">
       <div
@@ -54,7 +54,7 @@ async function getUsers() {
 }
 
 function handleClick(inId: string) {
-  location.href = `/?id=${inId}`
+  location.href = `/workbench/sync?id=${inId}`
 }
 
 function handleNewClick() {

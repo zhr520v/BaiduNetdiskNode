@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flow-bg fixed bottom-0 left-0 right-0 top-0 flex flex-col items-center justify-center"
+    class="flow-bg absolute bottom-0 left-0 right-0 top-0 flex flex-col items-center justify-center"
   >
     <div
       class="text-36 mb-32 text-center font-bold text-white"

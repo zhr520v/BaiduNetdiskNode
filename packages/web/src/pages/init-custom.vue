@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flow-bg fixed bottom-0 left-0 right-0 top-0 flex flex-row items-center justify-center"
+    class="flow-bg absolute bottom-0 left-0 right-0 top-0 flex flex-row items-center justify-center"
   >
     <div
       class="mx-8 max-w-[calc(100%-16px)] rounded-lg"

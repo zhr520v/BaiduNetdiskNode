@@ -14,7 +14,7 @@
 
     <div
       v-if="show"
-      class="common-shadow fixed z-[999] rounded-md bg-white p-8"
+      class="rounded-3 shadow-heavy fixed z-[999] bg-white p-8"
       :style="getTooltipPos()"
     >
       <slot></slot>

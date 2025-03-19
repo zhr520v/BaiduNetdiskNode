@@ -9,7 +9,7 @@
     <div
       v-if="show"
       ref="popoverDiv"
-      class="common-shadow fixed z-[999]"
+      class="shadow-heavy fixed z-[999]"
       :style="getPopPos()"
     >
       <slot></slot>

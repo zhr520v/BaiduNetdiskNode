@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flow-bg fixed bottom-0 left-0 right-0 top-0 flex flex-row items-center justify-center"
+    class="flow-bg absolute bottom-0 left-0 right-0 top-0 flex flex-row items-center justify-center"
   >
     <div
       class="relative mx-8 max-w-[calc(100%-16px)] rounded-lg"
@@ -93,7 +93,7 @@
         v-if="loading"
         class="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-[rgba(255,255,255,0.3)]"
       >
-        <div class="loader h-40 w-40 border-[3px] border-[#66AA66]"></div>
+        <div class="loader h-[96px] w-[96px] text-orange-600"></div>
       </div>
     </div>
 

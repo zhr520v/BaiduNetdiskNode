@@ -11,7 +11,7 @@
       <div
         :class="
           [
-            'rounded-3 common-shadow relative flex max-h-full max-w-full flex-col bg-white p-16',
+            'rounded-3 relative flex max-h-full max-w-full flex-col bg-white p-16',
             props.className,
           ].join(' ')
         "
@@ -57,9 +57,9 @@
 
         <div
           v-if="props.loading || loadingThis"
-          className="rounded-3 absolute bottom-0 left-0 right-0 top-0 z-[1] flex items-center justify-center bg-[rgba(255,255,255,0.5)]"
+          class="rounded-3 absolute bottom-0 left-0 right-0 top-0 z-[1] flex items-center justify-center bg-[rgba(255,255,255,0.5)]"
         >
-          <div className="modal-loading"></div>
+          <div class="loader h-[96px] w-[96px] text-orange-600"></div>
         </div>
       </div>
     </div>

@@ -17,20 +17,45 @@ body {
   margin: 0;
 }
 
+html,
+body,
+#app {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 body {
   font-family: 'global';
+  color: rgba(3, 7, 18, 1);
 }
 
 * {
   box-sizing: border-box;
   flex-shrink: 0;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .flow-bg {
   background-image: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;
+}
+
+.context-menu * {
+  white-space: nowrap;
+}
+
+.context-menu-item {
+  &:hover {
+    & > .context-menu-sub {
+      display: block;
+    }
+  }
 }
 
 @keyframes gradient {
@@ -67,8 +92,12 @@ body {
   }
 }
 
-.common-shadow {
-  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+.shadow-light {
+  box-shadow: 0px 1px 4px 0px rgba(99, 99, 99, 0.1);
+}
+
+.shadow-heavy {
+  box-shadow: 0px 2px 8px 0px rgba(99, 99, 99, 0.2);
 }
 
 .left-orange-right-blue {
@@ -78,47 +107,33 @@ body {
 }
 
 .loader {
-  aspect-ratio: 1;
+  position: relative;
+}
+
+.loader::before,
+.loader::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: currentColor;
   border-radius: 50%;
-  border-style: solid;
-  animation:
-    l20-1 0.8s infinite linear alternate,
-    l20-2 1.6s infinite linear;
+  opacity: 1;
+  transform: scale(0);
+  animation: linear 0.4s infinite loader-animation;
 }
-@keyframes l20-1 {
-  0% {
-    clip-path: polygon(50% 50%, 0 0, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%);
-  }
-  12.5% {
-    clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 0%, 100% 0%, 100% 0%);
-  }
-  25% {
-    clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 100% 100%, 100% 100%);
-  }
-  50% {
-    clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%);
-  }
-  62.5% {
-    clip-path: polygon(50% 50%, 100% 0, 100% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%);
-  }
-  75% {
-    clip-path: polygon(50% 50%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 50% 100%, 0% 100%);
-  }
-  100% {
-    clip-path: polygon(50% 50%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 0% 100%);
-  }
+
+.loader::after {
+  animation-delay: 0.2s;
 }
-@keyframes l20-2 {
+
+@keyframes loader-animation {
   0% {
-    transform: scaleY(1) rotate(0deg);
+    opacity: 1;
+    transform: scale(0);
   }
-  49.99% {
-    transform: scaleY(1) rotate(135deg);
-  }
-  50% {
-    transform: scaleY(-1) rotate(0deg);
-  }
+
   100% {
-    transform: scaleY(-1) rotate(-135deg);
+    opacity: 0;
+    transform: scale(1);
   }
 }

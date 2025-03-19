@@ -58,7 +58,7 @@ const createMessage = (inProps: IMessageOptions) => {
   msgEle.style.color = typeStyle.color
   msgEle.style.border = typeStyle.border
   msgEle.style.borderRadius = '4px'
-  msgEle.style.boxShadow = '0 2px 12px 0 rgba(0, 0, 0, 0.1)'
+  msgEle.style.boxShadow = '0px 2px 8px 0px rgba(99, 99, 99, 0.2)'
   msgEle.style.transition = 'all 0.3s'
 
   msgEle.textContent = inProps.content

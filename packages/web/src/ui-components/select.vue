@@ -10,7 +10,7 @@
 
     <div
       v-if="show"
-      class="common-shadow fixed z-[999] max-h-[360px] overflow-y-auto bg-white"
+      class="shadow-heavy fixed z-[999] max-h-[360px] overflow-y-auto bg-white"
       :style="getDropPos()"
     >
       <div

@@ -4,7 +4,7 @@
       class="fixed bottom-0 left-0 right-0 top-0 z-[1000] flex items-center justify-center bg-[rgba(0,0,0,0.5)]"
     >
       <div
-        class="rounded-3 common-shadow relative flex max-h-full max-w-full flex-col bg-white p-16"
+        class="rounded-3 relative flex max-h-full max-w-full flex-col bg-white p-16"
         :style="{ width: '320px' }"
         @click="e => e.stopPropagation()"
       >
