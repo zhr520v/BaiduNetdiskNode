@@ -231,7 +231,7 @@ import { onMounted, ref } from 'vue'
 
 interface IProps {
   id?: string
-  appName: string
+  appName?: string
   onOk?: () => void
   onCancel?: () => void
 }
@@ -239,7 +239,7 @@ interface IProps {
 const props = defineProps<IProps>()
 
 const local = ref('')
-const remote = ref(`/apps/${props.appName}/`)
+const remote = ref(`/apps/${props.appName || 'NO_APP_NAME'}/`)
 const encrypt = ref('')
 const direction = ref(1)
 const operation = ref(1)
@@ -336,6 +336,8 @@ function onStartPlusClick() {
   const val = `${startHour.value.toString().padStart(2, '0')}:${startMinute.value.toString().padStart(2, '0')}`
 
   if (trigger.value.starts.find(item => item === val)) {
+    Message.error('启动时间已存在')
+
     return
   }
 
@@ -352,7 +354,8 @@ function onStopPlusClick() {
   const val = `${stopHour.value.toString().padStart(2, '0')}:${stopMinute.value.toString().padStart(2, '0')}`
 
   if (trigger.value.stops.find(item => item === val)) {
-    // !!! $Message
+    Message.error('停止时间已存在')
+
     return
   }
 
