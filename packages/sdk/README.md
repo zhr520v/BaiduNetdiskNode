@@ -2,9 +2,7 @@
 
 基于 baidu-netdisk-api 的再次封装，提供更加一体化的操作方式，支持多线程。
 
-<div style="margin: 16px 0; padding: 12px; border-radius: 6px; background-color: rgba(255, 229, 100, 0.2); border-left: 4px solid #faad14; color: inherit;">
-⚠️ 本项目属于 PureESM, 只能使用 ES Import 导入
-</div>
+<p style="background: #E6F2FF; padding: 10px; border-left: 6px solid #3B82F6; color: #0F172A;">⚠️ 本项目属于 PureESM, 只能使用 ES Import 导入</p>
 
 ## 安装
 
