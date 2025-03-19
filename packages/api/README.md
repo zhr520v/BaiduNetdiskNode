@@ -2,7 +2,7 @@
 
 基于百度网盘 API 的 node 封装, 同时对成功响应的业务错误进行了处理.
 
-<p style="background: #E6F2FF; padding: 10px; border-left: 6px solid #3B82F6; color: #0F172A;">⚠️ 本项目属于 PureESM, 只能使用 ES Import 导入</p>
+> ⚠️ 本项目属于 PureESM, 只能使用 ES Import 导入。
 
 ## 安装
 

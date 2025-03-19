@@ -135,7 +135,7 @@ cd BaiduNetdiskNode && pnpm i && pnpm dev xth
 
 ## 📸 预览
 
-<img src="docs/preview-2539AE20.png" width="580" alt="界面预览">
+<img src="docs/preview-85194F1E.png" width="580" alt="界面预览">
 
 ## 📝 如何成为百度网盘开发者
 
