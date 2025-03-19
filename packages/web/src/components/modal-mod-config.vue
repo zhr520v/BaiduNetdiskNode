@@ -201,7 +201,7 @@
       </div>
       <div :class="getFormItemClass()">
         <div :class="getFormItemLabelClass()"></div>
-        <div class="text-12px text-gray-500">部分设置需要重启服务后生效</div>
+        <div class="text-12px text-gray-400">部分设置需要重启服务后生效</div>
       </div>
     </div>
   </Modal>

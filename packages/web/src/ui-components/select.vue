@@ -18,7 +18,7 @@
         :key="option.value"
         :class="
           [
-            'overflow-hidden text-ellipsis whitespace-nowrap px-6 py-4 hover:bg-gray-100',
+            'has-hover:hover:bg-gray-100 overflow-hidden text-ellipsis whitespace-nowrap px-6 py-4',
             getCheckedClass(option.value),
           ].join(' ')
         "

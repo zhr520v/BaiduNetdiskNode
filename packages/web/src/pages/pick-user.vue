@@ -6,7 +6,7 @@
       <div
         v-for="user in users"
         :key="user.id"
-        class="rounded-4 flex max-w-[160px] cursor-pointer flex-col items-center justify-center p-16 hover:bg-white/[.3]"
+        class="rounded-4 has-hover:hover:bg-white/[.3] flex max-w-[160px] cursor-pointer flex-col items-center justify-center p-16"
         @click="handleClick(user.id)"
       >
         <img
@@ -19,7 +19,7 @@
       </div>
 
       <div
-        class="rounded-4 flex max-w-[160px] cursor-pointer flex-col items-center justify-center p-16 hover:bg-white/[.3]"
+        class="rounded-4 has-hover:hover:bg-white/[.3] flex max-w-[160px] cursor-pointer flex-col items-center justify-center p-16"
         @click="handleNewClick"
       >
         <i

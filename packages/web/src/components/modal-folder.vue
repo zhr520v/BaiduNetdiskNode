@@ -21,7 +21,7 @@
         <IconButton
           size="large"
           icon-class="icon-folder"
-          class="text-yellow-400"
+          class="text-yellow-500"
           @click="chooseLocalFolderDialogVisible = true"
         ></IconButton>
       </div>
@@ -125,7 +125,7 @@
 
             <IconButton
               icon-class="icon-add"
-              class="ml-4 text-gray-600"
+              class="ml-4"
               @click="onStartPlusClick"
             ></IconButton>
           </div>
@@ -168,7 +168,7 @@
 
             <IconButton
               icon-class="icon-add"
-              class="ml-4 text-gray-600"
+              class="ml-4"
               @click="onStopPlusClick"
             ></IconButton>
           </div>

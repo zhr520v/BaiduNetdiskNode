@@ -4,7 +4,7 @@
       class="mx-auto mb-16 border-gray-200"
       :class="config.isMobile ? 'max-w-full border-b' : 'max-w-[1280px] border'"
     >
-      <div class="flex items-center bg-gray-700 p-8 text-white">自定义任务</div>
+      <div class="flex items-center bg-gray-800 p-8 text-white">自定义任务</div>
 
       <div class="flex flex-col gap-8 p-8">
         <div
@@ -23,15 +23,17 @@
           v-if="info.downloadQueue"
           class="flex items-center gap-8"
         >
-          <div
-            v-if="info.downloadQueue"
-            class="rounded-3 flex items-center bg-gray-100 px-4 py-1"
-          >
-            <i class="iconfont icon-download text-20 text-blue-600"></i>
-            <span class="flex-1 pl-8 pr-4 text-center text-blue-600">
-              {{ info.downloadQueue }}
-            </span>
-          </div>
+          <Tooltip v-if="info.downloadQueue">
+            <template #trigger>
+              <div class="rounded-3 flex items-center bg-gray-100 px-4 py-1">
+                <i class="iconfont icon-download text-20"></i>
+                <span class="flex-1 pl-8 pr-4 text-center">
+                  {{ info.downloadQueue }}
+                </span>
+              </div>
+            </template>
+            <div>下载队列: {{ info.downloadQueue }}</div>
+          </Tooltip>
         </div>
 
         <div
@@ -50,6 +52,7 @@ import { httpDiskTasks } from '@src/common/api'
 import { config } from '@src/common/config'
 import WidgetTask from '@src/components/widget-task.vue'
 import Message from '@src/ui-components/message'
+import Tooltip from '@src/ui-components/tooltip.vue'
 import { type IHttpDiskTasksRes } from 'baidu-netdisk-srv/types'
 import { onMounted, onUnmounted, ref } from 'vue'
 

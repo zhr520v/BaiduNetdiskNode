@@ -11,137 +11,127 @@
           class="mb-16 border-gray-200"
           :class="config.isMobile ? 'border-b' : 'border'"
         >
-          <div class="flex items-center justify-between bg-gray-700 p-8 text-white">
+          <div class="flex items-center justify-between bg-gray-800 p-8">
             <div class="flex items-center gap-16">
-              <div>目录</div>
+              <div class="text-white">目录</div>
               <Tooltip>
                 <template #trigger>
                   <i
-                    v-if="folder.encrypt"
-                    class="iconfont icon-lock text-20 text-green-400"
-                  ></i>
-                  <i
-                    v-else
-                    class="iconfont icon-nolock text-20 text-red-400"
+                    class="iconfont text-20"
+                    :class="
+                      folder.encrypt ? 'icon-lock text-green-400' : 'icon-nolock text-red-400'
+                    "
                   ></i>
                 </template>
-                <div class="text-gray-600">
-                  <span>加密状态:&nbsp;</span>
-                  <span class="text-yellow-700">{{ folder.encrypt ? '加密' : '未加密' }}</span>
-                </div>
+                <div>加密状态: {{ folder.encrypt ? '加密' : '未加密' }}</div>
               </Tooltip>
               <Tooltip>
                 <template #trigger>
                   <i
                     class="iconfont icon-timerstart text-20"
-                    :class="folder.trigger.starts.length ? 'text-blue-400' : 'text-gray-500'"
+                    :class="folder.trigger.starts.length ? 'text-blue-400' : 'text-gray-400'"
                   ></i>
                 </template>
-                <div class="text-gray-600">
-                  <span>下次启动时间:&nbsp;</span>
-                  <span class="text-yellow-700">{{ getNextTime(folder.trigger.starts) }}</span>
-                </div>
+                <div>下次启动时间: {{ getNextTime(folder.trigger.starts) }}</div>
               </Tooltip>
               <Tooltip>
                 <template #trigger>
                   <i
                     class="iconfont icon-timerstop text-20"
-                    :class="folder.trigger.stops.length ? 'text-orange-400' : 'text-gray-500'"
+                    :class="folder.trigger.stops.length ? 'text-orange-400' : 'text-gray-400'"
                   ></i>
                 </template>
-                <div class="text-gray-600">
-                  <span>下次停止时间:&nbsp;</span>
-                  <span class="text-yellow-700">{{ getNextTime(folder.trigger.stops) }}</span>
-                </div>
+                <div>下次停止时间: {{ getNextTime(folder.trigger.stops) }}</div>
               </Tooltip>
             </div>
 
             <div class="flex items-center gap-8">
               <div
                 v-if="folder.checking"
-                class="loader h-28 w-28 text-white"
+                class="loader h-28 w-28"
               ></div>
               <IconButton
                 v-else
                 icon-class="icon-manual"
+                class="text-white"
                 @click="manualCheck(folder.id)"
               ></IconButton>
               <IconButton
                 icon-class="icon-edit"
+                class="text-white"
                 @click="modFolderId = folder.id"
               ></IconButton>
               <IconButton
                 icon-class="icon-close"
+                class="text-white"
                 @click="onDeleteClick(folder.id)"
               ></IconButton>
             </div>
           </div>
 
           <div class="flex flex-col gap-8 p-8">
-            <div class="text-gray-700">
-              <div v-if="config.isMobile">
-                <div class="flex items-center">
-                  <div class="flex flex-col items-center justify-start">
-                    <i
-                      v-if="folder.direction === 1"
-                      class="iconfont icon-arrow-up-long font-bold text-orange-600"
-                    ></i>
-                    <i
-                      v-if="folder.direction === 2"
-                      class="iconfont icon-arrow-up-long rotate-180 font-bold text-blue-600"
-                    ></i>
-                    <i
-                      v-if="folder.direction === 3"
-                      class="iconfont icon-arrow-up-down left-orange-right-blue font-bold"
-                    ></i>
-                  </div>
-                  <div class="flex-1">
-                    <div class="flex items-center">
-                      <i class="iconfont icon-cloud text-24"></i>
-                      <div class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                        {{ folder.remote }}
-                      </div>
+            <div v-if="config.isMobile">
+              <div class="flex items-center">
+                <div class="flex flex-col items-center justify-start">
+                  <i
+                    v-if="folder.direction === 1"
+                    class="iconfont icon-arrow-up-long font-bold text-orange-600"
+                  ></i>
+                  <i
+                    v-if="folder.direction === 2"
+                    class="iconfont icon-arrow-up-long rotate-180 font-bold text-blue-600"
+                  ></i>
+                  <i
+                    v-if="folder.direction === 3"
+                    class="iconfont icon-arrow-up-down left-orange-right-blue font-bold"
+                  ></i>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center">
+                    <i class="iconfont icon-cloud text-24"></i>
+                    <div class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                      {{ folder.remote }}
                     </div>
-                    <div class="flex items-center">
-                      <i class="iconfont icon-computer text-24"></i>
-                      <div class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                        {{ folder.local }}
-                      </div>
+                  </div>
+                  <div class="flex items-center">
+                    <i class="iconfont icon-computer text-24"></i>
+                    <div class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                      {{ folder.local }}
                     </div>
                   </div>
                 </div>
               </div>
-              <div
-                v-else
-                class="flex items-center"
-              >
-                <div class="flex flex-1 items-center justify-end">
-                  <div
-                    class="mr-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-right"
-                  >
-                    {{ folder.local }}
-                  </div>
-                  <i class="iconfont icon-computer text-24"></i>
+            </div>
+            <div
+              v-else
+              class="flex items-center"
+            >
+              <div class="flex flex-1 items-center justify-end">
+                <div
+                  class="mr-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-right"
+                >
+                  {{ folder.local }}
                 </div>
-                <div class="mx-8 flex items-center">
-                  <i
-                    v-if="folder.direction === 1"
-                    class="iconfont icon-arrow-up-long rotate-90 font-bold text-orange-600"
-                  ></i>
-                  <i
-                    v-if="folder.direction === 2"
-                    class="iconfont icon-arrow-up-long -rotate-90 font-bold text-blue-600"
-                  ></i>
-                  <i
-                    v-if="folder.direction === 3"
-                    class="iconfont icon-arrow-up-down left-orange-right-blue rotate-90 font-bold"
-                  ></i>
-                </div>
-                <div class="flex flex-1 items-center">
-                  <i class="iconfont icon-cloud text-24"></i>
-                  <div class="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                    {{ folder.remote }}
-                  </div>
+                <i class="iconfont icon-computer text-24"></i>
+              </div>
+              <div class="mx-8 flex items-center">
+                <i
+                  v-if="folder.direction === 1"
+                  class="iconfont icon-arrow-up-long rotate-90 font-bold text-orange-600"
+                ></i>
+                <i
+                  v-if="folder.direction === 2"
+                  class="iconfont icon-arrow-up-long -rotate-90 font-bold text-blue-600"
+                ></i>
+                <i
+                  v-if="folder.direction === 3"
+                  class="iconfont icon-arrow-up-down left-orange-right-blue rotate-90 font-bold"
+                ></i>
+              </div>
+              <div class="flex flex-1 items-center">
+                <i class="iconfont icon-cloud text-24"></i>
+                <div class="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                  {{ folder.remote }}
                 </div>
               </div>
             </div>
@@ -177,10 +167,7 @@
                     </span>
                   </div>
                 </template>
-                <div class="text-gray-600">
-                  <span>上传队列:&nbsp;</span>
-                  <span class="text-yellow-700">{{ folder.uploadQueue }}</span>
-                </div>
+                <div>上传队列: {{ folder.uploadQueue }}</div>
               </Tooltip>
 
               <Tooltip v-if="folder.downloadQueue">
@@ -192,10 +179,7 @@
                     </span>
                   </div>
                 </template>
-                <div class="text-gray-600">
-                  <span>下载队列:&nbsp;</span>
-                  <span class="text-yellow-700">{{ folder.downloadQueue }}</span>
-                </div>
+                <div>下载队列: {{ folder.downloadQueue }}</div>
               </Tooltip>
             </div>
 

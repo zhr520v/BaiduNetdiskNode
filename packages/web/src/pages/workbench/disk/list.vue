@@ -42,7 +42,7 @@
             <div
               v-for="(item, i) in paths"
               :key="i"
-              class="has-hover:hover:text-blue-700 cursor-pointer"
+              class="has-hover:hover:text-blue-600 cursor-pointer"
               @click="paths = paths.slice(0, i + 1)"
             >
               <span>{{ item.name }}</span>
@@ -67,7 +67,7 @@
         v-if="firstLoading"
         class="flex flex-1 items-center justify-center"
       >
-        <div class="loader h-[96px] w-[96px] text-orange-600"></div>
+        <div class="loader h-[96px] w-[96px]"></div>
       </div>
 
       <div
@@ -151,7 +151,7 @@
       >
         <div
           v-if="moreLoading"
-          class="loader h-[32px] w-[32px] text-orange-600"
+          class="loader h-[32px] w-[32px]"
         ></div>
         <div
           v-else

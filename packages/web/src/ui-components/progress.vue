@@ -1,7 +1,7 @@
 <template>
   <div class="rounded-8 h-8 w-full bg-gray-200">
     <div
-      class="rounded-8 h-8 w-full bg-blue-600 transition duration-200 ease-in-out"
+      class="rounded-8 h-8 w-full bg-gray-800 transition duration-200 ease-in-out"
       :style="{ width: `${props.percentage}%` }"
     ></div>
   </div>

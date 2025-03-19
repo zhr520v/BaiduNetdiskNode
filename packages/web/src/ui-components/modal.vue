@@ -59,7 +59,7 @@
           v-if="props.loading || loadingThis"
           class="rounded-3 absolute bottom-0 left-0 right-0 top-0 z-[1] flex items-center justify-center bg-[rgba(255,255,255,0.5)]"
         >
-          <div class="loader h-[96px] w-[96px] text-orange-600"></div>
+          <div class="loader h-[96px] w-[96px]"></div>
         </div>
       </div>
     </div>

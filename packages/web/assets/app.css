@@ -108,6 +108,7 @@ body {
 
 .loader {
   position: relative;
+  color: rgba(170, 170, 170, 1);
 }
 
 .loader::before,

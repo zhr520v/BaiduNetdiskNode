@@ -33,7 +33,7 @@
 
         <div class="flex items-center gap-8">
           <div class="w-32 text-right"></div>
-          <div class="text-gray-500">如果文件(夹)已存在, 则重命名</div>
+          <div class="text-gray-400">如果文件(夹)已存在, 则重命名</div>
         </div>
       </div>
     </div>

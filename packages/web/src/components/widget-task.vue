@@ -19,20 +19,17 @@
         <IconButton
           v-if="props.stepStatus === EStepStatus.STOPPED"
           icon-class="icon-play"
-          class="text-green-600"
           @click="onPlayClick"
         ></IconButton>
 
         <IconButton
           v-if="props.stepStatus === EStepStatus.RUNNING"
           icon-class="icon-pause"
-          class="text-orange-600"
           @click="onPauseClick"
         ></IconButton>
 
         <IconButton
           icon-class="icon-close"
-          class="text-red-600"
           @click="onDeleteClick"
         ></IconButton>
       </div>
@@ -46,7 +43,7 @@
     <div class="flex items-center gap-8">
       <div
         v-if="props.stepStatus !== EStepStatus.STOPPED"
-        class="loader h-24 w-24 text-orange-600"
+        class="loader h-24 w-24"
       ></div>
       <div
         :class="getStatusClass()"
@@ -63,7 +60,7 @@
         </div>
         <div
           v-if="props.stepStatus === EStepStatus.STOPPED"
-          class="font-bold text-red-600"
+          class="text-red-600"
         >
           {{ props.stepErrMsg }}
         </div>
@@ -90,16 +87,8 @@ type IProps = IHttpTaskInfoItem & {
 const props = defineProps<IProps>()
 
 function getStatusClass() {
-  if (props.stepStatus === EStepStatus.RUNNING) {
-    return 'text-green-600'
-  }
-
   if (props.stepStatus === EStepStatus.STOPPED) {
     return 'text-red-600'
-  }
-
-  if (props.stepStatus === EStepStatus.FINISHED) {
-    return 'text-blue-600'
   }
 
   return ''
@@ -123,7 +112,7 @@ function getStatusText() {
   }
 
   if (props.stepStatus === EStepStatus.STOPPED) {
-    return '已停止'
+    return '已停止:'
   }
 
   if (props.stepStatus === EStepStatus.FINISHED) {

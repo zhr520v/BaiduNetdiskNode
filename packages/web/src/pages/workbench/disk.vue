@@ -10,7 +10,7 @@
           :class="[
             'rounded-4 px-8 py-4',
             $route.name === 'workbench_disk_list'
-              ? 'bg-gray-600 text-white'
+              ? 'bg-gray-800 text-white'
               : 'bg-[rgba(250,250,250,1)]',
           ]"
         >
@@ -21,7 +21,7 @@
           :class="[
             'rounded-4 px-8 py-4',
             $route.name === 'workbench_disk_tasks'
-              ? 'bg-gray-600 text-white'
+              ? 'bg-gray-800 text-white'
               : 'bg-[rgba(250,250,250,1)]',
           ]"
         >

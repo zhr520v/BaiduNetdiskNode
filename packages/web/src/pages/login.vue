@@ -28,7 +28,7 @@
     />
 
     <button
-      class="mb-[80px] w-[328px] rounded-l-full rounded-r-full bg-[#303f9f] p-8 text-white hover:bg-[#1976d2]"
+      class="has-hover:hover:bg-[#1976d2] mb-[80px] w-[328px] rounded-l-full rounded-r-full bg-[#303f9f] p-8 text-white"
       @click="onLoginClick"
     >
       登录

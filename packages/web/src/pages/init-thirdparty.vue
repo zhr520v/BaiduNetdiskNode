@@ -13,7 +13,7 @@
             使用百度网盘官方 API 需要开发者身份, 可以通过以下链接前往申请个人开发者身份。
           </div>
           <a
-            class="mb-16 block text-blue-800"
+            class="mb-16 block text-blue-600"
             href="https://pan.baidu.com/union/home"
             target="_blank"
           >
@@ -27,7 +27,7 @@
             使用默认服务器地址时, AppName 为 BaiduSync, 即远程可上传文件夹为 /apps/BaiduSync。
           </div>
 
-          <div class="text-16 mb-4 font-bold text-gray-800">远程认证服务器地址:</div>
+          <div class="text-16 mb-4 font-bold">远程认证服务器地址:</div>
           <input
             key="input_secret_key"
             v-model="remoteUrl"
@@ -44,17 +44,15 @@
         </div>
 
         <div v-if="currStep === 1">
-          <div class="text-16 text-gray-800">
-            点击以下链接, 登录百度网盘, 授权完成后得到授权码
-          </div>
+          <div class="text-16">点击以下链接, 登录百度网盘, 授权完成后得到授权码</div>
           <a
-            class="text-16 text-blue-800"
+            class="text-16 text-blue-600"
             :href="getCodeUrl()"
             target="_blank"
           >
             前往百度网盘官方授权
           </a>
-          <div class="text-16 mb-4 mt-24 font-bold text-gray-800">授权码</div>
+          <div class="text-16 mb-4 mt-24 font-bold">授权码</div>
           <input
             key="input_auth_code"
             v-model="authCode"
@@ -93,7 +91,7 @@
         v-if="loading"
         class="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-[rgba(255,255,255,0.3)]"
       >
-        <div class="loader h-[96px] w-[96px] text-orange-600"></div>
+        <div class="loader h-[96px] w-[96px]"></div>
       </div>
     </div>
 

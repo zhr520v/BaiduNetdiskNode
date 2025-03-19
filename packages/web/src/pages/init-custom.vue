@@ -9,10 +9,10 @@
       <div class="text-20 m-16 font-bold">{{ steps[currStep] }}</div>
       <div class="px-16">
         <div v-if="currStep === 0">
-          <div class="text-16 mb-16 text-gray-800">
+          <div class="text-16 mb-16">
             填写你在
             <a
-              class="pl-4 text-blue-800"
+              class="pl-4 text-blue-600"
               href="https://pan.baidu.com/union/console/applist"
               target="_blank"
             >
@@ -20,28 +20,28 @@
             </a>
             中的软件信息
           </div>
-          <div class="mb-4 text-lg font-bold text-gray-800">AppName</div>
+          <div class="mb-4 text-lg font-bold">AppName</div>
           <input
             key="input_app_name"
             v-model="appName"
             name="app_name"
             class="rounded-3 text-16 mb-24 w-full p-8 indent-4 outline-none"
           />
-          <div class="text-16 mb-4 font-bold text-gray-800">AppID</div>
+          <div class="text-16 mb-4 font-bold">AppID</div>
           <input
             key="input_app_id"
             v-model="appId"
             name="app_id"
             class="rounded-3 text-16 mb-24 w-full p-8 indent-4 outline-none"
           />
-          <div class="text-16 mb-4 font-bold text-gray-800">AppKey</div>
+          <div class="text-16 mb-4 font-bold">AppKey</div>
           <input
             key="input_app_key"
             v-model="appKey"
             name="app_key"
             class="rounded-3 text-16 mb-24 w-full p-8 indent-4 outline-none"
           />
-          <div class="text-16 mb-4 font-bold text-gray-800">SecretKey</div>
+          <div class="text-16 mb-4 font-bold">SecretKey</div>
           <input
             key="input_secret_key"
             v-model="secretKey"
@@ -51,17 +51,15 @@
         </div>
 
         <div v-if="currStep === 1">
-          <div class="text-16 text-gray-800">
-            点击以下链接, 登录百度网盘, 授权完成后得到授权码
-          </div>
+          <div class="text-16">点击以下链接, 登录百度网盘, 授权完成后得到授权码</div>
           <a
-            class="text-16 text-blue-800"
+            class="text-16 text-blue-600"
             :href="getCodeUrl()"
             target="_blank"
           >
             前往百度网盘官方授权
           </a>
-          <div class="text-16 mb-4 mt-24 font-bold text-gray-800">授权码</div>
+          <div class="text-16 mb-4 mt-24 font-bold">授权码</div>
           <input
             key="input_auth_code"
             v-model="authCode"

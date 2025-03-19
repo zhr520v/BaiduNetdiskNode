@@ -25,7 +25,7 @@
               'flex items-center justify-start p-8',
               (formattedPath + '/' + folder).replace(/^\/\//, '/') === selectedPath
                 ? 'bg-gray-200'
-                : 'cursor-pointer hover:bg-gray-100',
+                : 'has-hover:hover:bg-gray-100 cursor-pointer',
             ].join(' ')
           "
           @click="handleFolderClick(folder)"

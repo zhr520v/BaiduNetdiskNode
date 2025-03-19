@@ -13,7 +13,7 @@
                 :class="[
                   'rounded-4 px-8 py-4',
                   isCurrentPath('/workbench/sync')
-                    ? 'bg-gray-700 font-medium text-white'
+                    ? 'bg-gray-800 text-white'
                     : 'bg-[rgba(250,250,250,1)]',
                 ]"
               >
@@ -24,7 +24,7 @@
                 :class="[
                   'rounded-4 px-8 py-4',
                   isCurrentPath('/workbench/disk')
-                    ? 'bg-gray-700 font-medium text-white'
+                    ? 'bg-gray-800 text-white'
                     : 'bg-[rgba(250,250,250,1)]',
                 ]"
               >
@@ -38,7 +38,7 @@
               >
                 <template #trigger>
                   <div
-                    class="rounded-4 flex cursor-pointer items-center justify-center px-8 py-4 hover:bg-gray-100"
+                    class="rounded-4 has-hover:hover:bg-gray-100 flex cursor-pointer items-center justify-center px-8 py-4"
                   >
                     <img
                       class="mr-8 h-24 w-24 rounded-full"
