@@ -1,5 +1,5 @@
 <template>
-  <div class="common-shadow z-[1] mb-8 p-8">
+  <div class="z-[1] border border-gray-200 p-8">
     <div class="direction mb-8 flex items-center">
       <i
         v-if="type === 'upload'"
@@ -46,7 +46,7 @@
     <div class="flex items-center gap-8">
       <div
         v-if="props.stepStatus !== EStepStatus.STOPPED"
-        class="loader w-16 border-[3px] border-[#66AA66]"
+        class="loader h-24 w-24 text-orange-600"
       ></div>
       <div
         :class="getStatusClass()"
@@ -80,10 +80,10 @@ import IconButton from '@src/ui-components/icon-button.vue'
 import Message from '@src/ui-components/message'
 import Progress from '@src/ui-components/progress.vue'
 import { EDownloadSteps, EStepStatus, EUploadSteps } from 'baidu-netdisk-sdk/types'
-import { type IHttpFoldersInfoItem } from 'baidu-netdisk-srv/types'
+import { type IHttpTaskInfoItem } from 'baidu-netdisk-srv/types'
 import { computed } from 'vue'
 
-type IProps = IHttpFoldersInfoItem & {
+type IProps = IHttpTaskInfoItem & {
   type: 'upload' | 'download'
 }
 

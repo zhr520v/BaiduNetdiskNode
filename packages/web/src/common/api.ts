@@ -2,12 +2,16 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import {
   type IHttpActTaskReq,
   type IHttpAddFolderReq,
+  type IHttpAddManualDownloadReq,
   type IHttpAddUserReq,
   type IHttpBasicReq,
   type IHttpBasicRes,
   type IHttpConfigRes,
   type IHttpDelFolderReq,
   type IHttpDelUserReq,
+  type IHttpDiskListReq,
+  type IHttpDiskListRes,
+  type IHttpDiskTasksRes,
   type IHttpFolderReq,
   type IHttpFolderRes,
   type IHttpFoldersInfoRes,
@@ -71,6 +75,16 @@ export async function httpAddFolder(inData: IHttpAddFolderReq) {
   return data
 }
 
+export async function httpAddManualDownload(inData: IHttpAddManualDownloadReq) {
+  const { data } = await request({
+    url: '/api/add-manual-download',
+    method: 'POST',
+    data: inData,
+  })
+
+  return data
+}
+
 export async function httpAddUser(inData: IHttpAddUserReq) {
   const { data } = await request({
     url: '/api/add-user',
@@ -115,6 +129,25 @@ export async function httpDelUser(inData: IHttpDelUserReq) {
     url: '/api/del-user',
     method: 'POST',
     data: inData,
+  })
+
+  return data
+}
+
+export async function httpDiskList(inData: IHttpDiskListReq) {
+  const { data } = await request<IHttpDiskListRes>({
+    url: '/api/disk-list',
+    method: 'POST',
+    data: inData,
+  })
+
+  return data
+}
+
+export async function httpDiskTasks() {
+  const { data } = await request<IHttpDiskTasksRes>({
+    url: '/api/disk-tasks',
+    method: 'POST',
   })
 
   return data
@@ -198,16 +231,6 @@ export async function httpModFolder(inData: IHttpModFolderReq) {
   return data
 }
 
-export async function httpUsers(inData?: IHttpUsersReq) {
-  const { data } = await request<IHttpUsersRes>({
-    url: '/api/users',
-    method: 'POST',
-    data: inData,
-  })
-
-  return data
-}
-
 export async function httpProxyAuth(inData: IHttpProxyAuthReq) {
   const { data } = await request({
     url: '/api/proxy-auth',
@@ -221,6 +244,16 @@ export async function httpProxyAuth(inData: IHttpProxyAuthReq) {
 export async function httpProxyInfo(inData: IHttpProxyInfoReq) {
   const { data } = await request<IHttpProxyInfoRes>({
     url: '/api/proxy-info',
+    method: 'POST',
+    data: inData,
+  })
+
+  return data
+}
+
+export async function httpUsers(inData?: IHttpUsersReq) {
+  const { data } = await request<IHttpUsersRes>({
+    url: '/api/users',
     method: 'POST',
     data: inData,
   })

@@ -18,6 +18,7 @@ export interface IProjConfig {
   noVerifyUpload: boolean
   noVerifyDownload: boolean
   noVerifyDownloadOnDisk: boolean
+  downloadLocation: string
   users: IUserConfig[]
 }
 
@@ -50,6 +51,7 @@ const defaultConfig: IProjConfig = {
   noVerifyUpload: false,
   noVerifyDownload: false,
   noVerifyDownloadOnDisk: false,
+  downloadLocation: '/bddownloads',
   users: [],
 }
 
@@ -66,7 +68,7 @@ const userConfig = {
     ...u,
     folders: (u.folders || []).map(f => ({
       ...{
-        // 版本更新添加的属性
+        // 版本更新添加的文件夹属性
         operation: 1,
         excludes: [],
       },

@@ -17,6 +17,12 @@ export interface IHttpActTaskReq {
 
 export type IHttpAddFolderReq = Omit<IFolder, 'id'>
 
+export interface IHttpAddManualDownloadReq {
+  fsid?: number
+  remote: string
+  encrypt: string
+}
+
 export type IHttpAddUserReq = Pick<
   IUserConfig,
   'app_id' | 'app_key' | 'app_name' | 'secret_key'
@@ -42,6 +48,7 @@ export interface IHttpConfigRes {
   noVerifyUpload: boolean
   noVerifyDownload: boolean
   noVerifyDownloadOnDisk: boolean
+  downloadLocation: string
   username: string
   password: string
   port: number
@@ -56,13 +63,7 @@ export interface IHttpDelUserReq {
   id: string
 }
 
-export interface IHttpFolderReq {
-  id: string
-}
-
-export type IHttpFolderRes = IFolder
-
-export interface IHttpFoldersInfoItem {
+export interface IHttpTaskInfoItem {
   id: string
   local: string
   remote: string
@@ -75,13 +76,45 @@ export interface IHttpFoldersInfoItem {
   stepErrMsg: string
 }
 
+export interface IHttpDiskListReq {
+  path: string
+  page?: number
+  force?: number
+  fOnly?: boolean
+}
+
+export interface IHttpDiskListItem {
+  fs_id: number
+  isdir: number
+  ctime: number
+  mtime: number
+  path: string
+  size: number
+}
+
+export interface IHttpDiskListRes {
+  list: IHttpDiskListItem[]
+  isEnd: boolean
+}
+
+export interface IHttpDiskTasksRes {
+  downloadQueue: number
+  downloadTasks: IHttpTaskInfoItem[]
+}
+
+export interface IHttpFolderReq {
+  id: string
+}
+
+export type IHttpFolderRes = IFolder
+
 export interface IHttpFoldersInfoRes {
   folders: (IFolder & {
     checking: boolean
     uploadQueue: number
     downloadQueue: number
-    uploadTasks: IHttpFoldersInfoItem[]
-    downloadTasks: IHttpFoldersInfoItem[]
+    uploadTasks: IHttpTaskInfoItem[]
+    downloadTasks: IHttpTaskInfoItem[]
   })[]
 }
 
@@ -113,6 +146,7 @@ export interface IHttpModConfigReq {
   noVerifyUpload: boolean
   noVerifyDownload: boolean
   noVerifyDownloadOnDisk: boolean
+  downloadLocation: string
   username: string
   password: string
   port: number

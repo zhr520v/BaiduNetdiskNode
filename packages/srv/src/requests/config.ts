@@ -13,6 +13,7 @@ export default async (ctx: IContext<IHttpConfigRes>) => {
     noVerifyUpload: config.get('noVerifyUpload', true),
     noVerifyDownload: config.get('noVerifyDownload', true),
     noVerifyDownloadOnDisk: config.get('noVerifyDownloadOnDisk', true),
+    downloadLocation: config.get('downloadLocation', true),
     username: config.get('username', true),
     password: config.get('password', true),
     port: config.get('port', true),

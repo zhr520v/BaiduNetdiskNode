@@ -3,6 +3,7 @@ import { type Netdisk } from 'baidu-netdisk-sdk'
 import { config } from '../main/config.js'
 import { FolderManager, type IFolder } from './folder-manager.js'
 import { errorLog } from './log.js'
+import { ManualManager } from './manual-manager.js'
 import { nanoid, pathNormalized, pick, type PromType } from './utils.js'
 
 export type IFetchListItem = Pick<
@@ -17,6 +18,7 @@ export type IFetchListQueueItem = {
 }
 
 export class UserManager {
+  #manualMgr: ManualManager
   #folderMgrs: FolderManager[] = []
 
   #netdisk: Netdisk
@@ -50,6 +52,7 @@ export class UserManager {
 
   constructor(inOpts: { netdisk: Netdisk }) {
     this.#netdisk = inOpts.netdisk
+    this.#manualMgr = new ManualManager({ userMgr: this })
   }
 
   addFolder(inFolder: IFolder) {
@@ -354,6 +357,42 @@ export class UserManager {
       return
     }
 
+    const manualNext = this.#manualMgr.shiftDownloadQueue()
+
+    if (manualNext) {
+      const taskId = nanoid()
+
+      const task = this.#netdisk.downloadTask({
+        withFsid: manualNext.fsid,
+        local: manualNext.local,
+        encrypt: manualNext.encrypt,
+        noVerify: config.get('noVerifyDownload'),
+        noVerifyOnDisk: config.get('noVerifyDownloadOnDisk'),
+        onDone: () => {
+          this.#downloadTasks = this.#downloadTasks.filter(item => item.taskId !== taskId)
+          this.runDownloadQueue()
+        },
+        onError: inErr => {
+          errorLog(`下载任务失败: ${manualNext.fsid} -> ${manualNext.local}, ${inErr.message}`)
+          this.runDownloadQueue()
+        },
+      })
+
+      this.#downloadTasks.push({
+        taskId: taskId,
+        folderId: 'MANUAL_DOWNLOAD',
+        entity: task,
+        fsid: manualNext.fsid,
+        local: manualNext.local,
+      })
+
+      task.run()
+
+      this.runDownloadQueue()
+
+      return
+    }
+
     for (const folderMgr of this.#folderMgrs) {
       const next = folderMgr.shiftDownloadQueue()
 
@@ -402,6 +441,30 @@ export class UserManager {
 
   getDownloadTasks() {
     return this.#downloadTasks
+  }
+
+  manualInfo() {
+    return {
+      downloadQueue: this.#manualMgr.getDownloadQueue().length,
+      downloadTasks: this.#downloadTasks
+        .filter(i => i.folderId === 'MANUAL_DOWNLOAD')
+        .map(i => {
+          const info = i.entity.info
+
+          return {
+            id: i.taskId,
+            local: info.local,
+            remote: info.remote,
+            oriSize: info.oriSize,
+            comSize: info.comSize,
+            upBytes: 0,
+            downBytes: info.downBytes,
+            stepId: info.stepId,
+            stepStatus: info.stepStatus,
+            stepErrMsg: info.stepError?.message || '',
+          }
+        }),
+    }
   }
 
   foldersInfo() {
@@ -477,5 +540,9 @@ export class UserManager {
 
   get netdisk() {
     return this.#netdisk
+  }
+
+  get manualMgr() {
+    return this.#manualMgr
   }
 }

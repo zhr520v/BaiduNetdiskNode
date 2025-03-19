@@ -8,6 +8,10 @@ import PageInitThirdparty from '@src/pages/init-thirdparty.vue'
 import PageLogin from '@src/pages/login.vue'
 import PagePickUser from '@src/pages/pick-user.vue'
 import PageWorkbench from '@src/pages/workbench.vue'
+import PageWorkbenchDisk from '@src/pages/workbench/disk.vue'
+import PageWorkbenchDiskList from '@src/pages/workbench/disk/list.vue'
+import PageWorkbenchDiskTasks from '@src/pages/workbench/disk/tasks.vue'
+import PageWorkbenchSync from '@src/pages/workbench/sync.vue'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -37,9 +41,40 @@ const router = createRouter({
       component: PagePickUser,
     },
     {
-      path: '/',
+      path: '/workbench',
       name: 'workbench',
       component: PageWorkbench,
+      redirect: { name: 'workbench_disk' },
+      children: [
+        {
+          path: 'sync',
+          name: 'workbench_sync',
+          component: PageWorkbenchSync,
+        },
+        {
+          path: 'disk',
+          name: 'workbench_disk',
+          component: PageWorkbenchDisk,
+          redirect: { name: 'workbench_disk_list' },
+          children: [
+            {
+              path: 'list',
+              name: 'workbench_disk_list',
+              component: PageWorkbenchDiskList,
+            },
+            {
+              path: 'tasks',
+              name: 'workbench_disk_tasks',
+              component: PageWorkbenchDiskTasks,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: '/',
+      name: 'root',
+      redirect: { name: 'workbench' },
     },
   ],
 })

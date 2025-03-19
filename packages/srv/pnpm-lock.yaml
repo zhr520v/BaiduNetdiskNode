@@ -32,6 +32,9 @@ importers:
       koa-static:
         specifier: ^5.0.0
         version: 5.0.0
+      lru-cache:
+        specifier: ^11.0.2
+        version: 11.0.2
       micromatch:
         specifier: ^4.0.8
         version: 4.0.8
@@ -416,6 +419,10 @@ packages:
 
   long-timeout@0.1.1:
     resolution: {integrity: sha512-BFRuQUqc7x2NWxfJBCyUrN8iYUYznzL9JROmRz1gZ6KlOIgmoD+njPVbb+VNn2nGMKggMsK79iUNErillsrx7w==}
+
+  lru-cache@11.0.2:
+    resolution: {integrity: sha512-123qHRfJBmo2jXDbo/a5YOQrJoHF/GNQTLzQ5+IdK5pWpceK17yRc6ozlWd25FxvGKQbIUs91fDFkXmDHTKcyA==}
+    engines: {node: 20 || >=22}
 
   luxon@3.5.0:
     resolution: {integrity: sha512-rh+Zjr6DNfUYR3bPwJEnuwDdqMbxZW7LOQfUN4B54+Cl+0o5zaU9RJ6bcidfDtC1cWCZXQ+nvX8bf6bAji37QQ==}
@@ -988,6 +995,8 @@ snapshots:
   lodash.once@4.1.1: {}
 
   long-timeout@0.1.1: {}
+
+  lru-cache@11.0.2: {}
 
   luxon@3.5.0: {}
 

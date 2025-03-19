@@ -148,6 +148,20 @@
         ></Select>
       </div>
       <div :class="getFormItemClass()">
+        <div :class="getFormItemLabelClass()">
+          <div>下载保存位置</div>
+          <Tooltip type="question">
+            <div>下载文件保存路径 (服务器路径)</div>
+          </Tooltip>
+        </div>
+        <div class="flex-1">
+          <Input
+            v-model:value="globalConfig.downloadLocation"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div :class="getFormItemClass()">
         <div :class="getFormItemLabelClass()">用户名</div>
         <div class="flex-1">
           <Input
@@ -185,7 +199,8 @@
           />
         </div>
       </div>
-      <div class="mt-8">
+      <div :class="getFormItemClass()">
+        <div :class="getFormItemLabelClass()"></div>
         <div class="text-12px text-gray-500">部分设置需要重启服务后生效</div>
       </div>
     </div>
@@ -222,6 +237,7 @@ const globalConfig = ref<IHttpConfigRes>({
   noVerifyUpload: false,
   noVerifyDownload: false,
   noVerifyDownloadOnDisk: false,
+  downloadLocation: '',
   username: '',
   password: '',
   port: 0,

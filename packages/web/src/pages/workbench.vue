@@ -1,20 +1,36 @@
 <template>
-  <div>
-    <div class="fixed left-0 right-0 top-0 z-[999] flex bg-white shadow">
+  <div class="flex h-full w-full flex-col">
+    <div class="shadow-light flex bg-white">
       <div class="mx-auto flex max-w-[1280px] flex-1">
         <div class="flex h-48 flex-1 items-center">
-          <div
-            :class="
-              [
-                'flow-bg flex items-center bg-clip-text text-[24px] font-bold text-transparent',
-                config.isMobile ? 'px-8' : '',
-              ].join(' ')
-            "
-            style="font-family: logo"
-          >
-            BAIDU SYNC
-          </div>
           <div class="flex flex-1 items-center gap-8">
+            <div
+              class="flex gap-16"
+              :class="config.isMobile ? 'ml-8' : ''"
+            >
+              <router-link
+                :to="`/workbench/sync${currentSearchParams}`"
+                :class="[
+                  'rounded-4 px-8 py-4',
+                  isCurrentPath('/workbench/sync')
+                    ? 'bg-gray-700 font-medium text-white'
+                    : 'bg-[rgba(250,250,250,1)]',
+                ]"
+              >
+                同步
+              </router-link>
+              <router-link
+                :to="`/workbench/disk${currentSearchParams}`"
+                :class="[
+                  'rounded-4 px-8 py-4',
+                  isCurrentPath('/workbench/disk')
+                    ? 'bg-gray-700 font-medium text-white'
+                    : 'bg-[rgba(250,250,250,1)]',
+                ]"
+              >
+                网盘
+              </router-link>
+            </div>
             <div class="flex flex-1 items-center justify-end">
               <Popover
                 position="BR"
@@ -79,7 +95,7 @@
                 <IconButton icon-class="icon-options"></IconButton>
               </template>
 
-              <div class="common-shadow flex flex-col bg-white">
+              <div class="flex flex-col bg-white">
                 <Button
                   type="transparent"
                   size="small"
@@ -115,13 +131,7 @@
       </div>
     </div>
 
-    <div
-      :class="
-        ['mx-auto mt-[64px]', config.isMobile ? 'max-w-full' : 'max-w-[1280px]'].join(' ')
-      "
-    >
-      <BlockFolders :app-name="user.app_name" />
-    </div>
+    <router-view></router-view>
 
     <ModalModConfig
       v-if="modConfigDialogVisible"
@@ -146,7 +156,6 @@
 <script setup lang="ts">
 import { httpDelUser, httpLogout, httpUsers } from '@src/common/api'
 import { config } from '@src/common/config'
-import BlockFolders from '@src/components/block-folders.vue'
 import ModalAbout from '@src/components/modal-about.vue'
 import ModalFolder from '@src/components/modal-folder.vue'
 import ModalModConfig from '@src/components/modal-mod-config.vue'
@@ -157,7 +166,7 @@ import Message from '@src/ui-components/message'
 import Popover from '@src/ui-components/popover.vue'
 import Progress from '@src/ui-components/progress.vue'
 import { type IHttpUsersRes } from 'baidu-netdisk-srv/types'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const __USER_INIT__: IHttpUsersRes['users'][number] = {
   id: '',
@@ -179,6 +188,14 @@ const user = ref<IHttpUsersRes['users'][number]>(__USER_INIT__)
 const modConfigDialogVisible = ref(false)
 const aboutDialogVisible = ref(false)
 const folderDialogVisible = ref(false)
+
+const currentSearchParams = computed(() => {
+  return window.location.search || ''
+})
+
+const isCurrentPath = (path: string) => {
+  return window.location.pathname.startsWith(path)
+}
 
 onMounted(() => {
   watchHtml()

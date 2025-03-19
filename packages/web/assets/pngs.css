@@ -2,6 +2,10 @@
   background-image: url('@assets/pngs/exe.png');
 }
 
+.png-folder {
+  background-image: url('@assets/pngs/folder.png');
+}
+
 .png-music {
   background-image: url('@assets/pngs/music.png');
 }
