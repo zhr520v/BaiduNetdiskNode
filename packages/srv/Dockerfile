@@ -1,4 +1,4 @@
-FROM node:20.18.1-alpine
+FROM node:22.18.0-alpine
 
 ARG NPM_REGISTRY=https://registry.npmjs.org
 
@@ -11,7 +11,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/re
     echo 'if [ -n "$TZ" ]; then' >> /etc/profile && \
     echo '  export TZ=$TZ' >> /etc/profile && \
     echo "fi" >> /etc/profile && \
-    npm install -g pnpm@^9 --registry=$NPM_REGISTRY && \
+    npm install -g pnpm@^10 --registry=$NPM_REGISTRY && \
     pnpm install --registry=$NPM_REGISTRY && \
     pnpm build srv web && \
     mv /baidu-netdisk-node/packages/srv/dist /baidu-netdisk-srv && \
