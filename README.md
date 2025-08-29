@@ -49,6 +49,7 @@ docker run -d --restart=always \
   -e WEB_PASS=密码 \
   -e WEB_PORT=7777 \
   -e TOKEN_SECRET=自定义密钥 \
+  -e TZ=Asia/Shanghai \
   keenghost/baidu-netdisk-sync:latest
 ```
 
@@ -63,6 +64,7 @@ docker run -d --restart=always \
   -e APP_NAME=开发者APP_NAME \
   -e SECRET_KEY=开发者SECRET_KEY \
   -e LISTEN_PORT=8888 \
+  -e TZ=Asia/Shanghai \
   keenghost/baidu-netdisk-auth:latest
 ```
 
@@ -86,6 +88,7 @@ cd packages/srv/dist && pnpm start
 | `WEB_PASS`     | 自定义的密码            | -        |
 | `WEB_PORT`     | Web 端 UI 监听的端口    | 7777     |
 | `TOKEN_SECRET` | 自定义的 Token 加密密钥 | 随机生成 |
+| `TZ`           | 时区                    | -        |
 
 > 📝 配置文件位于 `packages/srv/dist/runtime/config.json`
 
@@ -110,6 +113,7 @@ cd packages/xth/dist && pnpm start
 | `APP_NAME`    | 百度开发者 APP_NAME   | -      |
 | `SECRET_KEY`  | 百度开发者 SECRET_KEY | -      |
 | `LISTEN_PORT` | 服务监听的端口        | 8888   |
+| `TZ`          | 时区                  | -      |
 
 > 📝 配置文件位于 `packages/xth/dist/runtime/config.json`
 
