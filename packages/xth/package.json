@@ -33,10 +33,10 @@
     "start": "node ./src/app.js"
   },
   "dependencies": {
-    "baidu-netdisk-api": "workspace:^*",
-    "koa": "^2.15.3",
+    "baidu-netdisk-api": "workspace:*",
+    "koa": "^2.16.2",
     "koa-bodyparser": "^4.4.1",
-    "koa-router": "^13.0.1"
+    "koa-router": "^13.1.1"
   },
   "devDependencies": {
     "@types/koa": "^2.15.0",

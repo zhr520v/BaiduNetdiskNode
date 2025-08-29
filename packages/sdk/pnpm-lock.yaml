@@ -9,5 +9,5 @@ importers:
   .:
     dependencies:
       baidu-netdisk-api:
-        specifier: workspace:^*
+        specifier: workspace:*
         version: link:../api

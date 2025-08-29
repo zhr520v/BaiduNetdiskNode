@@ -43,6 +43,6 @@
     "release": "cd dist && npm publish"
   },
   "dependencies": {
-    "baidu-netdisk-api": "workspace:^*"
+    "baidu-netdisk-api": "workspace:*"
   }
 }
