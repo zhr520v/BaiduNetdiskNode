@@ -6,7 +6,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { errorLog } from './log.js'
 import { type IFetchListItem, type UserManager } from './user-manager.js'
-import { pathNormalized } from './utils.js'
+import { isCron, pathNormalized } from './utils.js'
 
 export const enum EDIRECTION {
   UPLOAD = 1,
@@ -58,7 +58,8 @@ export class FolderManager {
   #conflict = ECONFLIC.LOCAL
   #trigger: ITrigger = { way: ETRIGGERWAY.STARTSTOP, starts: [], stops: [] }
   #excludes: string[] = []
-  #scheduledJobs: Job[] = []
+  #startJobs: Job[] = []
+  #stopJobs: Job[] = []
   #uploadQueue: { local: string; remote: string }[] = []
   #downloadQueue: { local: string; fsid: number }[] = []
   #createLocalQueue: string[] = []
@@ -96,27 +97,63 @@ export class FolderManager {
   }
 
   #changeTrigger(inTrigger: ITrigger) {
-    for (const job of this.#scheduledJobs) {
+    for (const job of this.#startJobs.concat(this.#stopJobs)) {
       job.cancel()
     }
 
-    this.#scheduledJobs = []
+    this.#startJobs = []
+    this.#stopJobs = []
 
     this.#trigger.way = inTrigger.way
     this.#trigger.starts = inTrigger.starts
     this.#trigger.stops = inTrigger.stops
 
-    for (const item of this.#trigger.starts) {
-      const [hour, minute] = item.split(':')
-      this.#scheduledJobs.push(scheduleJob(`${minute} ${hour} * * *`, () => this.runSync()))
-    }
+    this.#applyTriggerJobs('start', this.#trigger.starts)
 
     if (this.#trigger.way === ETRIGGERWAY.STARTSTOP) {
-      for (const item of this.#trigger.stops) {
-        const [hour, minute] = item.split(':')
-        this.#scheduledJobs.push(scheduleJob(`${minute} ${hour} * * *`, () => this.stopSync()))
+      this.#applyTriggerJobs('stop', this.#trigger.stops)
+    }
+  }
+
+  #applyTriggerJobs(jobType: 'start' | 'stop', timeStrs: string[]) {
+    const crons = []
+
+    for (const timeStr of timeStrs) {
+      if (isCron(timeStr)) {
+        crons.push(timeStr)
+        continue
+      }
+
+      if (/^\d{2}:\d{2}$/.test(timeStr)) {
+        const [hour, minute] = timeStr.split(':')
+        crons.push(`${minute} ${hour} * * *`)
+        continue
       }
     }
+
+    for (const cron of crons) {
+      if (jobType === 'start') {
+        this.#startJobs.push(scheduleJob(cron, () => this.runSync()))
+        continue
+      }
+
+      if (jobType === 'stop') {
+        this.#stopJobs.push(scheduleJob(cron, () => this.stopSync()))
+        continue
+      }
+    }
+  }
+
+  getNextStartTime() {
+    const nextTimes = this.#startJobs.map(job => job.nextInvocation().getTime())
+
+    return nextTimes.length ? Math.min(...nextTimes) : 0
+  }
+
+  getNextStopTime() {
+    const nextTimes = this.#stopJobs.map(job => job.nextInvocation().getTime())
+
+    return nextTimes.length ? Math.min(...nextTimes) : 0
   }
 
   async runSync() {
@@ -514,7 +551,7 @@ export class FolderManager {
   }
 
   terminate() {
-    for (const job of this.#scheduledJobs) {
+    for (const job of this.#startJobs.concat(this.#stopJobs)) {
       job.cancel()
     }
   }

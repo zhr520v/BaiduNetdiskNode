@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 interface IProps {
-  type?: 'primary' | 'warning' | 'error'
+  type?: 'primary' | 'warning' | 'error' | 'default'
   deleted?: boolean
   closable?: boolean
   onClose?: () => void
@@ -27,7 +27,7 @@ function onCloseThis() {
 }
 
 function getWrapperClass() {
-  const type = props.type || 'primary'
+  const type = props.type || 'default'
   const classes: string[] = []
 
   if (type === 'primary') {
@@ -36,6 +36,8 @@ function getWrapperClass() {
     classes.push('bg-orange-400')
   } else if (type === 'error') {
     classes.push('bg-red-400')
+  } else {
+    classes.push('bg-gray-400')
   }
 
   if (props.closable) {

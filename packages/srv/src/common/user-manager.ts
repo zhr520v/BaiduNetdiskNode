@@ -481,6 +481,8 @@ export class UserManager {
         conflict: info.conflict,
         trigger: info.trigger,
         excludes: info.excludes,
+        nextStart: item.getNextStartTime(),
+        nextStop: item.getNextStopTime(),
         checking: item.getChecking(),
         uploadQueue: item.getUploadQueue().length,
         downloadQueue: item.getDownloadQueue().length,

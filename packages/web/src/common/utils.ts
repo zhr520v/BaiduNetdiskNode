@@ -22,3 +22,10 @@ export function formatDate(inTime: number) {
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }
+
+const CRON_REGEX =
+  /^([0-5]?\d|\*)\s([01]?\d|2[0-3]|\*)\s([01]?\d|[12]\d|3[01]|\*)\s([1-9]|1[0-2]|\*)\s([0-6]|\*)$/
+
+export function isCron(inCron: string) {
+  return CRON_REGEX.test(inCron)
+}

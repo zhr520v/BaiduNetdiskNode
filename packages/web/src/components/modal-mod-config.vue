@@ -26,7 +26,7 @@
         <div :class="getFormItemLabelClass()">
           <div>尝试间隔</div>
           <Tooltip type="question">
-            <div>请求失败后隔多久再次请求</div>
+            <div>请求失败后隔多久再次请求(毫秒)</div>
           </Tooltip>
         </div>
         <div class="flex-1">

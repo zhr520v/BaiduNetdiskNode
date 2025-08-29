@@ -32,7 +32,7 @@
                     :class="folder.trigger.starts.length ? 'text-blue-400' : 'text-gray-400'"
                   ></i>
                 </template>
-                <div>下次启动时间: {{ getNextTime(folder.trigger.starts) }}</div>
+                <div>下次启动时间: {{ getNextTime(folder.nextStart) }}</div>
               </Tooltip>
               <Tooltip>
                 <template #trigger>
@@ -41,7 +41,7 @@
                     :class="folder.trigger.stops.length ? 'text-orange-400' : 'text-gray-400'"
                   ></i>
                 </template>
-                <div>下次停止时间: {{ getNextTime(folder.trigger.stops) }}</div>
+                <div>下次停止时间: {{ getNextTime(folder.nextStop) }}</div>
               </Tooltip>
             </div>
 
@@ -225,6 +225,7 @@ import IconButton from '@src/ui-components/icon-button.vue'
 import Message from '@src/ui-components/message'
 import Tooltip from '@src/ui-components/tooltip.vue'
 import { type IHttpFoldersInfoRes } from 'baidu-netdisk-srv/types'
+import dayjs from 'dayjs'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 const folders = ref<IHttpFoldersInfoRes['folders']>([])
@@ -275,35 +276,30 @@ async function manualCheck(inId: string) {
   }
 }
 
-function getNextTime(inTimes: string[]) {
-  if (inTimes.length === 0) {
+function getNextTime(inTime: number) {
+  if (!inTime) {
     return '无'
   }
 
-  const sorted = inTimes.map(_ => _).sort()
+  const nextDate = dayjs(inTime)
+  const nowDate = dayjs(Date.now())
 
-  const hour = new Date().getHours()
-  const minute = new Date().getMinutes()
-
-  const i = sorted.findIndex(v => {
-    const h = parseInt(v.split(':')[0], 10)
-    const m = parseInt(v.split(':')[1], 10)
-
-    if (h < hour) {
-      return false
-    }
-
-    if (h === hour) {
-      return m > minute
-    }
-
-    return true
-  })
-
-  if (i !== -1) {
-    return `今天 ${sorted[i]}`
+  if (nextDate.isBefore(nowDate)) {
+    return '已过'
   }
 
-  return `明天 ${sorted[0]}`
+  if (nextDate.isSame(nowDate, 'day')) {
+    return nextDate.format('今天 HH:mm')
+  }
+
+  if (nextDate.isSame(nowDate.add(1, 'day'), 'day')) {
+    return nextDate.format('明天 HH:mm')
+  }
+
+  if (nextDate.isSame(nowDate.add(2, 'day'), 'day')) {
+    return nextDate.format('后天 HH:mm')
+  }
+
+  return nextDate.format('MM-DD HH:mm')
 }
 </script>

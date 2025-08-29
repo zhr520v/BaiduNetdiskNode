@@ -91,53 +91,33 @@
       </div>
       <div class="mb-8 flex items-baseline">
         <div class="mr-8 w-72 text-right">启动时间</div>
-        <div class="flex-1">
-          <div
-            v-if="trigger.starts.length > 0"
-            class="mb-8 flex flex-wrap gap-8"
-          >
+        <div class="flex flex-1 flex-wrap gap-8">
+          <template v-if="trigger.starts.length > 0">
             <Tag
               v-for="start in trigger.starts"
               :key="start"
               :closable="true"
+              type="primary"
               @close="onStartTagClose(start)"
             >
               {{ start }}
             </Tag>
-          </div>
-          <div
-            v-else
-            class="mb-8 flex flex-wrap gap-8"
-          >
-            <Tag type="warning">无</Tag>
-          </div>
+          </template>
+          <Tag v-else>无</Tag>
 
-          <div class="flex items-center">
-            <Select
-              v-model:value="startHour"
-              :options="hourOptions"
-            ></Select>
-            <div class="ml-2 mr-2">:</div>
-            <Select
-              v-model:value="startMinute"
-              :options="minuteOptions"
-            ></Select>
-
-            <IconButton
-              icon-class="icon-add"
-              class="ml-4"
-              @click="onStartPlusClick"
-            ></IconButton>
-          </div>
+          <IconButton
+            icon-class="icon-add"
+            @click="
+              ((newTriggerTimeDialogTriggerType = 'start'),
+              (newTriggerTimeDialogVisible = true))
+            "
+          ></IconButton>
         </div>
       </div>
       <div class="mb-8 flex items-baseline">
         <div class="mr-8 w-72 text-right">停止时间</div>
-        <div class="flex-1">
-          <div
-            v-if="trigger.stops.length > 0"
-            class="mb-8 flex flex-wrap gap-8"
-          >
+        <div class="flex flex-1 flex-wrap gap-8">
+          <template v-if="trigger.stops.length > 0">
             <Tag
               v-for="stop in trigger.stops"
               :key="stop"
@@ -147,31 +127,15 @@
             >
               {{ stop }}
             </Tag>
-          </div>
-          <div
-            v-else
-            class="mb-8 flex flex-wrap gap-8"
-          >
-            <Tag type="warning">无</Tag>
-          </div>
+          </template>
+          <Tag v-else>无</Tag>
 
-          <div class="flex items-center">
-            <Select
-              v-model:value="stopHour"
-              :options="hourOptions"
-            ></Select>
-            <div class="ml-2 mr-2">:</div>
-            <Select
-              v-model:value="stopMinute"
-              :options="minuteOptions"
-            ></Select>
-
-            <IconButton
-              icon-class="icon-add"
-              class="ml-4"
-              @click="onStopPlusClick"
-            ></IconButton>
-          </div>
+          <IconButton
+            icon-class="icon-add"
+            @click="
+              ((newTriggerTimeDialogTriggerType = 'stop'), (newTriggerTimeDialogVisible = true))
+            "
+          ></IconButton>
         </div>
       </div>
       <div class="flex items-baseline">
@@ -211,6 +175,13 @@
         @ok="onChooseLocalFolderDialogOk"
         @cancel="chooseLocalFolderDialogVisible = false"
       />
+
+      <ModalNewTriggerTime
+        v-if="newTriggerTimeDialogVisible"
+        :trigger-type="newTriggerTimeDialogTriggerType"
+        @ok="onNewTriggerTimeDialogOk"
+        @cancel="newTriggerTimeDialogVisible = false"
+      />
     </div>
   </Modal>
 </template>
@@ -219,6 +190,7 @@
 import { httpAddFolder, httpFolder, httpModFolder } from '@src/common/api'
 import { config } from '@src/common/config'
 import ModalLocalFolder from '@src/components/modal-local-folder.vue'
+import ModalNewTriggerTime from '@src/components/modal-new-trigger-time.vue'
 import IconButton from '@src/ui-components/icon-button.vue'
 import Input from '@src/ui-components/input.vue'
 import Message from '@src/ui-components/message'
@@ -248,10 +220,8 @@ const trigger = ref<IHttpFolderRes['trigger']>({ way: 1, starts: [], stops: [] }
 const excludes = ref<string[]>([])
 const excludesDiv = ref<HTMLDivElement | null>(null)
 const chooseLocalFolderDialogVisible = ref(false)
-const startHour = ref('00')
-const startMinute = ref('00')
-const stopHour = ref('00')
-const stopMinute = ref('00')
+const newTriggerTimeDialogVisible = ref(false)
+const newTriggerTimeDialogTriggerType = ref<'start' | 'stop'>('start')
 
 function onExcludesChange(e: Event) {
   excludes.value = (e.target as HTMLDivElement).innerText
@@ -332,36 +302,34 @@ function onStartTagClose(inStart: string) {
   trigger.value.starts = trigger.value.starts.filter(item => item !== inStart)
 }
 
-function onStartPlusClick() {
-  const val = `${startHour.value.toString().padStart(2, '0')}:${startMinute.value.toString().padStart(2, '0')}`
+function onNewTriggerTimeDialogOk(inTriggerType: 'start' | 'stop', inTimeStr?: string) {
+  newTriggerTimeDialogVisible.value = false
 
-  if (trigger.value.starts.find(item => item === val)) {
-    Message.error('启动时间已存在')
-
+  if (!inTimeStr) {
     return
   }
 
-  trigger.value.starts.push(val)
-  startHour.value = '00'
-  startMinute.value = '00'
+  if (inTriggerType === 'start') {
+    if (trigger.value.starts.find(item => item === inTimeStr)) {
+      Message.error('启动时间已存在')
+
+      return
+    }
+
+    trigger.value.starts.push(inTimeStr)
+  } else if (inTriggerType === 'stop') {
+    if (trigger.value.stops.find(item => item === inTimeStr)) {
+      Message.error('停止时间已存在')
+
+      return
+    }
+
+    trigger.value.stops.push(inTimeStr)
+  }
 }
 
 function onStopTagClose(inStop: string) {
   trigger.value.stops = trigger.value.stops.filter(item => item !== inStop)
-}
-
-function onStopPlusClick() {
-  const val = `${stopHour.value.toString().padStart(2, '0')}:${stopMinute.value.toString().padStart(2, '0')}`
-
-  if (trigger.value.stops.find(item => item === val)) {
-    Message.error('停止时间已存在')
-
-    return
-  }
-
-  trigger.value.stops.push(val)
-  stopHour.value = '00'
-  stopMinute.value = '00'
 }
 
 const directionOptions = [
@@ -408,18 +376,4 @@ const triggerWayOptions = [
     value: 2,
   },
 ]
-const hourOptions = Array(24)
-  .fill(0)
-  .map((item, index) => {
-    const val = index.toString().padStart(2, '0')
-
-    return { label: val, value: val }
-  })
-const minuteOptions = Array(60)
-  .fill(0)
-  .map((item, index) => {
-    const val = index.toString().padStart(2, '0')
-
-    return { label: val, value: val }
-  })
 </script>

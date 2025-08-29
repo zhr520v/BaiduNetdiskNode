@@ -110,6 +110,8 @@ export type IHttpFolderRes = IFolder
 
 export interface IHttpFoldersInfoRes {
   folders: (IFolder & {
+    nextStart: number
+    nextStop: number
     checking: boolean
     uploadQueue: number
     downloadQueue: number
