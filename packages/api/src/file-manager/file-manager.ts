@@ -28,6 +28,11 @@ const __ERR_MAP__: { [key: string]: string } = {
   '111': '有其他异步任务正在执行',
 }
 
+/**
+ * when do batch operations, sources can not be same
+ * otherwise will get errno 12, 批量转存失败
+ */
+
 export function httpFileManager(
   inQuery: IFileManagerQuery,
   inBody: IFileManagerBody,

@@ -75,7 +75,7 @@ export class UploadTask {
   #md5s: string[] = []
   #md5full = ''
   #keyBuf = Buffer.alloc(0)
-  #ivBuf = Buffer.alloc(0)
+  #ivBuf: Buffer = Buffer.alloc(0)
   #endSliceNo = 0
 
   #uploadId = ''

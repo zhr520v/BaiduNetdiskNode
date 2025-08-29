@@ -45,8 +45,12 @@ export class WorkerParent {
     this.#recvDataFuncs.set(inType, inFunc)
   }
 
-  sendBinary(inData: Buffer) {
-    this.#entity.postMessage(inData, [inData.buffer])
+  sendBinary(inData: Buffer<ArrayBuffer>) {
+    if (inData.length >= 4096) {
+      this.#entity.postMessage(inData, [inData.buffer])
+    } else {
+      this.#entity.postMessage(inData)
+    }
   }
 
   onRecvBinary(inFunc: (inData: Buffer) => void) {
@@ -90,8 +94,13 @@ export class WorkerChild {
     this.#recvDataFuncs.set(inType, inFunc)
   }
 
-  sendBinary(inData: Buffer) {
-    this.#parentPort?.postMessage(inData, [inData.buffer])
+  sendBinary(inData: Buffer<ArrayBuffer>) {
+    // upon node v21.0.0, if buffer size < 4096 bytes, it'll be in the buffer pool and not transferable
+    if (inData.length >= 4096) {
+      this.#parentPort?.postMessage(inData, [inData.buffer])
+    } else {
+      this.#parentPort?.postMessage(inData)
+    }
   }
 
   onRecvBinary(inFunc: (inData: Buffer) => void) {

@@ -448,7 +448,7 @@ describe('DOWNLOAD_TASK', () => {
 describe('FILE_MANAGE', () => {
   it('CopyFile', async () => {
     const data = await netdisk.copyFolderOrFile({
-      source: `${__PATH_PREFIX__}/64.bin`,
+      source: `${__PATH_PREFIX__}/0.bin`,
       target: `${__PATH_PREFIX__}/SubFolder/Copied.bin`,
     })
 
@@ -459,23 +459,23 @@ describe('FILE_MANAGE', () => {
     const data = await netdisk.copyFoldersOrFiles({
       list: [
         {
-          source: `${__PATH_PREFIX__}/64.bin`,
+          source: `${__PATH_PREFIX__}/0.bin.e`,
           target: `${__PATH_PREFIX__}/SubFolder/ToBeMove0.bin`,
         },
         {
-          source: `${__PATH_PREFIX__}/64.bin`,
+          source: `${__PATH_PREFIX__}/16.bin`,
           target: `${__PATH_PREFIX__}/SubFolder/ToBeMove1.bin`,
         },
         {
-          source: `${__PATH_PREFIX__}/64.bin`,
+          source: `${__PATH_PREFIX__}/16.bin.e`,
           target: `${__PATH_PREFIX__}/SubFolder/ToBeMove2.bin`,
         },
         {
-          source: `${__PATH_PREFIX__}/64.bin`,
+          source: `${__PATH_PREFIX__}/32.bin`,
           target: `${__PATH_PREFIX__}/SubFolder/ToBeRename0.bin`,
         },
         {
-          source: `${__PATH_PREFIX__}/64.bin`,
+          source: `${__PATH_PREFIX__}/32.bin.e`,
           target: `${__PATH_PREFIX__}/SubFolder/ToBeRename1.bin`,
         },
         {
@@ -483,15 +483,15 @@ describe('FILE_MANAGE', () => {
           target: `${__PATH_PREFIX__}/SubFolder/ToBeRename2.bin`,
         },
         {
-          source: `${__PATH_PREFIX__}/64.bin`,
+          source: `${__PATH_PREFIX__}/64.bin.e`,
           target: `${__PATH_PREFIX__}/SubFolder/ToBeDelete0.bin`,
         },
         {
-          source: `${__PATH_PREFIX__}/64.bin`,
+          source: `${__PATH_PREFIX__}/64.task.bin`,
           target: `${__PATH_PREFIX__}/SubFolder/ToBeDelete1.bin`,
         },
         {
-          source: `${__PATH_PREFIX__}/64.bin`,
+          source: `${__PATH_PREFIX__}/64.task.bin.e`,
           target: `${__PATH_PREFIX__}/SubFolder/ToBeDelete2.bin`,
         },
       ],
