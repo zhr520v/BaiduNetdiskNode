@@ -30,8 +30,14 @@
             <div class="w-48">cron</div>
             <Input
               v-model:value="cronStr"
-              class="flex-1"
+              :style="{ width: '160px' }"
             />
+            <Tooltip
+              type="question"
+              class="ml-4"
+            >
+              <div>5位cron表达式, * * * * *</div>
+            </Tooltip>
           </div>
         </Radio>
       </RadioGroup>
@@ -47,6 +53,7 @@ import Modal from '@src/ui-components/modal.vue'
 import RadioGroup from '@src/ui-components/radio-group.vue'
 import Radio from '@src/ui-components/radio.vue'
 import Select from '@src/ui-components/select.vue'
+import Tooltip from '@src/ui-components/tooltip.vue'
 import { ref } from 'vue'
 
 interface IProps {

@@ -145,13 +145,13 @@ export class FolderManager {
   }
 
   getNextStartTime() {
-    const nextTimes = this.#startJobs.map(job => job.nextInvocation().getTime())
+    const nextTimes = this.#startJobs.map(job => job.nextInvocation()?.getTime() || 0)
 
     return nextTimes.length ? Math.min(...nextTimes) : 0
   }
 
   getNextStopTime() {
-    const nextTimes = this.#stopJobs.map(job => job.nextInvocation().getTime())
+    const nextTimes = this.#stopJobs.map(job => job.nextInvocation()?.getTime() || 0)
 
     return nextTimes.length ? Math.min(...nextTimes) : 0
   }

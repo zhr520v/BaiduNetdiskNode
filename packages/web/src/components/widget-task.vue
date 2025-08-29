@@ -60,7 +60,7 @@
         </div>
         <div
           v-if="props.stepStatus === EStepStatus.STOPPED"
-          class="text-red-600"
+          class="truncate text-red-600"
         >
           {{ props.stepErrMsg }}
         </div>
