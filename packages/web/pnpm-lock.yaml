@@ -26,6 +26,9 @@ importers:
       baidu-netdisk-srv:
         specifier: workspace:*
         version: link:../srv
+      cron-validator:
+        specifier: ^1.4.0
+        version: 1.4.0
       dayjs:
         specifier: ^1.11.17
         version: 1.11.17
@@ -738,6 +741,9 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  cron-validator@1.4.0:
+    resolution: {integrity: sha512-wGcJ9FCy65iaU6egSH8b5dZYJF7GU/3Jh06wzaT9lsa5dbqExjljmu+0cJ8cpKn+vUyZa/EM4WAxeLR6SypJXw==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -2678,6 +2684,8 @@ snapshots:
       import-fresh: 3.3.1
       js-yaml: 4.1.0
       parse-json: 5.2.0
+
+  cron-validator@1.4.0: {}
 
   cross-spawn@7.0.6:
     dependencies:

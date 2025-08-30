@@ -1,12 +1,13 @@
 import { __CONST__ } from 'baidu-netdisk-sdk'
 import { EFileManageAsync, EUploadRtype } from 'baidu-netdisk-sdk/types'
+import { isValidCron } from 'cron-validator'
 import micromatch from 'micromatch'
 import { type Job, scheduleJob } from 'node-schedule'
 import fs from 'node:fs'
 import path from 'node:path'
 import { errorLog } from './log.js'
 import { type IFetchListItem, type UserManager } from './user-manager.js'
-import { isCron, pathNormalized } from './utils.js'
+import { pathNormalized } from './utils.js'
 
 export const enum EDIRECTION {
   UPLOAD = 1,
@@ -119,7 +120,7 @@ export class FolderManager {
     const crons = []
 
     for (const timeStr of timeStrs) {
-      if (isCron(timeStr)) {
+      if (isValidCron(timeStr)) {
         crons.push(timeStr)
         continue
       }
@@ -133,12 +134,22 @@ export class FolderManager {
 
     for (const cron of crons) {
       if (jobType === 'start') {
-        this.#startJobs.push(scheduleJob(cron, () => this.runSync()))
+        const job = scheduleJob(cron, () => this.runSync())
+
+        if (job) {
+          this.#startJobs.push(job)
+        }
+
         continue
       }
 
       if (jobType === 'stop') {
-        this.#stopJobs.push(scheduleJob(cron, () => this.stopSync()))
+        const job = scheduleJob(cron, () => this.stopSync())
+
+        if (job) {
+          this.#stopJobs.push(job)
+        }
+
         continue
       }
     }

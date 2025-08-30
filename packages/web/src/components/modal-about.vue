@@ -24,7 +24,7 @@
         @keenghost
       </a>
       <span>MIT</span>
-      <span>v0.2.2</span>
+      <span>v0.2.3</span>
     </div>
   </Modal>
 </template>

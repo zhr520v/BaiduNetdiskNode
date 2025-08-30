@@ -46,7 +46,6 @@
 </template>
 
 <script setup lang="ts">
-import { isCron } from '@src/common/utils'
 import Input from '@src/ui-components/input.vue'
 import Message from '@src/ui-components/message'
 import Modal from '@src/ui-components/modal.vue'
@@ -54,6 +53,7 @@ import RadioGroup from '@src/ui-components/radio-group.vue'
 import Radio from '@src/ui-components/radio.vue'
 import Select from '@src/ui-components/select.vue'
 import Tooltip from '@src/ui-components/tooltip.vue'
+import { isValidCron } from 'cron-validator'
 import { ref } from 'vue'
 
 interface IProps {
@@ -90,10 +90,10 @@ function onOkThis() {
   if (type.value === 'time') {
     props.onOk?.(props.triggerType, `${startHour.value}:${startMinute.value}`)
   } else if (type.value === 'cron') {
-    if (isCron(cronStr.value)) {
+    if (isValidCron(cronStr.value)) {
       props.onOk?.(props.triggerType, cronStr.value)
     } else {
-      Message.error('cron表达式格式错误')
+      Message.error('不是有效的cron表达式')
     }
   }
 }

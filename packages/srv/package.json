@@ -1,6 +1,6 @@
 {
   "name": "baidu-netdisk-srv",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "BaiduNetdiskSync backend",
   "keywords": [
     "baidu",
@@ -34,6 +34,7 @@
   "dependencies": {
     "baidu-netdisk-api": "workspace:*",
     "baidu-netdisk-sdk": "workspace:*",
+    "cron-validator": "^1.4.0",
     "jsonwebtoken": "^9.0.2",
     "koa": "^2.16.2",
     "koa-bodyparser": "^4.4.1",

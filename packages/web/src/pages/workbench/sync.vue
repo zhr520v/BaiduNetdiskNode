@@ -29,7 +29,7 @@
                 <template #trigger>
                   <i
                     class="iconfont icon-timerstart text-20"
-                    :class="folder.trigger.starts.length ? 'text-blue-400' : 'text-gray-400'"
+                    :class="folder.nextStart ? 'text-blue-400' : 'text-gray-400'"
                   ></i>
                 </template>
                 <div>下次启动时间: {{ getNextTime(folder.nextStart) }}</div>
@@ -38,7 +38,7 @@
                 <template #trigger>
                   <i
                     class="iconfont icon-timerstop text-20"
-                    :class="folder.trigger.stops.length ? 'text-orange-400' : 'text-gray-400'"
+                    :class="folder.nextStop ? 'text-orange-400' : 'text-gray-400'"
                   ></i>
                 </template>
                 <div>下次停止时间: {{ getNextTime(folder.nextStop) }}</div>
