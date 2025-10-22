@@ -497,24 +497,24 @@ export class UploadTask {
     }
 
     if (!this.#downloadWorker) {
-      const splitSlice = 64 / this.#chunkMB
-
+      const chunkBytes = this.#chunkMB * 1024 * 1024
+      const plainChunkBytes = this.#keyBuf.length ? chunkBytes - 1 : chunkBytes
       const pureComSize = this.#comSize - (this.#keyBuf.length ? __PRESV_ENC_BLOCK_SIZE__ : 0)
-      const rawSlices = Math.max(Math.ceil(pureComSize / (this.#chunkMB * 1024 * 1024)), 1)
-
-      const totalSlice = Math.ceil(rawSlices / splitSlice)
+      const totalSlice = Math.max(Math.ceil(pureComSize / chunkBytes), 1)
 
       const worker = newWorker<IDownloadMainThreadData>('download-main', {
         access_token: this.#access_token,
         local: '',
         chunkMB: this.#chunkMB,
+        chunkBytes,
+        plainChunkBytes,
         shrinkComSize: this.#keyBuf.length
           ? this.#comSize - __PRESV_ENC_BLOCK_SIZE__
           : this.#comSize,
         keyBuf: this.#keyBuf,
         ivBuf: this.#ivBuf,
         totalSlice: totalSlice,
-        splitSlice: splitSlice,
+        returnBuffer: true,
         noWrite: true,
         noVerifyOnDisk: true,
       })

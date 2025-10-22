@@ -1,8 +1,10 @@
 import { axios, requestErrorFormat } from 'baidu-netdisk-api'
+import { createDecipheriv } from 'node:crypto'
 import fs from 'node:fs'
-import { type Readable } from 'node:stream'
+import { type Readable, Transform, Writable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 import { parentPort, workerData } from 'node:worker_threads'
-import { decrypt, tryTimes } from '../common/utils.js'
+import { tryTimes } from '../common/utils.js'
 import { type IThreadError, WorkerChild } from '../common/worker.js'
 
 export interface IDownloadExecThreadData {
@@ -10,17 +12,25 @@ export interface IDownloadExecThreadData {
   local: string
   dlink: string
   chunkMB: number
+  chunkBytes: number
+  plainChunkBytes: number
   shrinkComSize: number
   keyBuf: Buffer
   ivBuf: Buffer
-  splitSlice: number
   tryTimes: number
   tryDelta: number
+  returnBuffer: boolean
   noWrite?: boolean
 }
 
 export interface IDownloadExecSliceReq {
   sliceNo: number
+}
+
+export interface IDownloadExecSliceRes {
+  sliceNo: number
+  bytes: number
+  buffer?: Buffer
 }
 
 const tWorkerData = workerData as IDownloadExecThreadData
@@ -29,119 +39,161 @@ let fd: number | undefined = void 0
 
 const worker = new WorkerChild(parentPort)
 
+class AesDecryptTransform extends Transform {
+  #decipher
+
+  constructor(inKey: Buffer, inIv: Buffer) {
+    super()
+    this.#decipher = createDecipheriv('aes-256-cbc', inKey, inIv)
+  }
+
+  _transform(chunk: Buffer, _enc: BufferEncoding, callback: (error?: Error | null) => void) {
+    try {
+      const data = this.#decipher.update(chunk)
+
+      if (data.length) {
+        this.push(data)
+      }
+
+      callback()
+    } catch (error) {
+      callback(error as Error)
+    }
+  }
+
+  _flush(callback: (error?: Error | null) => void) {
+    try {
+      const data = this.#decipher.final()
+
+      if (data.length) {
+        this.push(data)
+      }
+
+      callback()
+    } catch (error) {
+      callback(error as Error)
+    }
+  }
+}
+
+class SliceWritable extends Writable {
+  #fd: number | undefined
+  #writeEnabled: boolean
+  #collect: boolean
+  #start: number
+  #offset = 0
+  #buffers: Buffer[] = []
+  bytes = 0
+
+  constructor(inOpts: { fd?: number; writeEnabled: boolean; collect: boolean; start: number }) {
+    super()
+    this.#fd = inOpts.fd
+    this.#writeEnabled = inOpts.writeEnabled && inOpts.fd !== undefined
+    this.#collect = inOpts.collect
+    this.#start = inOpts.start
+  }
+
+  _write(chunk: Buffer, _enc: BufferEncoding, callback: (error?: Error | null) => void) {
+    this.bytes += chunk.length
+
+    if (this.#collect) {
+      this.#buffers.push(chunk)
+    }
+
+    if (this.#writeEnabled && this.#fd !== undefined) {
+      try {
+        fs.writeSync(this.#fd, chunk, 0, chunk.length, this.#start + this.#offset)
+      } catch (error) {
+        callback(error as Error)
+
+        return
+      }
+    }
+
+    this.#offset = this.#offset + chunk.length
+    callback()
+  }
+
+  getBuffer() {
+    if (!this.#collect) {
+      return undefined
+    }
+
+    const buffer = Buffer.concat(this.#buffers)
+    this.#buffers = []
+
+    return buffer
+  }
+}
+
 worker.onRecvData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', async inData => {
   try {
     if (!tWorkerData.noWrite && fd === void 0) {
       fd = fs.openSync(tWorkerData.local, 'r+')
     }
 
-    const tSlices: number[] = []
+    const chunkBytes = tWorkerData.chunkBytes
+    const sliceStart = inData.sliceNo * chunkBytes
+    const remain = Math.max(tWorkerData.shrinkComSize - sliceStart, 0)
 
-    for (let i = 0; i < tWorkerData.splitSlice; i++) {
-      tSlices.push(inData.sliceNo * tWorkerData.splitSlice + i)
+    if (remain <= 0) {
+      worker.sendData<IDownloadExecSliceRes>('DOWNLOAD_EXEC_SLICE_DONE', {
+        sliceNo: inData.sliceNo,
+        bytes: 0,
+        buffer: tWorkerData.returnBuffer ? Buffer.alloc(0) : undefined,
+      })
+
+      return
     }
 
-    const startNo = tSlices[0]
-    const endNo = tSlices[tSlices.length - 1]
+    const end = sliceStart + Math.min(remain, chunkBytes) - 1
 
-    if (startNo === void 0 || endNo === void 0) {
-      throw new Error('startNo or endNo is undefined')
-    }
-
-    const start = startNo * tWorkerData.chunkMB * 1024 * 1024
-    const end = Math.min(
-      (endNo + 1) * tWorkerData.chunkMB * 1024 * 1024 - 1,
-      Math.max(tWorkerData.shrinkComSize - 1, 0)
-    )
-
-    const slices = tSlices.map(item => item)
-
-    let finalBuf = Buffer.alloc(0)
+    let result: IDownloadExecSliceRes | undefined
 
     await tryTimes(
       async () => {
-        const { data } = await axios.get<Readable>(tWorkerData.dlink, {
-          params: {
-            access_token: tWorkerData.access_token,
-          },
-          headers: {
-            'User-Agent': 'pan.baidu.com',
-            Range: `bytes=${start}-${end}`,
-          },
-          responseType: 'stream',
-          responseEncoding: 'binary',
+        const response = await axios
+          .get<Readable>(tWorkerData.dlink, {
+            params: {
+              access_token: tWorkerData.access_token,
+            },
+            headers: {
+              'User-Agent': 'pan.baidu.com',
+              Range: `bytes=${sliceStart}-${end}`,
+            },
+            responseType: 'stream',
+            responseEncoding: 'binary',
+          })
+          .catch(inErr => {
+            throw requestErrorFormat(inErr)
+          })
+
+        const sliceWriter = new SliceWritable({
+          fd,
+          writeEnabled: !tWorkerData.noWrite,
+          collect: tWorkerData.returnBuffer,
+          start: inData.sliceNo * tWorkerData.plainChunkBytes,
         })
 
-        await new Promise<void>((resolve, reject) => {
-          let tempBuf = Buffer.alloc(0)
-          let decoBuf = Buffer.alloc(0)
+        const transforms: Transform[] = []
 
-          data.on('data', (chunk: Buffer) => {
-            try {
-              tempBuf = Buffer.concat([tempBuf, chunk])
+        if (tWorkerData.keyBuf.length) {
+          transforms.push(new AesDecryptTransform(tWorkerData.keyBuf, tWorkerData.ivBuf))
+        }
 
-              while (tempBuf.length >= tWorkerData.chunkMB * 1024 * 1024) {
-                const nextNo = slices.shift()
+        const pipelineStreams: (
+          | NodeJS.ReadableStream
+          | NodeJS.WritableStream
+          | NodeJS.ReadWriteStream
+        )[] = [response.data, ...transforms, sliceWriter]
 
-                if (nextNo === void 0) {
-                  throw new Error('sliceNo is undefined')
-                }
+        await pipeline(pipelineStreams)
 
-                const sectBuf = tempBuf.subarray(0, tWorkerData.chunkMB * 1024 * 1024)
-                const decoSectBuf = tWorkerData.keyBuf.length
-                  ? decrypt(sectBuf, tWorkerData.keyBuf, tWorkerData.ivBuf)
-                  : sectBuf
-                const pos = tWorkerData.keyBuf.length
-                  ? nextNo * (tWorkerData.chunkMB * 1024 * 1024 - 1)
-                  : nextNo * tWorkerData.chunkMB * 1024 * 1024
-
-                if (!tWorkerData.noWrite && fd !== void 0) {
-                  fs.writeSync(fd, decoSectBuf, 0, decoSectBuf.length, pos)
-                }
-
-                tempBuf = tempBuf.subarray(tWorkerData.chunkMB * 1024 * 1024)
-                decoBuf = Buffer.concat([decoBuf, decoSectBuf])
-              }
-            } catch (inErr) {
-              reject(inErr)
-            }
-          })
-
-          data.on('end', () => {
-            try {
-              if (tempBuf.length > 0) {
-                const sliceNo = slices.shift()
-
-                if (sliceNo === void 0) {
-                  throw new Error('sliceNo is undefined')
-                }
-
-                const decoSectBuf = tWorkerData.keyBuf.length
-                  ? decrypt(tempBuf, tWorkerData.keyBuf, tWorkerData.ivBuf)
-                  : tempBuf
-                const pos = tWorkerData.keyBuf.length
-                  ? sliceNo * (tWorkerData.chunkMB * 1024 * 1024 - 1)
-                  : sliceNo * tWorkerData.chunkMB * 1024 * 1024
-
-                if (!tWorkerData.noWrite && fd !== void 0) {
-                  fs.writeSync(fd, decoSectBuf, 0, decoSectBuf.length, pos)
-                }
-
-                decoBuf = Buffer.concat([decoBuf, decoSectBuf])
-              }
-
-              finalBuf = decoBuf
-
-              resolve()
-            } catch (inErr) {
-              reject(inErr)
-            }
-          })
-
-          data.on('error', (inError: Error) => {
-            reject(requestErrorFormat(inError))
-          })
-        })
+        result = {
+          sliceNo: inData.sliceNo,
+          bytes: sliceWriter.bytes,
+          buffer: tWorkerData.returnBuffer ? sliceWriter.getBuffer() : undefined,
+        }
       },
       {
         times: tWorkerData.tryTimes,
@@ -149,10 +201,11 @@ worker.onRecvData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', async inData => 
       }
     )
 
-    const sliceNoBuf = Buffer.alloc(4)
-    sliceNoBuf.writeUInt32BE(inData.sliceNo, 0)
-    const fullBuf = Buffer.concat([sliceNoBuf, finalBuf])
-    worker.sendBinary(fullBuf)
+    if (!result) {
+      throw new Error('Slice download pipeline did not produce output')
+    }
+
+    worker.sendData<IDownloadExecSliceRes>('DOWNLOAD_EXEC_SLICE_DONE', result)
   } catch (inErr) {
     worker.sendData<IThreadError>('THREAD_ERROR', { msg: (inErr as Error).message })
   }

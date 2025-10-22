@@ -2,17 +2,23 @@ import crypto from 'node:crypto'
 import { parentPort, workerData } from 'node:worker_threads'
 import { __TRY_DELTA__, __TRY_TIMES__, __UPLOAD_THREADS__ } from '../common/const.js'
 import { type IThreadError, newWorker, WorkerChild, WorkerParent } from '../common/worker.js'
-import { type IDownloadExecSliceReq, type IDownloadExecThreadData } from './download-exec.js'
+import {
+  type IDownloadExecSliceReq,
+  type IDownloadExecSliceRes,
+  type IDownloadExecThreadData,
+} from './download-exec.js'
 
 export interface IDownloadMainThreadData {
   access_token: string
   local: string
   chunkMB: number
+  chunkBytes: number
+  plainChunkBytes: number
   shrinkComSize: number
   keyBuf: Buffer
   ivBuf: Buffer
   totalSlice: number
-  splitSlice: number
+  returnBuffer: boolean
   noWrite?: boolean
   noVerify?: boolean
   noVerifyOnDisk?: boolean
@@ -42,11 +48,12 @@ const infoObject: {
   dlink: string
   tryTimes: number
   tryDelta: number
-  nextSliceNo: number
-  sliceCaches: { sliceNo: number; buffer: Buffer }[]
   restSlices: number[]
-  doneSlices: number[]
-  md5Hash: crypto.Hash
+  nextSliceNo: number
+  pendingSlices: Map<number, { buffer?: Buffer; bytes: number }>
+  doneCount: number
+  md5Hash: crypto.Hash | null
+  finalized: boolean
 } = {
   wPool: [],
   wPoolTryTimes: 1,
@@ -54,11 +61,12 @@ const infoObject: {
   dlink: '',
   tryTimes: __TRY_TIMES__,
   tryDelta: __TRY_DELTA__,
-  nextSliceNo: 0,
-  sliceCaches: [],
   restSlices: [],
-  doneSlices: [],
-  md5Hash: crypto.createHash('md5'),
+  nextSliceNo: 0,
+  pendingSlices: new Map(),
+  doneCount: 0,
+  md5Hash: tWorkerData.returnBuffer ? crypto.createHash('md5') : null,
+  finalized: false,
 }
 
 function newDownloadWorker() {
@@ -68,33 +76,24 @@ function newDownloadWorker() {
     local: tWorkerData.local,
     dlink: infoObject.dlink,
     chunkMB: tWorkerData.chunkMB,
+    chunkBytes: tWorkerData.chunkBytes,
+    plainChunkBytes: tWorkerData.plainChunkBytes,
     keyBuf: tWorkerData.keyBuf,
     ivBuf: tWorkerData.ivBuf,
-    splitSlice: tWorkerData.splitSlice,
     tryTimes: infoObject.tryTimes,
     tryDelta: infoObject.tryDelta,
+    returnBuffer: tWorkerData.returnBuffer,
     noWrite: tWorkerData.noWrite,
   })
 
   const fixedWorker = new WorkerParent(newExecWorker)
 
-  fixedWorker.onRecvData<IThreadError>('THREAD_ERROR', inError => {
-    onDownloadExecError(newExecWorker.threadId, inError)
+  fixedWorker.onRecvData<IDownloadExecSliceRes>('DOWNLOAD_EXEC_SLICE_DONE', inData => {
+    onDownloadExecSlice(newExecWorker.threadId, inData)
   })
 
-  fixedWorker.onRecvBinary(inBuf => {
-    const sliceNo = Buffer.copyBytesFrom(inBuf, 0, 4).readUInt32BE(0)
-    const deBuffer = inBuf.subarray(4)
-
-    for (const item of infoObject.wPool) {
-      if (item.worker.threadId === newExecWorker.threadId) {
-        item.currSliceNo = void 0
-      }
-    }
-
-    infoObject.sliceCaches.push({ sliceNo, buffer: deBuffer })
-
-    runSliceCacheQueue()
+  fixedWorker.onRecvData<IThreadError>('THREAD_ERROR', inError => {
+    onDownloadExecError(newExecWorker.threadId, inError)
   })
 
   infoObject.wPool.push({
@@ -114,78 +113,108 @@ function terminate() {
   infoObject.wPool = []
   infoObject.wPoolTryTimes = 1
 
-  for (const item of infoObject.sliceCaches) {
-    infoObject.restSlices.unshift(item.sliceNo)
+  for (const sliceNo of infoObject.pendingSlices.keys()) {
+    infoObject.restSlices.unshift(sliceNo)
   }
 
-  infoObject.sliceCaches = []
-  infoObject.restSlices.sort()
+  infoObject.pendingSlices.clear()
+  infoObject.restSlices = Array.from(new Set(infoObject.restSlices)).sort((a, b) => a - b)
 }
 
-function runSliceCacheQueue() {
-  const cache = infoObject.sliceCaches.find(s => s.sliceNo === infoObject.nextSliceNo)
+function normalizeBuffer(inData?: Buffer | Uint8Array) {
+  if (!inData) {
+    return undefined
+  }
 
-  if (cache) {
-    infoObject.sliceCaches = infoObject.sliceCaches.filter(
-      s => s.sliceNo !== infoObject.nextSliceNo
-    )
+  return Buffer.isBuffer(inData) ? inData : Buffer.from(inData)
+}
 
-    if (!tWorkerData.noVerify && tWorkerData.noVerifyOnDisk) {
-      infoObject.md5Hash.update(cache.buffer)
+function processSliceQueue() {
+  while (true) {
+    const cache = infoObject.pendingSlices.get(infoObject.nextSliceNo)
+
+    if (!cache) {
+      break
     }
 
+    infoObject.pendingSlices.delete(infoObject.nextSliceNo)
+
+    if (tWorkerData.returnBuffer && cache.buffer) {
+      infoObject.md5Hash?.update(cache.buffer)
+    }
+
+    infoObject.doneCount = infoObject.doneCount + 1
+    worker.sendData<IDownloadMainDoneBytesRes>('DOWNLOAD_MAIN_DONE_BYTES', {
+      bytes: cache.bytes,
+    })
+
     infoObject.nextSliceNo = infoObject.nextSliceNo + 1
-
-    onDownloadExecDownloaded(cache.sliceNo, cache.buffer.length)
-
-    dispatchSlices()
-
-    runSliceCacheQueue()
   }
+
+  if (infoObject.doneCount === tWorkerData.totalSlice) {
+    finalize()
+  }
+}
+
+function finalize() {
+  if (infoObject.finalized) {
+    return
+  }
+
+  infoObject.finalized = true
+
+  if (!tWorkerData.noVerify && tWorkerData.returnBuffer) {
+    const md5 = infoObject.md5Hash?.digest('hex').toUpperCase() || ''
+
+    worker.sendData<IDownloadMainDoneRes>('DOWNLOAD_MAIN_DONE', {
+      md5,
+    })
+
+    return
+  }
+
+  worker.sendData<IDownloadMainDoneRes>('DOWNLOAD_MAIN_DONE', {
+    md5: '',
+  })
 }
 
 function dispatchSlices() {
-  if (infoObject.sliceCaches.length >= infoObject.wPool.length) {
+  const idleWorker = infoObject.wPool.find(item => item.currSliceNo === void 0)
+
+  if (!idleWorker) {
     return
   }
 
-  const tWorker = infoObject.wPool.find(item => item.currSliceNo === void 0)
+  const nextSlice = infoObject.restSlices.shift()
 
-  if (tWorker) {
-    const nextSlice = infoObject.restSlices.shift()
-
-    if (nextSlice !== void 0) {
-      tWorker.worker.sendData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', {
-        sliceNo: nextSlice,
-      })
-
-      tWorker.currSliceNo = nextSlice
-      dispatchSlices()
-    }
+  if (nextSlice === void 0) {
+    return
   }
-}
 
-function onDownloadExecDownloaded(inSliceNo: number, inBytes: number) {
-  infoObject.doneSlices.push(inSliceNo)
-  worker.sendData<IDownloadMainDoneBytesRes>('DOWNLOAD_MAIN_DONE_BYTES', {
-    bytes: inBytes,
+  idleWorker.worker.sendData<IDownloadExecSliceReq>('DOWNLOAD_EXEC_SLICE', {
+    sliceNo: nextSlice,
   })
 
-  if (infoObject.doneSlices.length === tWorkerData.totalSlice) {
-    if (!tWorkerData.noVerify && tWorkerData.noVerifyOnDisk) {
-      const md5 = infoObject.md5Hash.digest('hex').toUpperCase()
+  idleWorker.currSliceNo = nextSlice
 
-      worker.sendData<IDownloadMainDoneRes>('DOWNLOAD_MAIN_DONE', {
-        md5: md5,
-      })
-    } else {
-      worker.sendData<IDownloadMainDoneRes>('DOWNLOAD_MAIN_DONE', {
-        md5: '',
-      })
+  dispatchSlices()
+}
+
+function onDownloadExecSlice(inThreadId: number, inData: IDownloadExecSliceRes) {
+  for (const item of infoObject.wPool) {
+    if (item.worker.threadId === inThreadId) {
+      item.currSliceNo = void 0
+      break
     }
-
-    return
   }
+
+  infoObject.pendingSlices.set(inData.sliceNo, {
+    buffer: normalizeBuffer(inData.buffer),
+    bytes: inData.bytes,
+  })
+
+  processSliceQueue()
+  dispatchSlices()
 }
 
 function onDownloadExecError(inThreadId: number, inError: IThreadError) {
@@ -214,24 +243,28 @@ function onDownloadExecError(inThreadId: number, inError: IThreadError) {
 }
 
 worker.onRecvData<IDownloadMainRunReq>('DOWNLOAD_MAIN_RUN', inData => {
-  if (infoObject.doneSlices.length === tWorkerData.totalSlice) {
+  if (infoObject.doneCount === tWorkerData.totalSlice) {
     worker.sendData('DOWNLOAD_MAIN_DONE')
 
     return
   }
 
   if (infoObject.restSlices.length === 0) {
-    for (let i = 0; i < tWorkerData.totalSlice; i++) {
-      infoObject.restSlices.push(i)
+    for (let i = infoObject.nextSliceNo; i < tWorkerData.totalSlice; i++) {
+      if (!infoObject.pendingSlices.has(i)) {
+        infoObject.restSlices.push(i)
+      }
     }
   }
 
-  infoObject.threads = Math.min(inData.threads, infoObject.restSlices.length)
+  infoObject.threads = Math.min(inData.threads, infoObject.restSlices.length || inData.threads)
   infoObject.dlink = inData.dlink
   infoObject.tryTimes = inData.tryTimes
   infoObject.tryDelta = inData.tryDelta
 
-  for (let i = 0; i < infoObject.threads; i++) {
+  const needWorkers = infoObject.threads - infoObject.wPool.length
+
+  for (let i = 0; i < needWorkers; i++) {
     newDownloadWorker()
   }
 
