@@ -47,7 +47,6 @@ export class DownloadTask {
   #md5Middle = ''
 
   #totalSlice = 0
-  #splitSlice = 64 / this.#chunkMB
 
   #downloadWorker: WorkerParent | undefined
   #downBytes = 0
@@ -279,27 +278,32 @@ export class DownloadTask {
       throw new Error('文件分块大小不能大于64MB')
     }
 
-    this.#splitSlice = 64 / this.#chunkMB
-
+    const chunkBytes = this.#chunkMB * 1024 * 1024
     const pureComSize = this.#comSize - (this.#keyBuf.length ? __PRESV_ENC_BLOCK_SIZE__ : 0)
-    const rawSlices = Math.max(Math.ceil(pureComSize / (this.#chunkMB * 1024 * 1024)), 1)
 
-    this.#totalSlice = Math.ceil(rawSlices / this.#splitSlice)
+    this.#totalSlice = Math.max(Math.ceil(pureComSize / chunkBytes), 1)
   }
 
   async #stepDownloadSlices() {
     if (!this.#downloadWorker) {
+      const chunkBytes = this.#chunkMB * 1024 * 1024
+      const plainChunkBytes = this.#keyBuf.length ? chunkBytes - 1 : chunkBytes
+      const returnBuffer = !this.#noVerify && this.#noVerifyOnDisk
+      const shrinkComSize = this.#keyBuf.length
+        ? this.#comSize - __PRESV_ENC_BLOCK_SIZE__
+        : this.#comSize
+
       const worker = newWorker<IDownloadMainThreadData>('download-main', {
         access_token: this.#access_token,
         local: this.#local,
         chunkMB: this.#chunkMB,
-        shrinkComSize: this.#keyBuf.length
-          ? this.#comSize - __PRESV_ENC_BLOCK_SIZE__
-          : this.#comSize,
+        chunkBytes,
+        plainChunkBytes,
+        shrinkComSize,
         keyBuf: this.#keyBuf,
         ivBuf: this.#ivBuf,
         totalSlice: this.#totalSlice,
-        splitSlice: this.#splitSlice,
+        returnBuffer,
         noVerify: this.#noVerify,
         noVerifyOnDisk: this.#noVerifyOnDisk,
       })
